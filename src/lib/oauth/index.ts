@@ -56,7 +56,7 @@ export const o = (configuration: ProviderConfiguration) => {
 	};
 	const client = {
 		client_id: configuration.clientId,
-		clientSecret: configuration.clientSecret
+		client_secret: configuration.clientSecret
 	};
 	return {
 		/**

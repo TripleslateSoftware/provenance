@@ -1,10 +1,13 @@
 import type { Cookies } from '@sveltejs/kit';
 
+import * as jose from 'jose';
+
 import type { Tokens } from '../types.js';
+import type { SessionCallback } from '../callbacks/index.js';
 
 const expiresInToExpiresAt = (expiresIn: number) => Math.floor(Date.now() / 1000 + expiresIn);
 
-export const s = (dev: boolean) => {
+export const s = (dev: boolean, sessionCallback: SessionCallback) => {
 	return {
 		/**
 		 * create a session object from a set of tokens
@@ -12,43 +15,21 @@ export const s = (dev: boolean) => {
 		 * @returns session to be stored in cookies
 		 */
 		create(tokens: Tokens): App.Session {
-			// decode id_token? into user claims
-			const user: App.User = {
-				id: '',
-				name: '',
-				displayName: '',
-				givenName: '',
-				familyName: '',
-				email: ''
-			};
-			const profile = {};
+			// decode id_token into user claims
+			const idToken = jose.decodeJwt(tokens.id_token);
+			const accessToken = jose.decodeJwt(tokens.access_token);
+			const refreshToken = jose.decodeJwt(tokens.refresh_token);
 
 			return {
-				user,
-				profile,
 				idToken: tokens.id_token,
 				accessToken: tokens.access_token,
 				refreshToken: tokens.refresh_token,
 				refreshExpiresIn: tokens.refresh_expires_in,
 				expiresAt: expiresInToExpiresAt(tokens.expires_in)
+				...sessionCallback({ idToken, accessToken, refreshToken })
 			};
 		},
-		/**
-		 * refresh a session object from a set of tokens
-		 * @param session current session
-		 * @param tokens new token set from refresh endpont
-		 * @returns session to be stored in cookies
-		 */
-		refresh(session: App.Session, tokens: Tokens): App.Session {
-			return {
-				...session,
-				accessToken: tokens.access_token,
-				refreshToken: tokens.refresh_token,
-				refreshExpiresIn: tokens.refresh_expires_in,
-				idToken: tokens.id_token,
-				expiresAt: expiresInToExpiresAt(tokens.expires_in)
-			};
-		},
+
 		/**
 		 * set the session object in cookies, splitting into chunks if too large
 		 * @param cookies cookies from request event

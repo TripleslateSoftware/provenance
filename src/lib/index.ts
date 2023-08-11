@@ -5,6 +5,7 @@ import { handles } from './handles/index.js';
 import { l } from './load.js';
 import { o, type ProviderConfiguration } from './oauth/index.js';
 import { s } from './session/index.js';
+import type { SessionCallback } from './callbacks/index.js';
 
 export type AuthOptions = {
 	/** defaults to `/auth` */
@@ -72,6 +73,7 @@ export const provenance = (
 	provider: ProviderConfiguration,
 	redirect: RedirectFn,
 	dev: boolean,
+	sessionCallback: SessionCallback,
 	logging?: boolean,
 	options?: Partial<AuthOptions>
 ) => {
@@ -83,11 +85,12 @@ export const provenance = (
 		lastPathCookieName: 'last-path',
 		...options
 	};
+	const defaultedSessionCallback = sessionCallback;
 
 	const defaultedLogging = logging || dev;
 
 	const oauth = o(provider);
-	const session = s(dev);
+	const session = s(dev, defaultedSessionCallback);
 
 	const redirectUri = handles.redirectUri(oauth, session, redirect, defaultedLogging, {
 		redirectUriPathname: defaultedOptions.redirectUriPathname,
@@ -95,7 +98,7 @@ export const provenance = (
 		lastPathCookieName: defaultedOptions.lastPathCookieName
 	});
 
-	const locals = handles.locals({
+	const locals = handles.locals(session, {
 		sessionCookieName: defaultedOptions.sessionCookieName
 	});
 
@@ -131,22 +134,19 @@ export const provenance = (
 };
 
 declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace App {
-		interface User {
-			id: string;
-			name: string;
-			displayName: string;
-			givenName: string;
-			familyName: string;
-			email: string;
-		}
+		// interface User {
+		// 	id: string;
+		// 	name: string;
+		// 	givenName: string;
+		// 	familyName: string;
+		// 	email: string;
+		// }
+		interface SessionExtra {}
 		interface Session {
 			idToken: string;
 			accessToken: string;
 			refreshToken: string;
-			user: User;
-			profile: object;
 			refreshExpiresIn: number;
 			expiresAt: number;
 		}

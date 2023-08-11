@@ -24,7 +24,7 @@ export const refresh = (
 				try {
 					// the access token has expired, so refresh with the refresh token
 					const newTokens = await o.refresh(event.fetch, session.refreshToken);
-					const newSession = s.refresh(session, newTokens);
+					const newSession = s.create(newTokens);
 
 					s.setCookie(event.cookies, options.sessionCookieName, newSession);
 				} catch (error) {
