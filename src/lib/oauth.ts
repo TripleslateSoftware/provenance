@@ -1,17 +1,11 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import * as oauth from 'oauth4webapi';
 
-import type { Tokens } from '../types.js';
-import { provider } from './provider.js';
+import type { Tokens, Provider } from './types.js';
+import type { ChecksModule } from './checks.js';
 
 type Fetch = typeof fetch;
 type TokenRequestParams = { codeVerifier: string; authorizationCode: string; redirectUri: string };
-
-export type ProviderConfiguration = {
-	issuer: string;
-	clientId: string;
-	clientSecret: string;
-};
 
 function processTokensResponse(
 	tokensResponse: oauth.OAuth2Error | oauth.TokenEndpointResponse
@@ -20,25 +14,25 @@ function processTokensResponse(
 		throw `${tokensResponse.error} ${tokensResponse.error_description}`;
 	}
 
-	if (!tokensResponse.id_token) {
-		throw `tokens response does not include 'id_token'`;
-	}
+	// if (!tokensResponse.id_token) {
+	// 	throw `tokens response does not include 'id_token'`;
+	// }
 
-	if (!tokensResponse.expires_in) {
-		throw `tokens response does not include 'expires_in'`;
-	}
+	// if (!tokensResponse.expires_in) {
+	// 	throw `tokens response does not include 'expires_in'`;
+	// }
 
-	if (!tokensResponse.refresh_token) {
-		throw `tokens response does not include 'refresh_token'`;
-	}
+	// if (!tokensResponse.refresh_token) {
+	// 	throw `tokens response does not include 'refresh_token'`;
+	// }
 
 	const refreshExpiresIn = tokensResponse.refresh_expires_in
 		? parseInt(tokensResponse.refresh_expires_in.toString())
 		: undefined;
 
-	if (!refreshExpiresIn) {
-		throw `tokens response does not include 'refresh_expires_in'`;
-	}
+	// if (!refreshExpiresIn) {
+	// 	throw `tokens response does not include 'refresh_expires_in'`;
+	// }
 
 	return {
 		access_token: tokensResponse.access_token,
@@ -50,13 +44,13 @@ function processTokensResponse(
 	};
 }
 
-export const o = (configuration: ProviderConfiguration) => {
+export const o = (modules: { checks: ChecksModule }, provider: Provider) => {
 	const authorizationServer = {
-		issuer: configuration.issuer
+		issuer: provider.issuer
 	};
 	const client = {
-		client_id: configuration.clientId,
-		client_secret: configuration.clientSecret
+		client_id: provider.clientId,
+		client_secret: provider.clientSecret
 	};
 	return {
 		/**
@@ -66,11 +60,20 @@ export const o = (configuration: ProviderConfiguration) => {
 		 * @returns a sveltekit redirect to the generated auth server url
 		 */
 		async login(event: RequestEvent, redirectUri: string) {
-			const { url, cookies } = await provider.createLoginUrl(configuration, redirectUri, {});
+			// TODO: do something with state data
+			const stateCheck = modules.checks.state.create({});
+			const nonceCheck = modules.checks.nonce.create();
+			const pkceCheck = await modules.checks.pkce.create();
 
-			event.cookies.set(cookies.nonce.name, cookies.nonce.value, cookies.nonce.options);
-			event.cookies.set(cookies.state.name, cookies.state.value, cookies.state.options);
-			event.cookies.set(cookies.pkce.name, cookies.pkce.value, cookies.pkce.options);
+			const url = provider.createLoginUrl(redirectUri, {
+				state: stateCheck.state,
+				nonce: nonceCheck.nonce,
+				codeChallenge: pkceCheck.codeChallenge
+			});
+
+			event.cookies.set(nonceCheck.cookie.name, nonceCheck.cookie.value, nonceCheck.cookie.options);
+			event.cookies.set(stateCheck.cookie.name, stateCheck.cookie.value, stateCheck.cookie.options);
+			event.cookies.set(pkceCheck.cookie.name, pkceCheck.cookie.value, pkceCheck.cookie.options);
 
 			return url.toString();
 		},
@@ -80,7 +83,7 @@ export const o = (configuration: ProviderConfiguration) => {
 		 * @param idToken idToken as stored in session
 		 */
 		async logout(fetch: Fetch, idToken: string) {
-			const url = provider.createLogoutUrl(configuration);
+			const url = provider.createLogoutUrl();
 
 			await fetch(url, {
 				method: 'POST',
@@ -99,7 +102,7 @@ export const o = (configuration: ProviderConfiguration) => {
 		 * @returns fresh tokens
 		 */
 		async refresh(fetch: Fetch, refreshToken: string): Promise<Tokens> {
-			const url = provider.createTokenUrl(configuration);
+			const url = provider.createTokenUrl();
 
 			const response = await fetch(url, {
 				method: 'POST',
@@ -107,8 +110,8 @@ export const o = (configuration: ProviderConfiguration) => {
 					'Content-Type': 'application/x-www-form-urlencoded'
 				},
 				body: new URLSearchParams({
-					client_id: configuration.clientId,
-					client_secret: configuration.clientSecret,
+					client_id: provider.clientId,
+					client_secret: provider.clientSecret,
 					grant_type: 'refresh_token',
 					refresh_token: refreshToken
 				})
@@ -154,15 +157,17 @@ export const o = (configuration: ProviderConfiguration) => {
 		 * @returns brand new tokens
 		 */
 		async requestToken(fetch: Fetch, params: TokenRequestParams, expectedNonce: string) {
-			const url = provider.createTokenUrl(configuration);
+			const url = provider.createTokenUrl();
 
 			const authorizationCodeGrantResponse = await fetch(url, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
+					'Content-Type': 'application/x-www-form-urlencoded',
+					Accept: 'application/json'
 				},
 				body: new URLSearchParams({
-					client_id: configuration.clientId,
+					client_id: provider.clientId,
+					client_secret: provider.clientSecret,
 					redirect_uri: params.redirectUri,
 					grant_type: 'authorization_code',
 					code: params.authorizationCode,
@@ -170,17 +175,25 @@ export const o = (configuration: ProviderConfiguration) => {
 				})
 			});
 
-			const tokensResponse = await oauth.processAuthorizationCodeOpenIDResponse(
-				authorizationServer,
-				client,
-				authorizationCodeGrantResponse,
-				expectedNonce
-			);
-
-			return processTokensResponse(tokensResponse);
+			if (provider.openid) {
+				const tokensResponse = await oauth.processAuthorizationCodeOpenIDResponse(
+					authorizationServer,
+					client,
+					authorizationCodeGrantResponse,
+					expectedNonce
+				);
+				return processTokensResponse(tokensResponse);
+			} else {
+				const tokensResponse = await oauth.processAuthorizationCodeOAuth2Response(
+					authorizationServer,
+					client,
+					authorizationCodeGrantResponse
+				);
+				return processTokensResponse(tokensResponse);
+			}
 		},
 		async requestUserinfo(fetch: Fetch, idToken: string) {
-			const url = provider.createTokenUrl(configuration);
+			const url = provider.createUserinfoUrl();
 
 			return await fetch(url, {
 				method: 'POST',

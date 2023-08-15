@@ -1,21 +1,21 @@
 import type { Handle } from '@sveltejs/kit';
 
-import type { RedirectFn } from '../types.js';
-import type { OAuthModule } from '../oauth/index.js';
-import type { SessionModule } from '../session/index.js';
+import type { RedirectFn } from '$lib/types.js';
+import type { OAuthModule } from '$lib/oauth.js';
+import type { SessionModule } from '$lib/session.js';
 
-type LoginHandleOptions = {
+export type LogoutHandleOptions = {
 	logoutPathname: string;
 	lastPathCookieName: string;
 	sessionCookieName: string;
 };
 
-export const logout = (
-	o: OAuthModule,
-	s: SessionModule,
+export const logoutHandle = (
+	modules: { oauth: OAuthModule; session: SessionModule },
+
 	redirect: RedirectFn,
 	logging: boolean,
-	options: LoginHandleOptions
+	options: LogoutHandleOptions
 ) => {
 	const handle: Handle = async ({ event, resolve }) => {
 		const lastPath = event.cookies.get(options.lastPathCookieName);
@@ -24,8 +24,10 @@ export const logout = (
 			if (session !== null) {
 				if (logging) console.log('provenance:', 'logout');
 
-				await o.logout(event.fetch, session.idToken);
-				s.deleteCookie(event.cookies, options.sessionCookieName);
+				if (session.idToken) {
+					await modules.oauth.logout(event.fetch, session.idToken);
+				}
+				modules.session.deleteCookie(event.cookies, options.sessionCookieName);
 
 				throw redirect(303, '/');
 			} else {

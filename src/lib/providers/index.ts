@@ -1,3 +1,4 @@
-import type { ProviderConfiguration } from '$lib/oauth/index.js';
+import type { github } from './github.js';
+import type { keycloak } from './keycloak.js';
 
-export type Provider<T> = (configuration: T) => ProviderConfiguration;
+export { github, keycloak };

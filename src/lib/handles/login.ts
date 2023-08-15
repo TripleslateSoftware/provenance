@@ -1,16 +1,16 @@
 import type { Handle } from '@sveltejs/kit';
 
-import type { RedirectFn } from '../types.js';
-import type { OAuthModule } from '../oauth/index.js';
+import type { RedirectFn } from '$lib/types.js';
+import type { OAuthModule } from '$lib/oauth.js';
 
-type LoginHandleOptions = {
+export type LoginHandleOptions = {
 	loginPathname: string;
 	lastPathCookieName: string;
 	redirectUriPathname: string;
 };
 
-export const login = (
-	o: OAuthModule,
+export const loginHandle = (
+	modules: { oauth: OAuthModule },
 	redirect: RedirectFn,
 	logging: boolean,
 	options: LoginHandleOptions
@@ -23,7 +23,10 @@ export const login = (
 
 				throw redirect(
 					303,
-					await o.login(event, new URL(options.redirectUriPathname, event.url.origin).toString())
+					await modules.oauth.login(
+						event,
+						new URL(options.redirectUriPathname, event.url.origin).toString()
+					)
 				);
 			} else {
 				const lastPath = event.cookies.get(options.lastPathCookieName);

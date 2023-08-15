@@ -1,8 +1,8 @@
 import type { Handle } from '@sveltejs/kit';
 
-type LastPathHandleOptions = { lastPathCookieName: string };
+export type LastPathHandleOptions = { lastPathCookieName: string };
 
-export const lastPath = (options: LastPathHandleOptions) => {
+export const lastPathHandle = (options: LastPathHandleOptions) => {
 	const handle: Handle = async ({ event, resolve }) => {
 		event.cookies.set(options.lastPathCookieName, event.url.pathname, {
 			httpOnly: true,

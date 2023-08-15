@@ -1,24 +1,9 @@
-import { sequence } from '@sveltejs/kit/hooks';
-
-import type { RedirectFn } from './types.js';
-import { handles } from './handles/index.js';
+import type { RedirectFn, SessionCallback, Provider, AuthOptions } from './types.js';
+import { h } from './handles/index.js';
 import { l } from './load.js';
-import { o, type ProviderConfiguration } from './oauth/index.js';
-import { s } from './session/index.js';
-import type { SessionCallback } from './callbacks/index.js';
-
-export type AuthOptions = {
-	/** defaults to `/auth` */
-	redirectUriPathname: string;
-	/** defaults to `session` */
-	sessionCookieName: string;
-	/** defaults to `/login` */
-	loginPathname: string;
-	/** defaults to `/logout` */
-	logoutPathname: string;
-	/** defaults to `last-path` */
-	lastPathCookieName: string;
-};
+import { o } from './oauth.js';
+import { s } from './session.js';
+import { c } from './checks.js';
 
 /**
  * create an auth object that provides a handle hook and a function to protect routes
@@ -26,20 +11,20 @@ export type AuthOptions = {
  * `src/lib/auth.ts`
  * ```ts title="$lib/auth.ts"
  * import { redirect } from '@sveltejs/kit';
+ * import { dev } from '$app/environment';
  *
  * import { provenance } from '@tripleslate/provenance';
+ * import { github } from '@tripleslate/provenance/providers';
  *
- * import { dev } from '$app/environment';
- * import { KC_REALM, KC_BASE, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
+ * import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
  *
  * export const auth = provenance(
- * 	{
- * 		issuer: new URL(`/realms/${KC_REALM}`, KC_BASE).toString(),
- * 		clientId: KC_CLIENT_ID,
- * 		clientSecret: KC_CLIENT_SECRET
- * 	},
+ * 	github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET }),
  * 	redirect,
- * 	dev
+ * 	dev,
+ * 	() => {
+ *    return {}
+ *	}
  * );
  * ```
  *
@@ -60,17 +45,18 @@ export type AuthOptions = {
  *
  * `protectRoute` can be awaited in `+page.server.ts` load functions to send the user to the login route if a session is required
  *
- * @param provider configuration for your OAuth provider
+ * @param provider configuration for your OAuth provider ([see](providers/index.ts))
  * @param redirect provide the redirect function from `@sveltejs/kit`
  * (throwing `redirect` provided by the `@sveltejs/kit` used in this package may not be recognized and handled correctly by your version of `@sveltejs/kit`
  * [see](https://github.com/sveltejs/kit/blob/118a3a62671d7bd60365b22ebd9dfbd746d91b4f/packages/kit/src/runtime/control.js#L48))
  * @param dev provide `dev` from `$app/enviroment` to enable secure cookies (https required) outside of dev mode
+ * @param sessionCallback use tokens data to get more user information to store in the session cookie
  * @param logging whether to log in handle routes (will use setting for `dev` if not provided)
  * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
  * @returns an auth object with handle to be used in `hooks.server.ts` and `protectRoute` to redirect to login from `+page.server.ts` load functions if user is not authenticated
  */
 export const provenance = (
-	provider: ProviderConfiguration,
+	provider: Provider,
 	redirect: RedirectFn,
 	dev: boolean,
 	sessionCallback: SessionCallback,
@@ -85,74 +71,37 @@ export const provenance = (
 		lastPathCookieName: 'last-path',
 		...options
 	};
-	const defaultedSessionCallback = sessionCallback;
 
 	const defaultedLogging = logging || dev;
 
-	const oauth = o(provider);
-	const session = s(dev, defaultedSessionCallback);
-
-	const redirectUri = handles.redirectUri(oauth, session, redirect, defaultedLogging, {
-		redirectUriPathname: defaultedOptions.redirectUriPathname,
-		sessionCookieName: defaultedOptions.sessionCookieName,
-		lastPathCookieName: defaultedOptions.lastPathCookieName
-	});
-
-	const locals = handles.locals(session, {
-		sessionCookieName: defaultedOptions.sessionCookieName
-	});
-
-	const login = handles.login(oauth, redirect, defaultedLogging, {
-		loginPathname: defaultedOptions.loginPathname,
-		lastPathCookieName: defaultedOptions.lastPathCookieName,
-		redirectUriPathname: defaultedOptions.redirectUriPathname
-	});
-
-	const logout = handles.logout(oauth, session, redirect, defaultedLogging, {
-		logoutPathname: defaultedOptions.logoutPathname,
-		lastPathCookieName: defaultedOptions.lastPathCookieName,
-		sessionCookieName: defaultedOptions.sessionCookieName
-	});
-
-	const refresh = handles.refresh(oauth, session, redirect, defaultedLogging, {
-		loginPathname: defaultedOptions.loginPathname,
-		sessionCookieName: defaultedOptions.sessionCookieName
-	});
-
-	const lastPath = handles.lastPath({
-		lastPathCookieName: defaultedOptions.lastPathCookieName
-	});
+	const checks = c();
+	const oauth = o({ checks }, provider);
+	const session = s(dev, sessionCallback);
+	const handles = h({ checks, oauth, session }, redirect, defaultedLogging, defaultedOptions);
 
 	const loadUtils = l(redirect, {
 		loginPathname: defaultedOptions.loginPathname
 	});
 
 	return {
-		handle: sequence(redirectUri, locals, login, logout, refresh, lastPath),
+		handle: handles.handle,
 		protectRoute: loadUtils.protectRoute
 	};
 };
 
 declare global {
 	namespace App {
-		// interface User {
-		// 	id: string;
-		// 	name: string;
-		// 	givenName: string;
-		// 	familyName: string;
-		// 	email: string;
-		// }
 		interface SessionExtra {}
 		interface Session {
-			idToken: string;
+			idToken?: string;
 			accessToken: string;
-			refreshToken: string;
-			refreshExpiresIn: number;
-			expiresAt: number;
+			refreshToken?: string;
+			refreshExpiresIn?: number;
+			expiresAt?: number;
 		}
 
 		interface Locals {
-			session: Session | null;
+			session: (Session & SessionExtra) | null;
 		}
 	}
 }

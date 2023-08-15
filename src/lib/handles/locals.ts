@@ -1,11 +1,13 @@
 import type { Handle } from '@sveltejs/kit';
-import type { SessionModule } from '../session/index.js';
 
-type LocalsHandleOptions = { sessionCookieName: string };
+import type { SessionModule } from '$lib/session.js';
 
-export const locals = (s: SessionModule, options: LocalsHandleOptions) => {
+export type LocalsHandleOptions = { sessionCookieName: string };
+
+export const localsHandle = (modules: { session: SessionModule }, options: LocalsHandleOptions) => {
 	const handle: Handle = async ({ event, resolve }) => {
-		const session = await s.getCookie(event.cookies, options.sessionCookieName);
+		const session = await modules.session.getCookie(event.cookies, options.sessionCookieName);
+
 		event.locals.session = session;
 
 		return resolve(event);

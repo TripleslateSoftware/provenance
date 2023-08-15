@@ -1,9 +1,6 @@
 import type { Cookies } from '@sveltejs/kit';
 
-import * as jose from 'jose';
-
-import type { Tokens } from '../types.js';
-import type { SessionCallback } from '../callbacks/index.js';
+import type { Tokens, SessionCallback } from './types.js';
 
 const expiresInToExpiresAt = (expiresIn: number) => Math.floor(Date.now() / 1000 + expiresIn);
 
@@ -14,19 +11,18 @@ export const s = (dev: boolean, sessionCallback: SessionCallback) => {
 		 * @param tokens
 		 * @returns session to be stored in cookies
 		 */
-		create(tokens: Tokens): App.Session {
-			// decode id_token into user claims
-			const idToken = jose.decodeJwt(tokens.id_token);
-			const accessToken = jose.decodeJwt(tokens.access_token);
-			const refreshToken = jose.decodeJwt(tokens.refresh_token);
-
+		create(tokens: Tokens): App.Session & App.SessionExtra {
 			return {
 				idToken: tokens.id_token,
 				accessToken: tokens.access_token,
 				refreshToken: tokens.refresh_token,
 				refreshExpiresIn: tokens.refresh_expires_in,
-				expiresAt: expiresInToExpiresAt(tokens.expires_in)
-				...sessionCallback({ idToken, accessToken, refreshToken })
+				expiresAt: tokens.expires_in ? expiresInToExpiresAt(tokens.expires_in) : undefined,
+				...sessionCallback({
+					idToken: tokens.id_token,
+					accessToken: tokens.access_token,
+					refreshToken: tokens.refresh_token
+				})
 			};
 		},
 
@@ -36,7 +32,11 @@ export const s = (dev: boolean, sessionCallback: SessionCallback) => {
 		 * @param sessionCookieName
 		 * @param session the session object to be set in cookies
 		 */
-		async setCookie(cookies: Cookies, sessionCookieName: string, session: App.Session) {
+		async setCookie(
+			cookies: Cookies,
+			sessionCookieName: string,
+			session: App.Session & App.SessionExtra
+		) {
 			const maxCookieSize = 3500;
 			const fullCookie = JSON.stringify(session);
 
@@ -61,12 +61,15 @@ export const s = (dev: boolean, sessionCallback: SessionCallback) => {
 		 * @param sessionCookieName
 		 * @returns the session object stored in cookies or null if there is no session stored
 		 */
-		async getCookie(cookies: Cookies, sessionCookieName: string): Promise<App.Session | null> {
+		async getCookie(
+			cookies: Cookies,
+			sessionCookieName: string
+		): Promise<(App.Session & App.SessionExtra) | null> {
 			const sessionChunkCookies = cookies
 				.getAll()
 				.filter((cookie) => cookie.name.startsWith(`${sessionCookieName}-`));
 
-			if (sessionChunkCookies.length > 1) {
+			if (sessionChunkCookies.length > 0) {
 				const sorted = sessionChunkCookies.sort((a, b) => {
 					const aIndex = parseInt(a.name.replace(`${sessionCookieName}-`, ''));
 					const bIndex = parseInt(b.name.replace(`${sessionCookieName}-`, ''));
