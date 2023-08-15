@@ -1,9 +1,24 @@
 {
 	"name": "@tripleslate/provenance",
 	"version": "0.0.1",
+	"description": "server-side sveltekit oauth",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/TripleslateSoftware/provenance.git"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/TripleslateSoftware/provenance/issues"
+	},
+	"homepage": "https://github.com/TripleslateSoftware/provenance",
+	"keywords": [
+		"sveltekit",
+		"authentication",
+		"oauth"
+	],
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "vite build && npm run package",
 		"preview": "vite preview",
 		"package": "svelte-kit sync && svelte-package && publint",
 		"prepublishOnly": "npm run package",
