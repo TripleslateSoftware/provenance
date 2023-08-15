@@ -53,7 +53,7 @@ import { keycloak } from '@tripleslate/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
-	kecloak({
+	keycloak({
 		base: KC_BASE,
 		realm: KC_REALM,
 		clientId: KC_CLIENT_ID,
@@ -135,7 +135,7 @@ import { keycloak } from '@tripleslate/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
-	kecloak({
+	keycloak({
 		base: KC_BASE,
 		realm: KC_REALM,
 		clientId: KC_CLIENT_ID,
@@ -144,7 +144,7 @@ export const auth = provenance(
 	redirect,
 	dev,
 	(tokens) => {
-		if (tokens.id_token) {
+		if (tokens.idToken) {
 			const idToken = jose.decodeJwt(tokens.idToken);
 
 			return {
