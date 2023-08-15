@@ -1,4 +1,4 @@
-import type { github } from './github.js';
-import type { keycloak } from './keycloak.js';
+import { github } from './github.js';
+import { keycloak } from './keycloak.js';
 
 export { github, keycloak };

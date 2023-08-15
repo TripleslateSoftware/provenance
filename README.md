@@ -125,7 +125,7 @@ Note that this syntax extends the `App.SessionExtra` type with an `App.User` fie
 #### `src/lib/server/auth.ts`
 
 ```ts title="src/lib/server/auth.ts"
-import * as jose from "jose";
+import * as jose from 'jose';
 
 import { redirect } from '@sveltejs/kit';
 import { dev } from '$app/environment';
@@ -148,13 +148,13 @@ export const auth = provenance(
 			const idToken = jose.decodeJwt(tokens.idToken);
 
 			return {
-				user {
+				user: {
 					displayName: idToken.name
 				}
-			}
+			};
 		} else {
 			// should be unreachable with a keycloak provider
-			return {}
+			return {};
 		}
 	}
 );

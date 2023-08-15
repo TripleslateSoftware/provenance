@@ -85,7 +85,8 @@ export const provenance = (
 
 	return {
 		handle: handles.handle,
-		protectRoute: loadUtils.protectRoute
+		protectRoute: loadUtils.protectRoute,
+		options: defaultedOptions
 	};
 };
 
