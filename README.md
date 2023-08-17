@@ -33,12 +33,12 @@ import { github } from '@tripleslate/provenance/providers';
 import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
-	github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET }),
-	redirect,
-	dev,
-	() => {
-		return {};
-	}
+  github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET }),
+  redirect,
+  dev,
+  () => {
+    return {};
+  }
 );
 ```
 
@@ -53,17 +53,17 @@ import { keycloak } from '@tripleslate/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
-	keycloak({
-		base: KC_BASE,
-		realm: KC_REALM,
-		clientId: KC_CLIENT_ID,
-		clientSecret: KC_CLIENT_SECRET
-	}),
-	redirect,
-	dev,
-	() => {
-		return {};
-	}
+  keycloak({
+    base: KC_BASE,
+    realm: KC_REALM,
+    clientId: KC_CLIENT_ID,
+    clientSecret: KC_CLIENT_SECRET
+  }),
+  redirect,
+  dev,
+  () => {
+    return {};
+  }
 );
 ```
 
@@ -85,11 +85,11 @@ export const handle = auth.handle;
 import { auth } from '$lib/server/auth';
 
 export const load = async (event) => {
-	const session = await auth.protectRoute(event);
+  const session = await auth.protectRoute(event);
 
-	return {
-		session
-	};
+  return {
+    session
+  };
 };
 ```
 
@@ -101,19 +101,19 @@ Note that `handle` in `hooks.server.ts` is not invoked during client side routin
 
 ```ts title="src/app.d.ts"
 declare global {
-	namespace App {
-		interface User {
-			displayName: string;
-		}
-		interface SessionExtra {
-			user?: User;
-		}
+  namespace App {
+    interface User {
+      displayName: string;
+    }
+    interface SessionExtra {
+      user?: User;
+    }
 
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface Platform {}
-	}
+    // interface Error {}
+    // interface Locals {}
+    // interface PageData {}
+    // interface Platform {}
+  }
 }
 
 export {};
@@ -135,28 +135,28 @@ import { keycloak } from '@tripleslate/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
-	keycloak({
-		base: KC_BASE,
-		realm: KC_REALM,
-		clientId: KC_CLIENT_ID,
-		clientSecret: KC_CLIENT_SECRET
-	}),
-	redirect,
-	dev,
-	(tokens) => {
-		if (tokens.idToken) {
-			const idToken = jose.decodeJwt(tokens.idToken);
+  keycloak({
+    base: KC_BASE,
+    realm: KC_REALM,
+    clientId: KC_CLIENT_ID,
+    clientSecret: KC_CLIENT_SECRET
+  }),
+  redirect,
+  dev,
+  (tokens) => {
+    if (tokens.idToken) {
+      const idToken = jose.decodeJwt(tokens.idToken);
 
-			return {
-				user: {
-					displayName: idToken.name
-				}
-			};
-		} else {
-			// should be unreachable with a keycloak provider
-			return {};
-		}
-	}
+      return {
+        user: {
+          displayName: idToken.name
+        }
+      };
+    } else {
+      // should be unreachable with a keycloak provider
+      return {};
+    }
+  }
 );
 ```
 
@@ -168,11 +168,11 @@ Include a session callback in the `auth` definition to decode the `idToken` JWT 
 import { auth } from '$lib/server/auth';
 
 export const load = async (event) => {
-	const { user } = await auth.protectRoute(event);
+  const { user } = await auth.protectRoute(event);
 
-	return {
-		user
-	};
+  return {
+    user
+  };
 };
 ```
 

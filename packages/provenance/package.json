@@ -1,0 +1,71 @@
+{
+	"name": "@tripleslate/provenance",
+	"version": "0.0.1",
+	"description": "server-side sveltekit oauth",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/TripleslateSoftware/provenance.git"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/TripleslateSoftware/provenance/issues"
+	},
+	"homepage": "https://github.com/TripleslateSoftware/provenance",
+	"keywords": [
+		"sveltekit",
+		"authentication",
+		"oauth"
+	],
+	"scripts": {
+		"lint": "tsc",
+		"build": "tsup",
+		"clean:all": "rimraf dist node_modules"
+	},
+	"peerDependencies": {
+		"@sveltejs/kit": "^1.0.0"
+	},
+	"devDependencies": {
+		"@types/cookie": "0.5.1",
+		"@types/node": "^20.4.9",
+		"ts-morph": "^19.0.0",
+		"tslib": "^2.6.1",
+		"tsup": "^6.5.0",
+		"vite": "^4.4.9"
+	},
+	"dependencies": {
+		"oauth4webapi": "^2.3.0"
+	},
+	"type": "module",
+	"module": "./dist.index.js",
+	"types": "./dist.index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./package.json": "./package.json",
+		"./codegen": {
+			"types": "./dist/codegen/index.d.ts",
+			"import": "./dist/codegen/index.js"
+		},
+		"./vite": {
+			"types": "./dist/vite/index.d.ts",
+			"import": "./dist/vite/index.js"
+		},
+		"./handles": {
+			"types": "./dist/handles/index.d.ts",
+			"import": "./dist/handles/index.js"
+		},
+		"./resolvers": {
+			"types": "./dist/resolvers/index.d.ts",
+			"import": "./dist/resolvers/index.js"
+		},
+		"./providers": {
+			"types": "./dist/providers/index.d.ts",
+			"import": "./dist/providers/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	]
+}
