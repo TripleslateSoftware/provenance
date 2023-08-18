@@ -1,12 +1,8 @@
-import type { Handle, redirect } from '@sveltejs/kit';
+import type { redirect } from '@sveltejs/kit';
 import type { CookieSerializeOptions } from 'cookie';
 import type { TokenEndpointResponse } from 'oauth4webapi';
 
-import { ChecksModule } from './checks';
-import { HandlesOptions, HandlesModule } from './handles';
-import { OAuthModule } from './oauth';
-import { SessionModule } from './session';
-import { Context } from './resolvers';
+import { Context } from './resolvers/context';
 
 export type Cookie = {
 	name: string;
@@ -27,8 +23,6 @@ export type AuthOptions = {
 	lastPathCookieName: string;
 };
 
-export type RedirectFn = typeof redirect;
-
 export type SessionCallback<Session, SessionExtra> = (session: Session) => SessionExtra;
 
 export type Checks = {
@@ -37,7 +31,12 @@ export type Checks = {
 	codeChallenge: string;
 };
 
-export type Provider<Session, SessionExtra> = {
+export type Resolver<Session> = (
+	context: Context<Session>,
+	logging: boolean
+) => void | Promise<void>;
+
+export type Provider<Session> = {
 	issuer: string;
 	clientId: string;
 	clientSecret: string;
@@ -48,18 +47,7 @@ export type Provider<Session, SessionExtra> = {
 	createUserinfoUrl(): URL;
 	transformTokens: (tokens: TokenEndpointResponse) => Session;
 	sessionCookieAge?: (session: Session) => number;
-	createHandle: (
-		modules: {
-			handles: HandlesModule;
-			oauth: OAuthModule;
-			session: SessionModule<Session, SessionExtra>;
-		},
-		logging: boolean,
-		options: HandlesOptions
-	) => { handle: Handle };
-	resolvers: () => {
-		logout: (context: Context<Session, SessionExtra>, logging: boolean) => {};
-	};
+	resolvers: Resolver<Session>[];
 };
 
 export type Fetch = typeof fetch;

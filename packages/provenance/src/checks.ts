@@ -1,4 +1,3 @@
-import type { Cookies } from '@sveltejs/kit';
 import * as oauth from 'oauth4webapi';
 
 import type { Cookie } from './types.js';
@@ -28,7 +27,10 @@ export const c = () => {
 
 				return { nonce, cookie };
 			},
-			use(cookies: Cookies): string {
+			use(cookies: {
+				get: (name: string) => string | undefined;
+				delete: (name: string) => void;
+			}): string {
 				const nonce = cookies.get(NONCE_COOKIE_NAME);
 				cookies.delete(NONCE_COOKIE_NAME);
 
@@ -54,7 +56,10 @@ export const c = () => {
 
 				return { state: value, cookie };
 			},
-			use(cookies: Cookies): string {
+			use(cookies: {
+				get: (name: string) => string | undefined;
+				delete: (name: string) => void;
+			}): string {
 				const state = cookies.get(STATE_COOKIE_NAME);
 				cookies.delete(STATE_COOKIE_NAME);
 
@@ -80,7 +85,10 @@ export const c = () => {
 
 				return { codeChallenge, cookie };
 			},
-			use(cookies: Cookies): string {
+			use(cookies: {
+				get: (name: string) => string | undefined;
+				delete: (name: string) => void;
+			}): string {
 				const codeVerifier = cookies.get(PKCE_COOKIE_NAME);
 				cookies.delete(PKCE_COOKIE_NAME);
 

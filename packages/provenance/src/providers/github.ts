@@ -1,4 +1,12 @@
-import type { Checks, Provider } from '../types.js';
+import type { Checks, Provider } from '../types';
+
+import {
+	lastPathResolver,
+	localsResolver,
+	loginResolver,
+	logoutResolver,
+	redirectUriResolver
+} from '../resolvers';
 
 export type GithubConfiguration = {
 	clientId: string;
@@ -7,7 +15,11 @@ export type GithubConfiguration = {
 
 const issuer = 'https://github.com/login/oauth/';
 
-export const github = (configuration: GithubConfiguration): Provider<{ accessToken: string }> => {
+type GithubSession = {
+	accessToken: string;
+};
+
+export const github = (configuration: GithubConfiguration): Provider<GithubSession> => {
 	return {
 		issuer: issuer,
 		clientId: configuration.clientId,
@@ -36,6 +48,13 @@ export const github = (configuration: GithubConfiguration): Provider<{ accessTok
 			return {
 				accessToken: tokens.access_token
 			};
-		}
+		},
+		resolvers: [
+			redirectUriResolver(),
+			localsResolver(),
+			loginResolver(),
+			logoutResolver(),
+			lastPathResolver()
+		]
 	};
 };

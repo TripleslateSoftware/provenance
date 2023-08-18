@@ -1,24 +1,13 @@
-import type { Handle } from '@sveltejs/kit';
-// import { sequence } from '@sveltejs/kit/hooks';
+import type { Checks, Provider } from '../types';
 
-import type { ChecksModule } from '../checks';
-import type { HandlesModule, HandlesOptions } from '../handles/index';
-// import { lastPathHandle, type LastPathHandleOptions } from '../handles/last-path.js';
-// import { localsHandle, type LocalsHandleOptions } from '../handles/locals.js';
-// import { loginHandle, type LoginHandleOptions } from '../handles/login.js';
-// import { logoutHandle, type LogoutHandleOptions } from '../handles/logout.js';
-// import { redirectUriHandle, type RedirectUriHandleOptions } from '../handles/redirect-uri.js';
-// import { refreshHandle, type RefreshHandleOptions } from '../handles/refresh.js';
-import type { OAuthModule } from '../oauth';
-import type { SessionModule } from '../session';
-import type { Checks, Provider, RedirectFn } from '../types';
-
-import { lastPathResolver } from '../resolvers/last-path';
-import { localsResolver } from '../resolvers/locals';
-import { loginResolver } from '../resolvers/login';
-import { logoutResolver } from '../resolvers/logout';
-import { redirectUriResolver } from '../resolvers/redirect-uri';
-import { refreshResolver } from '../resolvers/refresh';
+import {
+	lastPathResolver,
+	localsResolver,
+	loginResolver,
+	logoutResolver,
+	redirectUriResolver,
+	refreshResolver
+} from '../resolvers';
 
 export type KeycloakConfiguration = {
 	base: string;
@@ -38,9 +27,7 @@ type KeycloakSession = {
 	tokenType: string;
 };
 
-export const keycloak = <SessionExtra>(
-	configuration: KeycloakConfiguration
-): Provider<KeycloakSession, SessionExtra> => {
+export const keycloak = (configuration: KeycloakConfiguration): Provider<KeycloakSession> => {
 	return {
 		issuer: new URL(`/realms/${configuration.realm}`, configuration.base).toString(),
 		clientId: configuration.clientId,
@@ -110,63 +97,18 @@ export const keycloak = <SessionExtra>(
 		sessionCookieAge(session) {
 			return session.refreshExpiresIn;
 		},
-		createHandle(
-			modules: {
-				handles: HandlesModule;
-				checks: ChecksModule;
-				oauth: OAuthModule;
-				session: SessionModule<Session, SessionExtra>;
+		resolvers: [
+			redirectUriResolver(),
+			localsResolver(),
+			loginResolver(),
+			logoutResolver(),
+			async (context, logging) => {
+				if (context.routes.logout.is && context.locals.session) {
+					await context.oauth.postLogout(context.locals.session.idToken);
+				}
 			},
-			createHandle: (resolvers) => Handle,
-			logging: boolean,
-			options: HandlesOptions
-		) {
-			const { handles, checks, oauth, session } = modules;
-
-			const redirectUri = redirectUriResolver({ checks, oauth, session }, logging, {
-				redirectUriPathname: options.redirectUriPathname,
-				sessionCookieName: options.sessionCookieName,
-				lastPathCookieName: options.lastPathCookieName
-			});
-
-			const locals = localsResolver(
-				{ session },
-				{
-					sessionCookieName: options.sessionCookieName
-				}
-			);
-
-			const login = loginResolver({ oauth }, redirect, logging, {
-				loginPathname: options.loginPathname,
-				lastPathCookieName: options.lastPathCookieName,
-				redirectUriPathname: options.redirectUriPathname
-			});
-
-			const logout = logoutHandle({ oauth, session }, redirect, logging, {
-				logoutPathname: options.logoutPathname,
-				lastPathCookieName: options.lastPathCookieName,
-				sessionCookieName: options.sessionCookieName
-			});
-
-			const refresh = refreshHandle({ oauth, session }, redirect, logging, {
-				loginPathname: options.loginPathname,
-				sessionCookieName: options.sessionCookieName
-			});
-
-			const lastPath = lastPathHandle({
-				lastPathCookieName: options.lastPathCookieName
-			});
-
-			return createHandle({ redirectUri });
-		},
-		resolvers() {
-			return {
-				logout: async (context, logging) => {
-					if (context.locals.session) {
-						await context.oauth.postLogout(context.locals.session.idToken);
-					}
-				}
-			};
-		}
+			refreshResolver(),
+			lastPathResolver()
+		]
 	};
 };

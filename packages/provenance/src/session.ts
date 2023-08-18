@@ -1,4 +1,3 @@
-import type { Cookies } from '@sveltejs/kit';
 import type { TokenEndpointResponse } from 'oauth4webapi';
 
 import type { SessionCallback, Provider } from './types.js';
@@ -6,7 +5,7 @@ import type { SessionCallback, Provider } from './types.js';
 const DEFAULT_SESSION_COOKIE_AGE = 60 * 10;
 
 export const s = <Session, SessionExtra>(
-	provider: Provider<Session, SessionExtra>,
+	provider: Provider<Session>,
 	sessionCallback: SessionCallback<Session, SessionExtra>,
 	options: { sessionCookieName: string }
 ) => {
@@ -30,7 +29,7 @@ export const s = <Session, SessionExtra>(
 		 * @param sessionCookieName
 		 * @param session the session object to be set in cookies
 		 */
-		async setCookie(
+		setCookie(
 			set: (name: string, value: string, maxAge: number) => void,
 			session: Session & SessionExtra
 		) {
@@ -54,9 +53,7 @@ export const s = <Session, SessionExtra>(
 		 * @param sessionCookieName
 		 * @returns the session object stored in cookies or null if there is no session stored
 		 */
-		async getCookie(
-			getAll: () => { name: string; value: string }[]
-		): Promise<(Session & SessionExtra) | null> {
+		getCookie(getAll: () => { name: string; value: string }[]): (Session & SessionExtra) | null {
 			const sessionChunkCookies = getAll().filter((cookie) =>
 				cookie.name.startsWith(`${options.sessionCookieName}-`)
 			);

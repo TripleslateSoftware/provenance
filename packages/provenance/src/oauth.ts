@@ -3,7 +3,8 @@ import * as oauth from 'oauth4webapi';
 
 import type { Fetch, Provider } from './types.js';
 import type { ChecksModule } from './checks.js';
-import { Context } from './resolvers';
+import { Context } from './resolvers/context.js';
+import { CookieSerializeOptions } from 'cookie';
 
 type TokenRequestParams = { codeVerifier: string; authorizationCode: string; redirectUri: string };
 
@@ -15,9 +16,9 @@ function processTokensResponse(tokensResponse: oauth.OAuth2Error | oauth.TokenEn
 	return tokensResponse;
 }
 
-export const o = <Session, SessionExtra>(
+export const o = <Session>(
 	modules: { checks: ChecksModule },
-	provider: Provider<Session, SessionExtra>,
+	provider: Provider<Session>,
 	options: { redirectUriPathname: string }
 ) => {
 	const authorizationServer = {
@@ -34,11 +35,16 @@ export const o = <Session, SessionExtra>(
 		 * @param redirectUri redirect uri that the auth server will redirect to with the grant code
 		 * @returns a sveltekit redirect to the generated auth server url
 		 */
-		async login(event: RequestEvent, redirectUri: string) {
+		async login(
+			redirectUriOrigin: string,
+			setCookie: (name: string, value: string, opts?: CookieSerializeOptions | undefined) => void
+		) {
 			// TODO: do something with state data
 			const stateCheck = modules.checks.state.create({});
 			const nonceCheck = modules.checks.nonce.create();
 			const pkceCheck = await modules.checks.pkce.create();
+
+			const redirectUri = new URL(options.redirectUriPathname, redirectUriOrigin).toString();
 
 			const url = provider.createLoginUrl(redirectUri, {
 				state: stateCheck.state,
@@ -46,9 +52,9 @@ export const o = <Session, SessionExtra>(
 				codeChallenge: pkceCheck.codeChallenge
 			});
 
-			event.cookies.set(nonceCheck.cookie.name, nonceCheck.cookie.value, nonceCheck.cookie.options);
-			event.cookies.set(stateCheck.cookie.name, stateCheck.cookie.value, stateCheck.cookie.options);
-			event.cookies.set(pkceCheck.cookie.name, pkceCheck.cookie.value, pkceCheck.cookie.options);
+			setCookie(nonceCheck.cookie.name, nonceCheck.cookie.value, nonceCheck.cookie.options);
+			setCookie(stateCheck.cookie.name, stateCheck.cookie.value, stateCheck.cookie.options);
+			setCookie(pkceCheck.cookie.name, pkceCheck.cookie.value, pkceCheck.cookie.options);
 
 			return url.toString();
 		},

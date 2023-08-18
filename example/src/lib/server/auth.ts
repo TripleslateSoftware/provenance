@@ -1,5 +1,5 @@
 import { provenance } from '$provenance';
-import { github, keycloak } from '$lib/providers/index.js';
+import { github, keycloak } from '@tripleslate/provenance/providers';
 import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
@@ -14,3 +14,5 @@ export const auth = provenance(
 		return {};
 	}
 );
+
+export const { handle, protectRoute } = auth();

@@ -1,6 +1,4 @@
-import type { SessionCallback, Provider } from './types.js';
-
-const DEFAULT_SESSION_COOKIE_AGE = 60 * 10;
+const DEFAULT_LAST_PATH_COOKIE_AGE = 60 * 10;
 
 export const r = (options: {
 	redirectUriPathname: string;
@@ -26,6 +24,9 @@ export const r = (options: {
 			 */
 			getCookie(get: (name: string) => string | undefined) {
 				return get(options.lastPathCookieName);
+			},
+			setCookie(set: (name: string, maxAge: number) => void) {
+				return set(options.lastPathCookieName, DEFAULT_LAST_PATH_COOKIE_AGE);
 			}
 		}
 	};
