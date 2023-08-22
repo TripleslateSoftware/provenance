@@ -1,7 +1,7 @@
 import type { Handle } from '@sveltejs/kit';
 
-import type { OAuthModule } from '../oauth.js';
-import type { SessionModule } from '../session.js';
+import type { OAuthModule } from '../modules/oauth.js';
+import type { SessionModule } from '../modules/session.js';
 import type { RedirectFn } from '../types.js';
 
 export type RefreshHandleOptions = { sessionCookieName: string; loginPathname: string };

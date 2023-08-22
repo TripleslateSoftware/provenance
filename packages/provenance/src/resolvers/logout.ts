@@ -1,6 +1,6 @@
 import { Resolver } from '../types.js';
 
-export const logoutResolver = (): Resolver<any, any> => async (context, logging) => {
+export const logoutResolver = (): Resolver<any> => async (context, logging) => {
 	if (context.routes.logout.is) {
 		const session = context.locals.session;
 		if (session !== null) {

@@ -1,6 +1,6 @@
 import * as oauth from 'oauth4webapi';
 
-import type { Cookie } from './types.js';
+import type { Cookie } from '../types.js';
 
 const NONCE_MAX_AGE = 60 * 5;
 const NONCE_COOKIE_NAME = 'nonce';
@@ -37,7 +37,7 @@ export const c = () => {
 				if (nonce !== undefined) {
 					return nonce;
 				} else {
-					throw 'keycloak nonce not found in cookies';
+					throw 'nonce not found in cookies';
 				}
 			}
 		},
@@ -66,7 +66,7 @@ export const c = () => {
 				if (state !== undefined) {
 					return state;
 				} else {
-					throw 'keycloak state not found in cookies';
+					throw 'state not found in cookies';
 				}
 			}
 		},
@@ -95,7 +95,7 @@ export const c = () => {
 				if (codeVerifier !== undefined) {
 					return codeVerifier;
 				} else {
-					throw 'keycloak code_verifier not found in cookies';
+					throw 'code_verifier not found in cookies';
 				}
 			}
 		}

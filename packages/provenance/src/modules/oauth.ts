@@ -1,12 +1,9 @@
-import type { RequestEvent } from '@sveltejs/kit';
 import * as oauth from 'oauth4webapi';
 
-import type { Fetch, Provider } from './types.js';
+import type { Provider } from '../types.js';
 import type { ChecksModule } from './checks.js';
-import { Context } from './resolvers/context.js';
-import { CookieSerializeOptions } from 'cookie';
 
-type TokenRequestParams = { codeVerifier: string; authorizationCode: string; redirectUri: string };
+import { CookieSerializeOptions } from 'cookie';
 
 function processTokensResponse(tokensResponse: oauth.OAuth2Error | oauth.TokenEndpointResponse) {
 	if (oauth.isOAuth2Error(tokensResponse)) {
@@ -46,7 +43,7 @@ export const o = <Session>(
 
 			const redirectUri = new URL(options.redirectUriPathname, redirectUriOrigin).toString();
 
-			const url = provider.createLoginUrl(redirectUri, {
+			const url = provider.endpoints.createLoginUrl(redirectUri, {
 				state: stateCheck.state,
 				nonce: nonceCheck.nonce,
 				codeChallenge: pkceCheck.codeChallenge
@@ -64,7 +61,7 @@ export const o = <Session>(
 		 * @param idToken idToken as stored in session
 		 */
 		async logout(fetch: (url: URL) => Promise<Response>) {
-			const url = provider.createLogoutUrl();
+			const url = provider.endpoints.createLogoutUrl();
 
 			await fetch(url);
 		},
@@ -87,7 +84,7 @@ export const o = <Session>(
 			) => Promise<Response>,
 			refreshToken: string
 		) {
-			const url = provider.createTokenUrl();
+			const url = provider.endpoints.createTokenUrl();
 
 			const response = await fetchRefreshedToken(url, {
 				client_id: provider.clientId,
@@ -146,7 +143,7 @@ export const o = <Session>(
 			) => Promise<Response>,
 			expectedNonce: string
 		) {
-			const url = provider.createTokenUrl();
+			const url = provider.endpoints.createTokenUrl();
 
 			const authorizationCodeGrantResponse = await fetchRequestToken(url, {
 				clientId: provider.clientId,

@@ -1,4 +1,5 @@
-import { github } from './github.js';
-import { keycloak } from './keycloak.js';
+import { provider } from './provider';
+import { github } from './github';
+import { keycloak } from './keycloak';
 
-export { github, keycloak };
+export { provider, github, keycloak };

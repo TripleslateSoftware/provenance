@@ -1,45 +1,54 @@
 // dummy GENERATED "module"
-import { Handle, redirect, RequestEvent } from '@sveltejs/kit';
-import type { TokenEndpointResponse } from 'oauth4webapi';
-import { AuthOptions, Provider, SessionCallback } from '../types';
+import { redirect, RequestEvent } from '@sveltejs/kit';
 
-import { o, type OAuthModule } from '../modules/oauth';
-import { s, type SessionModule } from '../modules/session';
-import { c, type ChecksModule } from '../modules/checks';
-import { r, type RoutesModule } from '../modules/routes';
+import { o } from '../modules/oauth';
+import { s } from '../modules/session';
+import { c } from '../modules/checks';
+import { r } from '../modules/routes';
 import { Context } from '../context';
 
 import { dev } from '$app/environment';
 
-function createContext(
-	event: RequestEvent,
-	modules: {
-		oauth: OAuthModule;
-		checks: ChecksModule;
-		session: SessionModule<App.Session, App.SessionExtra>;
-		routes: RoutesModule;
-	}
-): Context<App.Session, App.SessionExtra> {
-	const isRoute = (pathname: string) => event.url.pathname.startsWith(pathname);
+/**
+ * 
+ * @param {RequestEvent} event 
+ * @param {{
+		oauth: import('@tripleslate/provenance/oauth').OAuthModule;
+		checks: import('@tripleslate/provenance/checks').ChecksModule;
+		session: import('@tripleslate/provenance/session').SessionModule<App.Session, App.SessionExtra>;
+		routes: import('@tripleslate/provenance/routes').RoutesModule;
+	}} modules 
+ * @returns {Context<App.Session, App.SessionExtra>}
+ */
+function createContext(event, modules) {
+	const isRoute = (/** @type {string} */ pathname) => event.url.pathname.startsWith(pathname);
 
 	return {
 		oauth: {
-			processAuthResponse: async (expectedState: string): Promise<{ code: string }> => {
+			/**
+			 * @param {string} expectedState
+			 * @returns {Promise<{ code: string }>}
+			 */
+			processAuthResponse: async (expectedState) => {
 				return await modules.oauth.processAuthResponse(event.url, expectedState);
 			},
-			requestToken: async (
-				codeVerifier: string,
-				authorizationCode: string,
-				expectedNonce: string
-			) => {
-				const fetchRequestToken = async (
-					url: URL,
-					params: {
+			/**
+			 * @param {string} codeVerifier
+			 * @param {string} authorizationCode
+			 * @param {string} expectedNonce
+			 * @returns {string}
+			 */
+			requestToken: async (codeVerifier, authorizationCode, expectedNonce) => {
+				/** 
+				 * @param {URL} url
+				 * @param {{
 						clientId: string;
 						clientSecret: string;
 						redirectUri: string;
-					}
-				) => {
+					}} params
+				 * @returns {string}
+				 */
+				const fetchRequestToken = async (url, params) => {
 					return await event.fetch(url, {
 						method: 'POST',
 						headers: {
@@ -59,16 +68,27 @@ function createContext(
 
 				return await modules.oauth.requestToken(fetchRequestToken, expectedNonce);
 			},
-			refresh: async (refreshToken: string) => {
-				const fetchRefreshedToken = async (
-					url: URL,
-					body: {
+			/** 
+			 * @param {string} refreshToken
+			 * @param {{
+					clientId: string;
+					clientSecret: string;
+					redirectUri: string;
+				}} authorizationCode
+			 * @returns {string}
+			 */
+			refresh: async (refreshToken) => {
+				/** 
+				 * @param {URL} url
+				 * @param {{
 						client_id: string;
 						client_secret: string;
 						grant_type: 'refresh_token';
 						refresh_token: string;
-					}
-				) => {
+					}} body
+				 * @returns {string}
+				 */
+				const fetchRefreshedToken = async (url, body) => {
 					return await event.fetch(url, {
 						method: 'POST',
 						headers: {
@@ -83,8 +103,16 @@ function createContext(
 			redirectLogin: async () => {
 				throw redirect(303, await modules.oauth.login(event.url.origin, event.cookies.set));
 			},
-			postLogout: async (idToken: string) => {
-				const fetch = async (url: URL) => {
+			/**
+			 * @param {string} idToken
+			 * @returns {string}
+			 */
+			postLogout: async (idToken) => {
+				/**
+				 * @param {URL} url
+				 * @returns {string}
+				 */
+				const fetch = async (url) => {
 					return await event.fetch(url, {
 						method: 'POST',
 						headers: {
@@ -111,7 +139,11 @@ function createContext(
 			}
 		},
 		session: {
-			create: (tokens: TokenEndpointResponse) => {
+			/**
+			 * @param {import('oauth4webapi').TokenEndpointResponse} tokens
+			 * @returns {string}
+			 */
+			create: (tokens) => {
 				return modules.session.create(tokens);
 			},
 			getCookie: () => {
@@ -217,19 +249,17 @@ function createContext(
  *
  * `protectRoute` can be awaited in `+page.server.ts` load functions to send the user to the login route if a session is required
  *
- * @param provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
- * @param sessionCallback use session data (determined by provider) to return extra information to be stored in the session cookie
- * @param logging whether to log in handle routes (will use setting for `dev` if not provided)
- * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
+ * @param {Provider<App.Session>} provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
+ * @param {SessionCallback<App.Session, App.SessionExtra>} sessionCallback use session data (determined by provider) to return extra information to be stored in the session cookie
+ * @param {boolean | undefined} logging whether to log in handle routes (will use setting for `dev` if not provided)
+ * @param {Partial<AuthOptions> | undefined} options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
  * @returns an auth object with handle to be used in `hooks.server.ts` and `protectRoute` to redirect to login from `+page.server.ts` load functions if user is not authenticated
  */
-export const provenance = (
-	provider: Provider<App.Session>,
-	sessionCallback: SessionCallback<App.Session, App.SessionExtra>,
-	logging?: boolean,
-	options?: Partial<AuthOptions>
-) => {
-	const defaultedOptions: AuthOptions = {
+export const provenance = (provider, sessionCallback, logging, options) => {
+	/**
+	 * @type {AuthOptions}
+	 */
+	const defaultedOptions = {
 		redirectUriPathname: '/auth',
 		sessionCookieName: 'session',
 		loginPathname: '/login',
@@ -245,7 +275,10 @@ export const provenance = (
 	const oauth = o({ checks }, provider, defaultedOptions);
 	const session = s(provider, sessionCallback, defaultedOptions);
 
-	const handle: Handle = async ({ event, resolve }) => {
+	/**
+	 * @type {import('@sveltejs/kit').Handle}
+	 */
+	const handle = async ({ event, resolve }) => {
 		const context = createContext(event, { checks, oauth, session, routes });
 
 		provider.resolvers.forEach(async (resolver) => {
@@ -255,7 +288,10 @@ export const provenance = (
 		return await resolve(event);
 	};
 
-	const protectRoute = async (session: (App.Session & App.SessionExtra) | null) => {
+	/**
+	 * @param {(App.Session & App.SessionExtra) | null} session
+	 */
+	const protectRoute = async (session) => {
 		if (session === null) {
 			throw redirect(303, defaultedOptions.loginPathname);
 		}

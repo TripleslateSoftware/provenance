@@ -1,28 +1,27 @@
 import type { Plugin } from 'vite';
-import { addGlobal } from '../codegen/global';
+import { generateRuntime } from '../codegen/runtime';
+import { writeGlobal } from './write';
+
+const dir = './$provenance/types';
 
 export function provenance(): Plugin {
 	return {
 		name: 'vite-plugin-provenance',
 		enforce: 'pre',
-		async resolveId(id) {
-			// treat $env/static/[public|private] as virtual
-			if (id === '$provenance') {
-				return `\0${id}`;
-			}
-		},
-		async load(id) {
-			if (id === '\0$provenance') {
-				return addGlobal();
-			}
-		},
+		// async resolveId(id) {
+		// 	// treat $provenance as virtual
+		// 	if (id === '$provenance') {
+		// 		return `\0${id}`;
+		// 	}
+		// },
+		// async load(id) {
+		// 	if (id === '\0$provenance') {
+		// 		return generateRuntime();
+		// 	}
+		// },
 		async transform(code, id) {
-			if (id == 'src/server/auth.ts') {
-				const transformed = code;
-				return {
-					code: code,
-					map: null
-				};
+			if (id === '$provenance') {
+				writeGlobal(dir);
 			}
 		}
 	};

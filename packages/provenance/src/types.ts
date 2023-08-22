@@ -1,8 +1,7 @@
-import type { redirect } from '@sveltejs/kit';
 import type { CookieSerializeOptions } from 'cookie';
 import type { TokenEndpointResponse } from 'oauth4webapi';
 
-import { Context } from './resolvers/context';
+import type { OAuthModule } from './modules';
 
 export type Cookie = {
 	name: string;
@@ -41,13 +40,74 @@ export type Provider<Session> = {
 	clientId: string;
 	clientSecret: string;
 	openid: boolean;
-	createLoginUrl(redirectUri: string, checks: Checks): URL;
-	createLogoutUrl(): URL;
-	createTokenUrl(): URL;
-	createUserinfoUrl(): URL;
+	endpoints: {
+		createLoginUrl(redirectUri: string, checks: Checks): URL;
+		createLogoutUrl(): URL;
+		createTokenUrl(): URL;
+		createUserinfoUrl(): URL;
+	};
+	/** transform tokens into to session */
 	transformTokens: (tokens: TokenEndpointResponse) => Session;
-	sessionCookieAge?: (session: Session) => number;
+	sessionCookieAge: (session: Session) => number;
 	resolvers: Resolver<Session>[];
 };
 
-export type Fetch = typeof fetch;
+export type Context<Session> = {
+	oauth: {
+		processAuthResponse: (expectedState: string) => Promise<{
+			code: string;
+		}>;
+		requestToken: (
+			codeVerifier: string,
+			authorizationCode: string,
+			expectedNonce: string
+		) => ReturnType<OAuthModule['requestToken']>;
+		redirectLogin: () => Promise<void>;
+		refresh: (refreshToken: string) => Promise<TokenEndpointResponse>;
+		postLogout: (idToken: string) => Promise<void>;
+	};
+	checks: {
+		nonce: {
+			use: () => string;
+		};
+		state: {
+			use: () => string;
+		};
+		pkce: {
+			use: () => string;
+		};
+	};
+	session: {
+		create: (tokens: TokenEndpointResponse) => Session;
+		getCookie: () => Session;
+		setCookie: (session: Session) => void;
+		deleteCookie: () => void;
+	};
+	locals: {
+		get session(): Session;
+		set session(value: Session);
+	};
+	routes: {
+		redirectUri: {
+			is: boolean;
+		};
+		login: {
+			redirect: () => void;
+			is: boolean;
+		};
+		logout: {
+			redirect: () => void;
+			is: boolean;
+		};
+		lastPath: {
+			redirect: () => void;
+			set: () => void;
+		};
+		home: {
+			redirect: () => void;
+			is: boolean;
+		};
+	};
+};
+
+export type * from './modules';

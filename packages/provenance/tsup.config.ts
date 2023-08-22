@@ -6,8 +6,6 @@ export const tsup: Options = {
 	entry: ['src/index.ts', 'src/providers/index.ts', 'src/vite/index.ts'],
 	external: ['svelte', '@sveltejs/kit', /^@supabase\//],
 	format: ['esm'],
-	//   inject: ['src/react-shim.js'],
-	// ! .cjs/.mjs doesn't work with Angular's webpack4 config by default!
 	legacyOutput: false,
 	sourcemap: true,
 	splitting: false,

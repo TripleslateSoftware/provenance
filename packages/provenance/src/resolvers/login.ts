@@ -1,8 +1,9 @@
 import type { Resolver } from '../types.js';
 
-export const loginResolver = (): Resolver<any, any> => async (context, logging) => {
-	if (context.routes.logout.is) {
+export const loginResolver = (): Resolver<any> => async (context, logging) => {
+	if (context.routes.login.is) {
 		const session = context.locals.session;
+
 		if (session === null) {
 			if (logging) console.log('provenance:', 'login');
 

@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 
-import type { SessionModule } from '../session.js';
+import type { SessionModule } from '../modules/session.js';
 
 export type LocalsHandleOptions = { sessionCookieName: string };
 

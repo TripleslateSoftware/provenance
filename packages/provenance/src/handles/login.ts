@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 
-import type { OAuthModule } from '../oauth.js';
+import type { OAuthModule } from '../modules/oauth.js';
 import type { RedirectFn } from '../types.js';
 
 export type LoginHandleOptions = {

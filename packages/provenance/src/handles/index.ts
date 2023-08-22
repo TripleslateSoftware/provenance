@@ -1,8 +1,8 @@
 import { sequence } from '@sveltejs/kit/hooks';
 
-import type { ChecksModule } from '../checks.js';
-import type { OAuthModule } from '../oauth.js';
-import type { SessionModule } from '../session.js';
+import type { ChecksModule } from '../modules/checks.js';
+import type { OAuthModule } from '../modules/oauth.js';
+import type { SessionModule } from '../modules/session.js';
 import type { RedirectFn } from '../types.js';
 import { lastPathHandle, type LastPathHandleOptions } from './last-path.js';
 import { localsHandle, type LocalsHandleOptions } from './locals.js';

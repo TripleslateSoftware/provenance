@@ -1,8 +1,6 @@
 import type { TokenEndpointResponse } from 'oauth4webapi';
 
-import type { SessionCallback, Provider } from './types.js';
-
-const DEFAULT_SESSION_COOKIE_AGE = 60 * 10;
+import type { SessionCallback, Provider } from '../types.js';
 
 export const s = <Session, SessionExtra>(
 	provider: Provider<Session>,
@@ -41,7 +39,7 @@ export const s = <Session, SessionExtra>(
 				fullCookie.substring(i * maxCookieSize, (i + 1) * maxCookieSize)
 			);
 
-			const maxAge = provider.sessionCookieAge?.(session) || DEFAULT_SESSION_COOKIE_AGE;
+			const maxAge = provider.sessionCookieAge(session);
 
 			chunks.forEach((chunk, i) => {
 				set(`${options.sessionCookieName}-${i}`, chunk, maxAge);

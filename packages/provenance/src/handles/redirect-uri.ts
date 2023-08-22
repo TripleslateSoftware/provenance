@@ -1,8 +1,8 @@
 import type { Handle } from '@sveltejs/kit';
 
-import type { ChecksModule } from '../checks.js';
-import type { OAuthModule } from '../oauth.js';
-import type { SessionModule } from '../session.js';
+import type { ChecksModule } from '../modules/checks.js';
+import type { OAuthModule } from '../modules/oauth.js';
+import type { SessionModule } from '../modules/session.js';
 import type { RedirectFn } from '../types.js';
 
 export type RedirectUriHandleOptions = {
