@@ -28,12 +28,16 @@ type KeycloakSession = {
 	tokenType: string;
 };
 
-export const keycloak = (configuration: KeycloakConfiguration): Provider<KeycloakSession> =>
+export const keycloak = <SessionExtra>(
+	configuration: KeycloakConfiguration,
+	sessionCallback: (session: KeycloakSession) => SessionExtra
+): Provider<KeycloakSession, SessionExtra> =>
 	provider({
 		issuer: new URL(`/realms/${configuration.realm}`, configuration.base).toString(),
 		clientId: configuration.clientId,
 		clientSecret: configuration.clientSecret,
 		openid: true,
+		sessionCallback,
 		endpoints: {
 			createLoginUrl(redirectUri: string, checks: Checks) {
 				const url = new URL(

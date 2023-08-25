@@ -1,8 +1,5 @@
 import type { Plugin } from 'vite';
-import { generateRuntime } from '../codegen/runtime';
 import { writeGlobal } from './write';
-
-const dir = './$provenance/types';
 
 export function provenance(): Plugin {
 	return {
@@ -21,7 +18,7 @@ export function provenance(): Plugin {
 		// },
 		async transform(code, id) {
 			if (id === '$provenance') {
-				writeGlobal(dir);
+				await writeGlobal(id);
 			}
 		}
 	};

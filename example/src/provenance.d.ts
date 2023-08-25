@@ -11,4 +11,10 @@ declare global {
 	}
 }
 
+declare global {
+	namespace App {
+		type Session = GetSession<typeof provider>;
+	}
+}
+
 export {};

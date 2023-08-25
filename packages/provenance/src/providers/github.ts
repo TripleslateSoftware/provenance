@@ -12,12 +12,16 @@ type GithubSession = {
 	accessToken: string;
 };
 
-export const github = (configuration: GithubConfiguration) =>
-	provider<GithubSession>({
+export const github = <SessionExtra>(
+	configuration: GithubConfiguration,
+	sessionCallback: (session: GithubSession) => SessionExtra
+) =>
+	provider<GithubSession, SessionExtra>({
 		issuer: issuer,
 		clientId: configuration.clientId,
 		clientSecret: configuration.clientSecret,
 		openid: false,
+		sessionCallback,
 		endpoints: {
 			createLoginUrl(redirectUri: string, checks: Checks) {
 				const url = new URL(`authorize`, issuer);

@@ -35,11 +35,12 @@ export type Resolver<Session> = (
 	logging: boolean
 ) => void | Promise<void>;
 
-export type Provider<Session> = {
+export type Provider<Session, SessionExtra> = {
 	issuer: string;
 	clientId: string;
 	clientSecret: string;
 	openid: boolean;
+	sessionCallback: (session: Session) => SessionExtra;
 	endpoints: {
 		createLoginUrl(redirectUri: string, checks: Checks): URL;
 		createLogoutUrl(): URL;
