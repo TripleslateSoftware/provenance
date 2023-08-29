@@ -1,4 +1,4 @@
-import { Resolver } from '../types.js';
+import { Resolver } from '../types';
 
 export const logoutResolver = (): Resolver<any> => async (context, logging) => {
 	if (context.routes.logout.is) {

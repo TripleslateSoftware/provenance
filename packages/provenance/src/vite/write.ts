@@ -1,12 +1,19 @@
-import { addGlobal } from '../codegen/global';
+import fs from 'node:fs';
+import { generateTypes } from '../codegen/types';
+import { generateRuntime1 } from '../codegen/runtime';
 
-export const writeGlobal = async (id: string) => {
-	// if (!existsSync('./$provenance')) {
-	// 	mkdirSync('./$provenance');
-	// }
-	// if (!existsSync('./$provenance/types')) {
-	// 	mkdirSync('./$provenance/types');
-	// }
-	// await addAppTypes(id);
-	return addGlobal();
+export const writeTypes = () => {
+	if (!fs.existsSync('./$provenance')) {
+		fs.mkdirSync('./$provenance');
+	}
+
+	fs.writeFileSync('./$provenance/index.d.ts', generateTypes());
+};
+
+export const writeRuntime = () => {
+	if (!fs.existsSync('./$provenance')) {
+		fs.mkdirSync('./$provenance');
+	}
+
+	fs.writeFileSync('./$provenance/index.js', generateRuntime1());
 };

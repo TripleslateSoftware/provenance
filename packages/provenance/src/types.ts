@@ -28,6 +28,8 @@ export type Checks = {
 	codeChallenge: string;
 };
 
+export type SessionCallback<Session, SessionExtra> = (session: Session) => SessionExtra;
+
 export type Resolver<Session> = (
 	context: Context<Session>,
 	logging: boolean

@@ -202,7 +202,7 @@ function createContext(
  *
  * `src/hooks.server.ts`
  * ```ts title="hooks.server.ts"
- * import { auth } from '$lib/auth.js';
+ * import { auth } from '$lib/auth';
  *
  * export const handle = auth.handle;
  * ```

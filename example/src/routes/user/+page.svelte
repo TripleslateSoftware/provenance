@@ -8,8 +8,9 @@
 		{data.user.username}
 	</b>
 </a>
+
 <div>
-	<a class="box" style:border-color="red" href="/logout">logout</a>
+	<a class="box" href="/">home</a>
 	<a
 		class="box"
 		style:border-color="red"

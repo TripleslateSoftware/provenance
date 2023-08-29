@@ -1,6 +1,6 @@
 import * as oauth from 'oauth4webapi';
 
-import type { Cookie } from '../types.js';
+import type { Cookie } from '../types';
 
 const NONCE_MAX_AGE = 60 * 5;
 const NONCE_COOKIE_NAME = 'nonce';

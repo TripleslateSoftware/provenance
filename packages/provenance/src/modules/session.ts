@@ -1,10 +1,10 @@
 import type { TokenEndpointResponse } from 'oauth4webapi';
 
-import type { Provider } from '../types.js';
+import type { Provider, SessionCallback } from '../types';
 
 export const s = <Session, SessionExtra>(
 	provider: Provider<Session>,
-	sessionCallback: (session: Session) => SessionExtra,
+	sessionCallback: SessionCallback<Session, SessionExtra>,
 	options: { sessionCookieName: string }
 ) => {
 	return {

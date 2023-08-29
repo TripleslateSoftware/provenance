@@ -1,4 +1,4 @@
-import type { Resolver } from '../types.js';
+import type { Resolver } from '../types';
 
 export const loginResolver = (): Resolver<any> => async (context, logging) => {
 	if (context.routes.login.is) {

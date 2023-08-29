@@ -1,4 +1,4 @@
-import { Resolver } from '../types.js';
+import { Resolver } from '../types';
 
 export const redirectUriResolver = (): Resolver<any> => async (context, logging) => {
 	if (context.routes.redirectUri.is) {

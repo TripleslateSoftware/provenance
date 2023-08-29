@@ -7,7 +7,7 @@ export const load = async (event) => {
 
 	const response = await event.fetch('https://api.github.com/user', {
 		headers: {
-			Authorization: `Bearer ${session?.accessToken}`
+			Authorization: `Bearer ${session.accessToken}`
 		}
 	});
 
