@@ -3,7 +3,8 @@ import type { TokenEndpointResponse } from 'oauth4webapi';
 import type { Provider } from '../types.js';
 
 export const s = <Session, SessionExtra>(
-	provider: Provider<Session, SessionExtra>,
+	provider: Provider<Session>,
+	sessionCallback: (session: Session) => SessionExtra,
 	options: { sessionCookieName: string }
 ) => {
 	return {
@@ -16,7 +17,7 @@ export const s = <Session, SessionExtra>(
 			const session = provider.transformTokens(tokens);
 			return {
 				...session,
-				...provider.sessionCallback(session)
+				...sessionCallback(session)
 			};
 		},
 

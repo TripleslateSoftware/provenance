@@ -1,5 +1,4 @@
 import type { Plugin } from 'vite';
-import { writeGlobal } from './write';
 
 export function provenance(): Plugin {
 	return {
@@ -16,9 +15,13 @@ export function provenance(): Plugin {
 		// 		return generateRuntime();
 		// 	}
 		// },
-		async transform(code, id) {
+		async transform(_code, id) {
 			if (id === '$provenance') {
-				await writeGlobal(id);
+				// this.emitFile({
+				// 	type: 'prebuilt-chunk',
+				// 	fileName: './src/provenance.d.ts',
+				// 	code: globalOutput
+				// });
 			}
 		}
 	};

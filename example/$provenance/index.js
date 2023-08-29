@@ -177,7 +177,7 @@ function createContext(event, modules) {
 	};
 }
 
-export const provenance = (provider, logging, options) => {
+export const provenance = (provider, sessionCallback, logging, options) => {
 	/**
 	 * @type {AuthOptions}
 	 */
@@ -195,7 +195,7 @@ export const provenance = (provider, logging, options) => {
 	const checks = c();
 	const routes = r(defaultedOptions);
 	const oauth = o({ checks }, provider, defaultedOptions);
-	const session = s(provider, defaultedOptions);
+	const session = s(provider, sessionCallback, defaultedOptions);
 
 	const handles = provider.resolvers.map((resolver) => {
 		/** @type {import('@sveltejs/kit').Handle} */

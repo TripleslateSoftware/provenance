@@ -1,4 +1,4 @@
-import type { Checks, Provider } from '../types';
+import type { Checks } from '../types';
 
 import {
 	lastPathResolver,
@@ -28,16 +28,12 @@ type KeycloakSession = {
 	tokenType: string;
 };
 
-export const keycloak = <SessionExtra>(
-	configuration: KeycloakConfiguration,
-	sessionCallback: (session: KeycloakSession) => SessionExtra
-): Provider<KeycloakSession, SessionExtra> =>
-	provider({
+export const keycloak = (configuration: KeycloakConfiguration) =>
+	provider<KeycloakSession>({
 		issuer: new URL(`/realms/${configuration.realm}`, configuration.base).toString(),
 		clientId: configuration.clientId,
 		clientSecret: configuration.clientSecret,
 		openid: true,
-		sessionCallback,
 		endpoints: {
 			createLoginUrl(redirectUri: string, checks: Checks) {
 				const url = new URL(
@@ -103,7 +99,7 @@ export const keycloak = <SessionExtra>(
 			localsResolver(),
 			loginResolver(),
 			logoutResolver(),
-			async (context, logging) => {
+			async (context) => {
 				if (context.routes.logout.is && context.locals.session) {
 					await context.oauth.postLogout(context.locals.session.idToken);
 				}

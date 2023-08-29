@@ -13,9 +13,9 @@ function processTokensResponse(tokensResponse: oauth.OAuth2Error | oauth.TokenEn
 	return tokensResponse;
 }
 
-export const o = <Session, SessionExtra>(
+export const o = <Session>(
 	modules: { checks: ChecksModule },
-	provider: Provider<Session, SessionExtra>,
+	provider: Provider<Session>,
 	options: { redirectUriPathname: string }
 ) => {
 	const authorizationServer = {

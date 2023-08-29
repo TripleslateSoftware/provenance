@@ -1,4 +1,4 @@
-import type { Checks, Provider } from '../types';
+import type { Checks } from '../types';
 import { provider } from './provider';
 
 export type GithubConfiguration = {
@@ -12,16 +12,12 @@ type GithubSession = {
 	accessToken: string;
 };
 
-export const github = <SessionExtra>(
-	configuration: GithubConfiguration,
-	sessionCallback: (session: GithubSession) => SessionExtra
-) =>
-	provider<GithubSession, SessionExtra>({
+export const github = (configuration: GithubConfiguration) =>
+	provider<GithubSession>({
 		issuer: issuer,
 		clientId: configuration.clientId,
 		clientSecret: configuration.clientSecret,
 		openid: false,
-		sessionCallback,
 		endpoints: {
 			createLoginUrl(redirectUri: string, checks: Checks) {
 				const url = new URL(`authorize`, issuer);
