@@ -1,4 +1,4 @@
-
+export const generateRuntime = () => `
 import { redirect } from '@sveltejs/kit';
 
 import { o, s, c, r } from '@tripleslate/provenance';
@@ -227,4 +227,4 @@ export const provenance = (provider, sessionCallback, logging, options) => {
 		options: defaultedOptions
 	};
 };
- 
+ `;
