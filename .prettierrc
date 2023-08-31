@@ -23,5 +23,6 @@
 				"requirePragma": true
 			}
 		}
-	]
+	],
+	"plugins": ["prettier-plugin-svelte"]
 }

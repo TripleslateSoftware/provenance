@@ -4,14 +4,18 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"lint": "turbo run lint",
+		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
-		"eslint": "^8.0.0",
-		"prettier": "^3.0.2",
+		"@typescript-eslint/eslint-plugin": "^5.62.0",
+		"@typescript-eslint/parser": "^5.62.0",
+		"eslint": "^8.48.0",
+		"eslint-config-prettier": "^8.10.0",
+		"eslint-plugin-svelte": "^2.33.0",
+		"prettier": "^3.0.3",
 		"prettier-plugin-svelte": "^3.0.3",
-		"turbo": "^1.10.12"
+		"turbo": "^1.10.13"
 	},
 	"packageManager": "pnpm@8.6.10"
 }

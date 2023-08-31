@@ -10,6 +10,7 @@
 		"moduleResolution": "Node",
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
+		"outDir": "dist",
 		"strict": true,
 		"target": "ESNext"
 	},

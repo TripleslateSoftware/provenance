@@ -1,6 +1,6 @@
 import { Resolver } from '../types';
 
-export const redirectUriResolver = (): Resolver<any> => async (context, logging) => {
+export const redirectUriResolver = (): Resolver<object> => async (context, logging) => {
 	if (context.routes.redirectUri.is) {
 		if (logging) console.log('provenance:', 'redirectUri');
 		// state stored at beginning of authorization flow (right before login redirects to auth server)

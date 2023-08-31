@@ -17,9 +17,8 @@
 		"oauth"
 	],
 	"scripts": {
-		"lint": "tsc",
-		"build": "tsup",
-		"build:watch": "tsup --watch",
+		"build": "rimraf dist && tsup",
+		"dev": "tsup --watch",
 		"clean:all": "rimraf dist node_modules"
 	},
 	"peerDependencies": {
