@@ -11,7 +11,6 @@ export function provenance(): Plugin[] {
 	const plugin: Plugin = {
 		name: 'vite-plugin-provenance',
 		enforce: 'pre',
-		// runs on dev and build
 		async buildStart() {
 			if (!fs.existsSync(dir)) {
 				fs.mkdirSync(dir);
@@ -20,6 +19,9 @@ export function provenance(): Plugin[] {
 		},
 		// types are only necessary (and not dynamic) for dev mode
 		async configureServer() {
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(dir);
+			}
 			writeTypes(dir);
 		}
 	};

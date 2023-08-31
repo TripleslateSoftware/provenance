@@ -1,5 +1,7 @@
 import { Resolver } from '../types';
 
-export const lastPathResolver = (): Resolver<object> => (context) => {
-	context.routes.lastPath.set();
-};
+export const lastPathResolver =
+	<Session extends object>(): Resolver<Session> =>
+	(context) => {
+		context.routes.lastPath.set();
+	};

@@ -28,7 +28,7 @@ export type ProviderConfiguration<Session> = {
 	resolvers?: Resolver<Session>[];
 };
 
-export const provider = <Session>(
+export const provider = <Session extends object>(
 	configuration: ProviderConfiguration<Session>
 ): Provider<Session> => {
 	return {
