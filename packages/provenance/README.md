@@ -1,6 +1,6 @@
 # provenance
 
-Server-side oauth implementation for SvelteKit
+Server-side OAuth/OIDC implementation for SvelteKit
 
 ## features
 

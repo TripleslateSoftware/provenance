@@ -1,12 +1,12 @@
 # provenance
 
-Server-side oauth implementation for SvelteKit
+Server-side OAuth/OIDC implementation for SvelteKit
 
 ## packages
 
 | package                                        | changelog                                     |
 | ---------------------------------------------- | --------------------------------------------- |
-| [@tripleslate/provenance](packages/provenance) | [Changelog](packages/provenance/CHANGELOG.md) |
+| [@tripleslate/provenance](packages/provenance) | [changelog](packages/provenance/CHANGELOG.md) |
 
 ## examples
 

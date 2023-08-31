@@ -1,7 +1,7 @@
 {
 	"name": "@tripleslate/provenance",
 	"version": "0.0.1",
-	"description": "server-side sveltekit oauth",
+	"description": "server-side SvelteKit auth",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/TripleslateSoftware/provenance.git"
