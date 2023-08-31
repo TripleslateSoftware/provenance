@@ -18,6 +18,74 @@ Server-side oauth implementation for SvelteKit
 
 ## usage
 
+See the [example project](./example/) to see the following writeup in action.
+
+### include vite plugin
+
+Include `provenance` in the vite plugin pipeline. It will generate a light "runtime"
+that forms the bridge between your project's version of `sveltekit` and the `provenance` core logic.
+
+#### `vite.config.ts`
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite';
+
+import { sveltekit } from '@sveltejs/kit/vite';
+import { provenance } from '@tripleslate/provenance/vite';
+
+export default defineConfig({
+  // provenance first
+  plugins: [provenance(), sveltekit()]
+});
+```
+
+### add path alias
+
+#### `svelte.config.ts`
+
+```ts title="svelte.config.ts"
+import path from 'path';
+
+import adapter from '@sveltejs/adapter-auto';
+import { vitePreprocess } from '@sveltejs/kit/vite';
+
+/** @type {import('@sveltejs/kit').Config} */
+const config = {
+  preprocess: vitePreprocess(),
+  kit: {
+    adapter: adapter(),
+    alias: {
+      // add this alias record
+      $provenance: path.resolve('.', '$provenance')
+    }
+  }
+};
+
+export default config;
+```
+
+### add the `$provenance` dir to `.gitignore`
+
+#### `.gitignore`
+
+```ignore title=".gitignore"
+.DS_Store
+node_modules
+/build
+/dist
+/.svelte-kit
+/package
+.env
+.env.*
+!.env.example
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+$provenance
+```
+
+`$provenance/index.js` and `$provenance/index.d.ts` will be written on vite dev server start and build.
+
 ### create auth object
 
 #### `src/lib/server/auth.ts`
@@ -25,17 +93,12 @@ Server-side oauth implementation for SvelteKit
 ##### github
 
 ```ts title="src/lib/server/auth.ts"
-import { redirect } from '@sveltejs/kit';
-import { dev } from '$app/environment';
-
-import { provenance } from '@tripleslate/provenance';
+import { provenance } from '$provenance';
 import { github } from '@tripleslate/provenance/providers';
 import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
   github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET }),
-  redirect,
-  dev,
   () => {
     return {};
   }
@@ -45,10 +108,7 @@ export const auth = provenance(
 ##### keycloak
 
 ```ts title="src/lib/server/auth.ts"
-import { redirect } from '@sveltejs/kit';
-import { dev } from '$app/environment';
-
-import { provenance } from '@tripleslate/provenance';
+import { provenance } from '$provenance';
 import { keycloak } from '@tripleslate/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 
@@ -59,13 +119,38 @@ export const auth = provenance(
     clientId: KC_CLIENT_ID,
     clientSecret: KC_CLIENT_SECRET
   }),
-  redirect,
-  dev,
   () => {
     return {};
   }
 );
 ```
+
+### match the `App` interfaces to your provider and session callback
+
+Type errors will appear if the `App.Session` or `App.SessionExtra` interface(s) do not match the `provider` and `sessionCallback` passed to `$provenance.provenance` ([see "create auth object"](#create-auth-object)).
+
+#### `src/app.d.ts`
+
+```ts title="src/app.d.ts"
+declare global {
+  namespace App {
+    interface Session {
+      accessToken: string;
+    }
+
+    // interface Error {}
+    // interface Locals {}
+    // interface PageData {}
+    // interface Platform {}
+  }
+}
+
+export {};
+```
+
+Above example applies to `github` provider. Refer to the fields in the `Session` generic parameter on other providers.
+Note that `Locals` does not need to be defined, `provenance` provides a default `session` field of type `(App.Session & App.SessionExtra) | null`.
+If an app defines other `Locals` fields, they can be defined here without redefining `session` on `Locals` as typescript will merge the two declarations of the interface.
 
 ### intialize handle hook
 
@@ -99,6 +184,9 @@ Note that `handle` in `hooks.server.ts` is not invoked during client side routin
 
 #### `src/app.d.ts`
 
+Extend the `App.SessionExtra` interface (`provenance` defines this interface as an empty object by default).
+Note that this example extends the `App.SessionExtra` type with an `App.User` field.
+
 ```ts title="src/app.d.ts"
 declare global {
   namespace App {
@@ -106,31 +194,23 @@ declare global {
       displayName: string;
     }
     interface SessionExtra {
-      user?: User;
+      user: User;
     }
-
-    // interface Error {}
-    // interface Locals {}
-    // interface PageData {}
-    // interface Platform {}
+    ...
   }
 }
 
 export {};
 ```
 
-Extend the `App.SessionExtra` interface (`provenance` defines this interface as an empty object by default).
-Note that this syntax extends the `App.SessionExtra` type with an `App.User` field.
-
 #### `src/lib/server/auth.ts`
+
+Include a session callback in the `auth` definition to decode the `idToken` JWT into some user information (available data depends on your provider/creativity).
 
 ```ts title="src/lib/server/auth.ts"
 import * as jose from 'jose';
 
-import { redirect } from '@sveltejs/kit';
-import { dev } from '$app/environment';
-
-import { provenance } from '@tripleslate/provenance';
+import { provenance } from '$provenance';
 import { keycloak } from '@tripleslate/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 
@@ -141,28 +221,21 @@ export const auth = provenance(
     clientId: KC_CLIENT_ID,
     clientSecret: KC_CLIENT_SECRET
   }),
-  redirect,
-  dev,
   (tokens) => {
-    if (tokens.idToken) {
-      const idToken = jose.decodeJwt(tokens.idToken);
+    const idToken = jose.decodeJwt(tokens.idToken);
 
-      return {
-        user: {
-          displayName: idToken.name
-        }
-      };
-    } else {
-      // should be unreachable with a keycloak provider
-      return {};
-    }
+    return {
+      user: {
+        displayName: idToken.name
+      }
+    };
   }
 );
 ```
 
-Include a session callback in the `auth` definition to decode the `idToken` JWT into some user information (available data depends on your provider/creativity).
-
 #### `src/routes/protected/+page.server.ts`
+
+Access the user field on the session object.
 
 ```ts title="src/routes/protected/+page.server.ts"
 import { auth } from '$lib/server/auth';
@@ -175,5 +248,3 @@ export const load = async (event) => {
   };
 };
 ```
-
-Access the user field on the session object.

@@ -112,10 +112,7 @@ function createContext(event, modules) {
 				modules.session.setCookie(
 					(name, value, maxAge) =>
 						event.cookies.set(name, value, {
-							httpOnly: true,
 							path: '/',
-							secure: !dev,
-							sameSite: 'lax',
 							maxAge: maxAge
 						}),
 					session
@@ -159,10 +156,7 @@ function createContext(event, modules) {
 				set: () => {
 					modules.routes.lastPath.setCookie((name, maxAge) =>
 						event.cookies.set(name, event.url.pathname, {
-							httpOnly: true,
 							path: '/',
-							secure: !dev,
-							sameSite: 'lax',
 							maxAge: maxAge
 						})
 					);

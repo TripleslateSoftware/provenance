@@ -3,8 +3,7 @@ import fs from 'node:fs';
 
 import type { Plugin } from 'vite';
 
-import { writeTypes } from './write';
-import { generateRuntime } from './codegen/runtime';
+import { writeTypes, writeRuntime } from './write';
 
 export function provenance(): Plugin[] {
 	const dir = path.resolve('.', '$provenance');
@@ -12,21 +11,15 @@ export function provenance(): Plugin[] {
 	const plugin: Plugin = {
 		name: 'vite-plugin-provenance',
 		enforce: 'pre',
-		async resolveId(id) {
-			// treat $provenance as virtual
-			if (id === '$provenance') {
-				return `\0${id}`;
-			}
-		},
-		async load(id) {
-			if (id === '\0$provenance') {
-				return generateRuntime();
-			}
-		},
-		async configureServer() {
+		// runs on dev and build
+		async buildStart() {
 			if (!fs.existsSync(dir)) {
 				fs.mkdirSync(dir);
 			}
+			writeRuntime(dir);
+		},
+		// types are only necessary (and not dynamic) for dev mode
+		async configureServer() {
 			writeTypes(dir);
 		}
 	};

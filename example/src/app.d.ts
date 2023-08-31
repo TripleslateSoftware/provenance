@@ -2,15 +2,12 @@
 // for information about these interfaces
 declare global {
 	namespace App {
-		interface SessionExtra {}
 		interface Session {
 			accessToken: string;
 		}
 
 		// interface Error {}
-		interface Locals {
-			session: (Session & SessionExtra) | null;
-		}
+		// interface Locals {}
 		// interface PageData {}
 		// interface Platform {}
 	}
