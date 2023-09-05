@@ -12,7 +12,15 @@ type GithubSession = {
 	accessToken: string;
 };
 
-export const github = (configuration: GithubConfiguration) =>
+/**
+ * @param configuration github OAuth application configuration (github > developer settings > OAuth Apps > application)
+ * @param sessionCookieAge optional callback to provide cookie age based on session (in seconds)
+ * @returns github provider to be passed to the generated runtime
+ */
+export const github = (
+	configuration: GithubConfiguration,
+	sessionCookieAge?: (session: GithubSession) => number
+) =>
 	provider<GithubSession>({
 		issuer: issuer,
 		clientId: configuration.clientId,
@@ -43,5 +51,6 @@ export const github = (configuration: GithubConfiguration) =>
 			return {
 				accessToken: tokens.access_token
 			};
-		}
+		},
+		sessionCookieAge
 	});

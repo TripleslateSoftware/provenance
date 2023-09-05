@@ -16,7 +16,6 @@ export type ProviderConfiguration<Session> = {
 	clientId: string;
 	clientSecret: string;
 	openid: boolean;
-
 	endpoints: {
 		createLoginUrl: (redirectUri: string, checks: Checks) => URL;
 		createLogoutUrl: () => URL;
@@ -28,6 +27,11 @@ export type ProviderConfiguration<Session> = {
 	resolvers?: Resolver<Session>[];
 };
 
+/**
+ * create a generic provider with auth server configuration, endpoints, and session definition
+ *
+ * see [github](github.ts) and [keycloak](keycloak.ts) for examples
+ */
 export const provider = <Session extends object>(
 	configuration: ProviderConfiguration<Session>
 ): Provider<Session> => {

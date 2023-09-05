@@ -11,9 +11,13 @@ import {
 import { provider } from './provider';
 
 export type KeycloakConfiguration = {
+	/** like https://auth-server.com/ (don't include "realms", "protocol", etc.) */
 	base: string;
+	/** realm corresponding to users of this application (multi-tenant is currently not supported) */
 	realm: string;
+	/** client id corresponding to this application */
 	clientId: string;
+	/** client secret corresponding to this application (can be any empty string if not being used for the client) */
 	clientSecret: string;
 };
 
@@ -28,7 +32,15 @@ type KeycloakSession = {
 	tokenType: string;
 };
 
-export const keycloak = (configuration: KeycloakConfiguration) =>
+/**
+ * @param configuration keycloak auth server configuration
+ * @param sessionCookieAge optional callback to provide cookie age based on session (in seconds)
+ * @returns keycloak provider to be passed to the generated runtime
+ */
+export const keycloak = (
+	configuration: KeycloakConfiguration,
+	sessionCookieAge?: (session: KeycloakSession) => number
+) =>
 	provider<KeycloakSession>({
 		issuer: new URL(`/realms/${configuration.realm}`, configuration.base).toString(),
 		clientId: configuration.clientId,
@@ -91,9 +103,7 @@ export const keycloak = (configuration: KeycloakConfiguration) =>
 				tokenType: tokens.token_type
 			};
 		},
-		sessionCookieAge(session) {
-			return session.refreshExpiresIn;
-		},
+		sessionCookieAge: sessionCookieAge || ((session) => session.refreshExpiresIn),
 		resolvers: [
 			redirectUriResolver(),
 			localsResolver(),
