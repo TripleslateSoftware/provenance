@@ -5,7 +5,8 @@
 		"build": "turbo run build",
 		"dev": "turbo run dev",
 		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"changeset:publish": "changeset publish"
 	},
 	"devDependencies": {
 		"@changesets/cli": "^2.26.2",
