@@ -22,36 +22,6 @@ export type AuthOptions = {
 	lastPathCookieName: string;
 };
 
-export type Checks = {
-	state: string;
-	nonce: string;
-	codeChallenge: string;
-};
-
-export type SessionCallback<Session, SessionExtra> = (session: Session) => SessionExtra;
-
-export type Resolver<Session> = (
-	context: Context<Session>,
-	logging: boolean
-) => void | Promise<void>;
-
-export type Provider<Session> = {
-	issuer: string;
-	clientId: string;
-	clientSecret: string;
-	openid: boolean;
-	endpoints: {
-		createLoginUrl(redirectUri: string, checks: Checks): URL;
-		createLogoutUrl(): URL;
-		createTokenUrl(): URL;
-		createUserinfoUrl(): URL;
-	};
-	/** transform tokens into to session */
-	transformTokens: (tokens: TokenEndpointResponse) => Session;
-	sessionCookieAge: (session: Session) => number;
-	resolvers: Resolver<Session>[];
-};
-
 export type Context<Session> = {
 	oauth: {
 		processAuthResponse: (expectedState: string) => Promise<{
@@ -111,3 +81,5 @@ export type Context<Session> = {
 };
 
 export type * from './modules';
+export type * from './providers';
+export type * from './resolvers';

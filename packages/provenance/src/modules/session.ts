@@ -1,6 +1,7 @@
 import type { TokenEndpointResponse } from 'oauth4webapi';
 
-import type { Provider, SessionCallback } from '../types';
+import type { SessionCallback } from '../types';
+import type { Provider } from '../providers';
 
 export const s = <Session, SessionExtra>(
 	provider: Provider<Session>,
@@ -14,10 +15,14 @@ export const s = <Session, SessionExtra>(
 		 * @returns session to be stored in cookies
 		 */
 		create(tokens: TokenEndpointResponse): Session & SessionExtra {
-			const session = provider.transformTokens(tokens);
-			return {
+			const session = provider.session.transformTokens(tokens);
+			const fixedSession = {
 				...session,
-				...sessionCallback(session)
+				...provider.session.fixSession(session)
+			};
+			return {
+				...fixedSession,
+				...sessionCallback(fixedSession)
 			};
 		},
 
@@ -39,7 +44,7 @@ export const s = <Session, SessionExtra>(
 				fullCookie.substring(i * maxCookieSize, (i + 1) * maxCookieSize)
 			);
 
-			const maxAge = provider.sessionCookieAge(session);
+			const maxAge = provider.session.sessionCookieAge(session);
 
 			chunks.forEach((chunk, i) => {
 				set(`${options.sessionCookieName}-${i}`, chunk, maxAge);

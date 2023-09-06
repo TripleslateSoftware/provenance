@@ -1,4 +1,16 @@
-export const generateTypes = () => `
+export const generateDeclaration = () => `
+import type { Handle, RequestEvent } from '@sveltejs/kit';
+import type {
+	Context,
+	Provider,
+	AuthOptions,
+	SessionCallback,
+	OAuthModule,
+	SessionModule,
+	RoutesModule,
+	ChecksModule
+} from '@tripleslate/provenance';
+
 /**
  * create an auth object that provides a handle hook and a function to protect routes
  *
@@ -35,18 +47,6 @@ export const generateTypes = () => `
  * \`auth.protectRoute\` can be awaited in \`+page.server.ts\` load functions to send the user to the login route if a session is required
  */
 declare module '$provenance' {
-	import type { Handle, RequestEvent } from '@sveltejs/kit';
-	import type {
-		Context,
-		Provider,
-		AuthOptions,
-		SessionCallback,
-		OAuthModule,
-		SessionModule,
-		RoutesModule,
-		ChecksModule
-	} from '@tripleslate/provenance';
-
 	function createContext(
 		event: RequestEvent,
 		modules: {

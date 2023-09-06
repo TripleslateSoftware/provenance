@@ -1,7 +1,7 @@
-import type { TokenEndpointResponse } from 'oauth4webapi';
+import { TokenEndpointResponse } from 'oauth4webapi';
 
-import type { Checks, Provider, Resolver } from '../types';
 import {
+	type Resolver,
 	lastPathResolver,
 	localsResolver,
 	loginResolver,
@@ -9,23 +9,9 @@ import {
 	redirectUriResolver
 } from '../resolvers';
 
-const DEFAULT_SESSION_COOKIE_AGE = 60 * 10;
+import { AuthServerConfiguration, EndpointsConfiguration, Provider } from './types';
 
-export type ProviderConfiguration<Session> = {
-	issuer: string;
-	clientId: string;
-	clientSecret: string;
-	openid: boolean;
-	endpoints: {
-		createLoginUrl: (redirectUri: string, checks: Checks) => URL;
-		createLogoutUrl: () => URL;
-		createTokenUrl: () => URL;
-		createUserinfoUrl: () => URL;
-	};
-	transformTokens: (tokens: TokenEndpointResponse) => Session;
-	sessionCookieAge?: (session: Session) => number;
-	resolvers?: Resolver<Session>[];
-};
+const DEFAULT_SESSION_COOKIE_AGE = 60 * 10;
 
 /**
  * create a generic provider with auth server configuration, endpoints, and session definition
@@ -33,17 +19,28 @@ export type ProviderConfiguration<Session> = {
  * see [github](github.ts) and [keycloak](keycloak.ts) for examples
  */
 export const provider = <Session extends object>(
-	configuration: ProviderConfiguration<Session>
+	authServer: AuthServerConfiguration,
+	endpoints: EndpointsConfiguration,
+	session: {
+		transformTokens: (tokens: TokenEndpointResponse) => Session;
+		sessionCookieAge?: (session: Session) => number;
+		fixSession?: (session: Session) => Partial<Session>;
+	},
+	resolvers?: Resolver<Session>[]
 ): Provider<Session> => {
 	return {
-		issuer: configuration.issuer,
-		clientId: configuration.clientId,
-		clientSecret: configuration.clientSecret,
-		openid: configuration.openid,
-		endpoints: configuration.endpoints,
-		transformTokens: configuration.transformTokens,
-		sessionCookieAge: configuration.sessionCookieAge || (() => DEFAULT_SESSION_COOKIE_AGE),
-		resolvers: configuration.resolvers || [
+		authServer,
+		endpoints,
+		session: {
+			transformTokens: session.transformTokens,
+			sessionCookieAge: session.sessionCookieAge || (() => DEFAULT_SESSION_COOKIE_AGE),
+			fixSession:
+				session.fixSession ||
+				(() => {
+					return {};
+				})
+		},
+		resolvers: resolvers || [
 			redirectUriResolver(),
 			localsResolver(),
 			loginResolver(),

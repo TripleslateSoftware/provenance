@@ -1,7 +1,14 @@
-import { c, type ChecksModule } from './checks';
-import { o, type OAuthModule } from './oauth';
-import { r, type RoutesModule } from './routes';
-import { s, type SessionModule } from './session';
+import { c } from './checks';
+import { o } from './oauth';
+import { r } from './routes';
+import { s } from './session';
 
 export { c, s, r, o };
-export { ChecksModule, OAuthModule, RoutesModule, SessionModule };
+
+export type {
+	SessionCallback,
+	SessionModule,
+	OAuthModule,
+	ChecksModule,
+	RoutesModule
+} from './types';

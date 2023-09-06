@@ -1,4 +1,4 @@
-import type { Resolver } from '../types';
+import type { Resolver } from './types';
 
 export const localsResolver =
 	<Session extends object>(): Resolver<Session> =>

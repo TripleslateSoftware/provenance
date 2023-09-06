@@ -13,3 +13,5 @@ export {
 	redirectUriResolver,
 	refreshResolver
 };
+
+export type { Resolver } from './types';

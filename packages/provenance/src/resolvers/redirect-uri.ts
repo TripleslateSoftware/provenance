@@ -1,4 +1,4 @@
-import { Resolver } from '../types';
+import { Resolver } from './types';
 
 export const redirectUriResolver =
 	<Session extends object>(): Resolver<Session> =>

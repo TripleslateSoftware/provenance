@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 
-import { generateTypes } from './codegen/types';
+import { generateDeclaration } from './codegen/declaration';
 import { generateRuntime } from './codegen/runtime';
 
 export const writeTypes = (dir: string) => {
-	fs.writeFileSync(`${dir}/index.d.ts`, generateTypes());
+	fs.writeFileSync(`${dir}/index.d.ts`, generateDeclaration());
 };
 
 export const writeRuntime = (dir: string) => {

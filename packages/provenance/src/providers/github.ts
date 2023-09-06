@@ -1,56 +1,63 @@
-import type { Checks } from '../types';
+import { TokenEndpointResponse } from 'oauth4webapi';
+
+import type { CreateProvider, EndpointsConfiguration } from './types';
 import { provider } from './provider';
 
+/**
+ * find configuration in github > developer settings > OAuth Apps > application
+ */
 export type GithubConfiguration = {
 	clientId: string;
 	clientSecret: string;
 };
 
-const issuer = 'https://github.com/login/oauth/';
-
 type GithubSession = {
 	accessToken: string;
 };
 
-/**
- * @param configuration github OAuth application configuration (github > developer settings > OAuth Apps > application)
- * @param sessionCookieAge optional callback to provide cookie age based on session (in seconds)
- * @returns github provider to be passed to the generated runtime
- */
-export const github = (
-	configuration: GithubConfiguration,
-	sessionCookieAge?: (session: GithubSession) => number
-) =>
-	provider<GithubSession>({
+const issuer = 'https://github.com/login/oauth/';
+
+export const github: CreateProvider<GithubConfiguration, GithubSession> = (
+	configuration,
+	callbacks
+) => {
+	const authServer = {
 		issuer: issuer,
 		clientId: configuration.clientId,
 		clientSecret: configuration.clientSecret,
-		openid: false,
-		endpoints: {
-			createLoginUrl(redirectUri: string, checks: Checks) {
-				const url = new URL(`authorize`, issuer);
-				url.searchParams.append('client_id', configuration.clientId);
-				url.searchParams.append('redirect_uri', redirectUri);
-				url.searchParams.append('state', checks.state);
-				url.searchParams.append('allow_signup', 'false');
-				url.searchParams.append('scope', 'read:user');
+		openid: false
+	};
+	const endpoints: EndpointsConfiguration = {
+		createLoginUrl(redirectUri, checks) {
+			const url = new URL(`authorize`, issuer);
+			url.searchParams.append('client_id', configuration.clientId);
+			url.searchParams.append('redirect_uri', redirectUri);
+			url.searchParams.append('state', checks.state);
+			url.searchParams.append('allow_signup', 'false');
+			url.searchParams.append('scope', 'read:user');
 
-				return url;
-			},
-			createLogoutUrl() {
-				return new URL(`logout`, issuer);
-			},
-			createTokenUrl() {
-				return new URL(`access_token`, issuer);
-			},
-			createUserinfoUrl() {
-				return new URL(`userinfo`, issuer);
-			}
+			return url;
 		},
-		transformTokens(tokens) {
+		createLogoutUrl() {
+			return new URL(`logout`, issuer);
+		},
+		createTokenUrl() {
+			return new URL(`access_token`, issuer);
+		},
+		createUserinfoUrl() {
+			return new URL(`userinfo`, issuer);
+		}
+	};
+
+	const session = {
+		transformTokens(tokens: TokenEndpointResponse) {
 			return {
 				accessToken: tokens.access_token
 			};
 		},
-		sessionCookieAge
-	});
+		fixSession: callbacks?.fixSession,
+		sessionCookieAge: callbacks?.sessionCookieAge
+	};
+
+	return provider<GithubSession>(authServer, endpoints, session);
+};

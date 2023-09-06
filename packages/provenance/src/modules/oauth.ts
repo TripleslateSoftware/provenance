@@ -1,6 +1,6 @@
 import * as oauth from 'oauth4webapi';
 
-import type { Provider } from '../types';
+import type { Provider } from '../providers';
 import type { ChecksModule } from './checks';
 
 import { CookieSerializeOptions } from 'cookie';
@@ -19,11 +19,11 @@ export const o = <Session>(
 	options: { redirectUriPathname: string }
 ) => {
 	const authorizationServer = {
-		issuer: provider.issuer
+		issuer: provider.authServer.issuer
 	};
 	const client = {
-		client_id: provider.clientId,
-		client_secret: provider.clientSecret
+		client_id: provider.authServer.clientId,
+		client_secret: provider.authServer.clientSecret
 	};
 	return {
 		/**
@@ -87,8 +87,8 @@ export const o = <Session>(
 			const url = provider.endpoints.createTokenUrl();
 
 			const response = await fetchRefreshedToken(url, {
-				client_id: provider.clientId,
-				client_secret: provider.clientSecret,
+				client_id: provider.authServer.clientId,
+				client_secret: provider.authServer.clientSecret,
 				grant_type: 'refresh_token',
 				refresh_token: refreshToken
 			});
@@ -146,12 +146,12 @@ export const o = <Session>(
 			const url = provider.endpoints.createTokenUrl();
 
 			const authorizationCodeGrantResponse = await fetchRequestToken(url, {
-				clientId: provider.clientId,
-				clientSecret: provider.clientSecret,
+				clientId: provider.authServer.clientId,
+				clientSecret: provider.authServer.clientSecret,
 				redirectUri: options.redirectUriPathname
 			});
 
-			if (provider.openid) {
+			if (provider.authServer.openid) {
 				const tokensResponse = await oauth.processAuthorizationCodeOpenIDResponse(
 					authorizationServer,
 					client,

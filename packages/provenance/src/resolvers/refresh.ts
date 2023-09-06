@@ -1,4 +1,4 @@
-import { Resolver } from '../types';
+import { Resolver } from './types';
 
 export const refreshResolver = <
 	Session extends {
