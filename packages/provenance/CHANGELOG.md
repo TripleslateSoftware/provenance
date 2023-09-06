@@ -1,5 +1,16 @@
 # @tripleslate/provenance
 
+## 0.2.0
+
+### Minor Changes
+
+- 3ebc8e5: compress the `Provider` type and clean up type exports
+- 3ebc8e5: change create provider (`github`, `keycloak`) signature and add type
+
+### Patch Changes
+
+- 3ebc8e5: add `fixSession` callback to providers
+
 ## 0.1.2
 
 ### Patch Changes
