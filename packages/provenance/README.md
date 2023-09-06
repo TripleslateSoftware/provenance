@@ -64,7 +64,7 @@ const config = {
 export default config;
 ```
 
-### add the `$provenance` dir to `.gitignore`
+### add the `$provenance` dir to `.gitignore`,
 
 #### `.gitignore`
 
@@ -84,7 +84,8 @@ vite.config.ts.timestamp-*
 $provenance
 ```
 
-`$provenance/index.js` and `$provenance/index.d.ts` will be written on vite dev server start and build.
+`$provenance/index.js` and `$provenance/index.d.ts` will be written on vite dev server start and build and do not need to be checked in.
+Optionally, add $provenance to `.prettierignore` and `.eslintignore`.
 
 ### create auth object
 

@@ -45,3 +45,6 @@ docs/
 # changesets and github
 .changeset/
 .github/
+
+# codegen
+$provenance

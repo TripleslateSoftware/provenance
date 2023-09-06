@@ -29,8 +29,8 @@ export type SessionConfiguration<Session> = {
 };
 
 /**
- * @param sessionCookieAge optional callback to provide cookie age based on session (in seconds)
- * @param fixSession optional callback to alter field(s) in the session
+ * @param sessionCookieAge optional callback to set cookie age based on session (in seconds)
+ * @param fixSession optional callback to alter field(s) in the session after receiving from auth server
  */
 export type ProviderCallbacks<Session> = {
 	sessionCookieAge?: (session: Session) => number;
@@ -46,7 +46,7 @@ export type Provider<Session> = {
 
 /**
  * @param configuration OAuth auth server and client configuration (specific to provider)
- * @param callbacks OAuth auth server and client configuration (specific to provider)
+ * @param callbacks optional callbacks to customize default provider-specific behaviors (ie. alter session values, set the length of the cookie)
  * @returns initialized provider to be passed to the generated runtime
  */
 export type CreateProvider<ProviderConfiguration, Session> = (
