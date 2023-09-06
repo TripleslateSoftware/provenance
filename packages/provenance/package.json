@@ -4,7 +4,8 @@
 	"description": "server-side SvelteKit auth",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/TripleslateSoftware/provenance.git"
+		"url": "git+https://github.com/TripleslateSoftware/provenance.git",
+		"directory": "packages/provenance"
 	},
 	"license": "MIT",
 	"bugs": {
@@ -28,6 +29,7 @@
 	"devDependencies": {
 		"@types/cookie": "0.5.1",
 		"@types/node": "^20.4.9",
+		"dedent": "^1.5.1",
 		"rimraf": "^5.0.1",
 		"tslib": "^2.6.1",
 		"tsup": "^6.5.0",
