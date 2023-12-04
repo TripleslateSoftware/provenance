@@ -1,5 +1,15 @@
 # @tripleslate/provenance
 
+## 0.3.0
+
+### Minor Changes
+
+- 9dd6a99: remove last path resolver and save last path to cookies in `protectRoute`
+
+### Patch Changes
+
+- b9076fe: feat: add dedent to better format generated code
+
 ## 0.2.0
 
 ### Minor Changes
