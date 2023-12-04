@@ -1,9 +1,7 @@
-import { c } from './checks';
-import { o } from './oauth';
-import { r } from './routes';
-import { s } from './session';
-
-export { c, s, r, o };
+export { c } from './checks';
+export { o } from './oauth';
+export { r } from './routes';
+export { s } from './session';
 
 export type {
 	SessionCallback,

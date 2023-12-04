@@ -210,7 +210,15 @@ export const generateRuntime = () => dedent`
 		 */
 		const protectRoute = async (event) => {
 			const session = event.locals.session;
+
 			if (session === null) {
+				routes.lastPath.setCookie((name, maxAge) =>
+					event.cookies.set(name, event.url.pathname, {
+						path: '/',
+						maxAge: maxAge
+					})
+				);
+
 				throw redirect(303, defaultedOptions.loginPathname);
 			}
 

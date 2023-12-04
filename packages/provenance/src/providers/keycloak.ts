@@ -1,6 +1,5 @@
 import {
 	type Resolver,
-	lastPathResolver,
 	localsResolver,
 	loginResolver,
 	logoutResolver,
@@ -113,8 +112,7 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 				await context.oauth.postLogout(context.locals.session.idToken);
 			}
 		},
-		refreshResolver(),
-		lastPathResolver()
+		refreshResolver()
 	];
 
 	return provider<KeycloakSession>(authServer, endpoints, session, resolvers);

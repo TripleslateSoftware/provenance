@@ -1,17 +1,7 @@
-import { lastPathResolver } from './last-path';
-import { localsResolver } from './locals';
-import { loginResolver } from './login';
-import { logoutResolver } from './logout';
-import { redirectUriResolver } from './redirect-uri';
-import { refreshResolver } from './refresh';
-
-export {
-	lastPathResolver,
-	localsResolver,
-	loginResolver,
-	logoutResolver,
-	redirectUriResolver,
-	refreshResolver
-};
+export { localsResolver } from './locals';
+export { loginResolver } from './login';
+export { logoutResolver } from './logout';
+export { redirectUriResolver } from './redirect-uri';
+export { refreshResolver } from './refresh';
 
 export type { Resolver } from './types';

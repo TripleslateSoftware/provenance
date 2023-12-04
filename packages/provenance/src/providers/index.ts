@@ -1,7 +1,5 @@
-import { provider } from './provider';
-import { github } from './github';
-import { keycloak } from './keycloak';
-
-export { provider, github, keycloak };
+export { provider } from './provider';
+export { github } from './github';
+export { keycloak } from './keycloak';
 
 export type { ProviderCallbacks, Provider } from './types';

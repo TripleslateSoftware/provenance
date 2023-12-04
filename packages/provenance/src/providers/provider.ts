@@ -2,7 +2,6 @@ import { TokenEndpointResponse } from 'oauth4webapi';
 
 import {
 	type Resolver,
-	lastPathResolver,
 	localsResolver,
 	loginResolver,
 	logoutResolver,
@@ -44,8 +43,7 @@ export const provider = <Session extends object>(
 			redirectUriResolver(),
 			localsResolver(),
 			loginResolver(),
-			logoutResolver(),
-			lastPathResolver()
+			logoutResolver()
 		]
 	};
 };
