@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.4.0
+
+### Minor Changes
+
+- 2e38ebe: support SvelteKit v2
+
 ## 0.3.0
 
 ### Minor Changes
