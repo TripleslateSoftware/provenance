@@ -1,6 +1,6 @@
 import * as oauth from 'oauth4webapi';
 
-import type { Cookie } from '../types';
+import type { Cookie, Cookies } from '../types';
 
 const NONCE_MAX_AGE = 60 * 5;
 const NONCE_COOKIE_NAME = 'nonce';
@@ -21,18 +21,16 @@ export const c = () => {
 					name: NONCE_COOKIE_NAME,
 					value: nonce,
 					options: {
+						path: '/',
 						maxAge: NONCE_MAX_AGE
 					}
 				};
 
 				return { nonce, cookie };
 			},
-			use(cookies: {
-				get: (name: string) => string | undefined;
-				delete: (name: string) => void;
-			}): string {
+			use(cookies: Cookies): string {
 				const nonce = cookies.get(NONCE_COOKIE_NAME);
-				cookies.delete(NONCE_COOKIE_NAME);
+				cookies.delete(NONCE_COOKIE_NAME, { path: '/' });
 
 				if (nonce !== undefined) {
 					return nonce;
@@ -50,18 +48,16 @@ export const c = () => {
 					name: STATE_COOKIE_NAME,
 					value: value,
 					options: {
+						path: '/',
 						maxAge: STATE_MAX_AGE
 					}
 				};
 
 				return { state: value, cookie };
 			},
-			use(cookies: {
-				get: (name: string) => string | undefined;
-				delete: (name: string) => void;
-			}): string {
+			use(cookies: Cookies): string {
 				const state = cookies.get(STATE_COOKIE_NAME);
-				cookies.delete(STATE_COOKIE_NAME);
+				cookies.delete(STATE_COOKIE_NAME, { path: '/' });
 
 				if (state !== undefined) {
 					return state;
@@ -79,18 +75,16 @@ export const c = () => {
 					name: PKCE_COOKIE_NAME,
 					value: codeVerifier,
 					options: {
+						path: '/',
 						maxAge: PKCE_MAX_AGE
 					}
 				};
 
 				return { codeChallenge, cookie };
 			},
-			use(cookies: {
-				get: (name: string) => string | undefined;
-				delete: (name: string) => void;
-			}): string {
+			use(cookies: Cookies): string {
 				const codeVerifier = cookies.get(PKCE_COOKIE_NAME);
-				cookies.delete(PKCE_COOKIE_NAME);
+				cookies.delete(PKCE_COOKIE_NAME, { path: '/' });
 
 				if (codeVerifier !== undefined) {
 					return codeVerifier;

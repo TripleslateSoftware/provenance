@@ -9,6 +9,16 @@ export type Cookie = {
 	options: CookieSerializeOptions;
 };
 
+export type Cookies = {
+	get: (name: string) => string | undefined;
+	delete: (
+		name: string,
+		opts: CookieSerializeOptions & {
+			path: string;
+		}
+	) => void;
+};
+
 export type AuthOptions = {
 	/** defaults to `/auth` */
 	redirectUriPathname: string;

@@ -70,7 +70,7 @@ export const generateRuntime = () => dedent`
 					return await modules.oauth.refresh(fetchRefreshedToken, refreshToken);
 				},
 				redirectLogin: async () => {
-					throw redirect(303, await modules.oauth.login(event.url.origin, event.cookies.set));
+					redirect(303, await modules.oauth.login(event.url.origin, event.cookies.set));
 				},
 				postLogout: async (idToken) => {
 					/**
@@ -112,16 +112,20 @@ export const generateRuntime = () => dedent`
 				},
 				setCookie: (session) => {
 					modules.session.setCookie(
-						(name, value, maxAge) =>
-							event.cookies.set(name, value, {
-								path: '/',
-								maxAge: maxAge
-							}),
+						(name, value, maxAge) => event.cookies.set(name, value, {
+							path: '/',
+							maxAge: maxAge
+						}),
 						session
 					);
 				},
 				deleteCookie: () => {
-					modules.session.deleteCookie(event.cookies.getAll, event.cookies.delete);
+					modules.session.deleteCookie(
+						event.cookies.getAll,
+						(name) => event.cookies.delete(name, {
+							path: '/'
+						})
+					);
 				}
 			},
 			locals: {
@@ -139,21 +143,21 @@ export const generateRuntime = () => dedent`
 				login: {
 					redirect: () => {
 						const loginPath = modules.routes.login.pathname;
-						throw redirect(303, loginPath);
+						redirect(303, loginPath);
 					},
 					is: isRoute(modules.routes.login.pathname)
 				},
 				logout: {
 					redirect: () => {
 						const logoutPath = modules.routes.logout.pathname;
-						throw redirect(303, logoutPath);
+						redirect(303, logoutPath);
 					},
 					is: isRoute(modules.routes.logout.pathname)
 				},
 				lastPath: {
 					redirect: () => {
 						const lastPath = modules.routes.lastPath.getCookie(event.cookies.get);
-						throw redirect(303, lastPath || '/');
+						redirect(303, lastPath || '/');
 					},
 					set: () => {
 						modules.routes.lastPath.setCookie((name, maxAge) =>
@@ -166,7 +170,7 @@ export const generateRuntime = () => dedent`
 				},
 				home: {
 					redirect: () => {
-						throw redirect(303, '/');
+						redirect(303, '/');
 					},
 					is: isRoute('/')
 				}
@@ -219,7 +223,7 @@ export const generateRuntime = () => dedent`
 					})
 				);
 
-				throw redirect(303, defaultedOptions.loginPathname);
+				redirect(303, defaultedOptions.loginPathname);
 			}
 
 			return session;
