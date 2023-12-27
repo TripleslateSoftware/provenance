@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.4.1
+
+### Patch Changes
+
+- 06d8824: fix: handle cookie checks failure with redirect (retry)
+
 ## 0.4.0
 
 ### Minor Changes
