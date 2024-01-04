@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.4.1
+
+### Patch Changes
+
+- fix vite config wrong `Plugin` type
+
 ## 0.4.0
 
 ### Minor Changes
