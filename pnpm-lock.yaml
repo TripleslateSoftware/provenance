@@ -37,10 +37,6 @@ importers:
         version: 1.10.13
 
   example:
-    dependencies:
-      '@tripleslate/provenance':
-        specifier: workspace:^
-        version: link:../packages/provenance
     devDependencies:
       '@sveltejs/adapter-auto':
         specifier: ^3.0.0
@@ -51,6 +47,9 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.0.1
         version: 3.0.1(svelte@4.2.8)(vite@5.0.10)
+      '@tripleslate/provenance':
+        specifier: workspace:^
+        version: link:../packages/provenance
       svelte:
         specifier: ^4.2.8
         version: 4.2.8
@@ -74,7 +73,7 @@ importers:
         version: 2.0.2(@sveltejs/vite-plugin-svelte@3.0.1)(svelte@4.2.8)(vite@5.0.10)
       oauth4webapi:
         specifier: ^2.3.0
-        version: 2.3.0
+        version: 2.5.0
     devDependencies:
       '@types/cookie':
         specifier: 0.5.1
@@ -2871,8 +2870,8 @@ packages:
       path-key: 3.1.1
     dev: true
 
-  /oauth4webapi@2.3.0:
-    resolution: {integrity: sha512-JGkb5doGrwzVDuHwgrR4nHJayzN4h59VCed6EW8Tql6iHDfZIabCJvg6wtbn5q6pyB2hZruI3b77Nudvq7NmvA==}
+  /oauth4webapi@2.5.0:
+    resolution: {integrity: sha512-72EWwDzXY3oiadPsWn89EvavYFyiZgsD/tf7nKKmZwFaUg70k2S4bsYFrwbnaaQah8ZlOkCah63tLhD8AvbHcA==}
     dev: false
 
   /object-assign@4.1.1:

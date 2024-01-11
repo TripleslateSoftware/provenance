@@ -39,53 +39,7 @@ export default defineConfig({
 });
 ```
 
-### add path alias
-
-#### `svelte.config.ts`
-
-```ts title="svelte.config.ts"
-import path from 'path';
-
-import adapter from '@sveltejs/adapter-auto';
-import { vitePreprocess } from '@sveltejs/kit/vite';
-
-/** @type {import('@sveltejs/kit').Config} */
-const config = {
-  preprocess: vitePreprocess(),
-  kit: {
-    adapter: adapter(),
-    alias: {
-      // add this alias record
-      $provenance: path.resolve('.', '$provenance')
-    }
-  }
-};
-
-export default config;
-```
-
-### add the `$provenance` dir to `.gitignore`,
-
-#### `.gitignore`
-
-```ignore title=".gitignore"
-.DS_Store
-node_modules
-/build
-/dist
-/.svelte-kit
-/package
-.env
-.env.*
-!.env.example
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-
-$provenance
-```
-
-`$provenance/index.js` and `$provenance/index.d.ts` will be written on vite dev server start and build and do not need to be checked in.
-Optionally, add $provenance to `.prettierignore` and `.eslintignore`.
+`src/lib/server/PROVENANCE.ts` will be written on vite dev server start and build and should be checked in. This output file location can be customized and optionally output in js.
 
 ### create auth object
 
@@ -94,7 +48,7 @@ Optionally, add $provenance to `.prettierignore` and `.eslintignore`.
 ##### github
 
 ```ts title="src/lib/server/auth.ts"
-import { provenance } from '$provenance';
+import { provenance } from './PROVENANCE';
 import { github } from '@tripleslate/provenance/providers';
 import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
 
@@ -109,7 +63,7 @@ export const auth = provenance(
 ##### keycloak
 
 ```ts title="src/lib/server/auth.ts"
-import { provenance } from '$provenance';
+import { provenance } from './PROVENANCE';
 import { keycloak } from '@tripleslate/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 
@@ -211,7 +165,7 @@ Include a session callback in the `auth` definition to decode the `idToken` JWT 
 ```ts title="src/lib/server/auth.ts"
 import * as jose from 'jose';
 
-import { provenance } from '$provenance';
+import { provenance } from './PROVENANCE';
 import { keycloak } from '@tripleslate/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 

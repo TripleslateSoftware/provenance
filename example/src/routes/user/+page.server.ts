@@ -1,5 +1,5 @@
 import { GH_CLIENT_ID } from '$env/static/private';
-import { auth } from '$lib/server/auth.js';
+import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async (event) => {

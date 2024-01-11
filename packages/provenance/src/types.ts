@@ -1,12 +1,13 @@
 import type { CookieSerializeOptions } from 'cookie';
 import type { TokenEndpointResponse } from 'oauth4webapi';
+export type { TokenEndpointResponse };
 
 import type { OAuthModule } from './modules';
 
 export type Cookie = {
 	name: string;
 	value: string;
-	options: CookieSerializeOptions;
+	options: CookieSerializeOptions & { path: string };
 };
 
 export type Cookies = {
@@ -59,13 +60,13 @@ export type Context<Session> = {
 	};
 	session: {
 		create: (tokens: TokenEndpointResponse) => Session;
-		getCookie: () => Session;
+		getCookie: () => Session | null;
 		setCookie: (session: Session) => void;
 		deleteCookie: () => void;
 	};
 	locals: {
-		get session(): Session;
-		set session(value: Session);
+		get session(): Session | null;
+		set session(value: Session | null);
 	};
 	routes: {
 		redirectUri: {
