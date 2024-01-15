@@ -36,7 +36,7 @@ export const generateTSRuntime = () => dedent`
 			routes: RoutesModule;
 			checks: ChecksModule;
 		}
-	): Context<App.Session> {
+	): Context<App.Session & App.SessionExtra> {
 		const isRoute = (pathname: string) => event.url.pathname.startsWith(pathname);
 
 		return {

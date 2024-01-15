@@ -8,6 +8,6 @@ export const auth = provenance(
 		clientSecret: GH_CLIENT_SECRET
 	}),
 	() => {
-		return {};
+		return { message: 'hello!' };
 	}
 );

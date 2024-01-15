@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.5.1
+
+### Patch Changes
+
+- fix types agreement on context generic for SessionExtra stuff
+
 ## 0.5.0
 
 ### Minor Changes

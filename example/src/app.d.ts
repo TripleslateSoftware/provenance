@@ -5,6 +5,9 @@ declare global {
 		interface Session {
 			accessToken: string;
 		}
+		interface SessionExtra {
+			message: string;
+		}
 
 		// interface Error {}
 		// interface Locals {}
