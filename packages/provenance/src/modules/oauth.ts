@@ -34,7 +34,11 @@ export const o = <Session>(
 		 */
 		async login(
 			redirectUriOrigin: string,
-			setCookie: (name: string, value: string, opts?: CookieSerializeOptions | undefined) => void
+			setCookie: (
+				name: string,
+				value: string,
+				opts: CookieSerializeOptions & { path: string }
+			) => void
 		) {
 			// TODO: do something with state data
 			const stateCheck = modules.checks.state.create({});

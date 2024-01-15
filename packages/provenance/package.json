@@ -20,8 +20,9 @@
 	"scripts": {
 		"build": "rimraf dist && tsup",
 		"dev": "tsup --watch",
+		"prepare": "npm run build",
 		"clean:all": "rimraf dist node_modules",
-		"prepublishOnly": "pnpm build"
+		"prepublishOnly": "npm run build"
 	},
 	"peerDependencies": {
 		"@sveltejs/kit": "^2.0.0",

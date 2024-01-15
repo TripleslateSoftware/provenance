@@ -1,12 +1,16 @@
 import fs from 'node:fs';
 
 import { generateDeclaration } from './codegen/declaration';
-import { generateRuntime } from './codegen/runtime';
+import { generateJSRuntime, generateTSRuntime } from './codegen/runtime';
 
-export const writeTypes = (dir: string) => {
-	fs.writeFileSync(`${dir}/index.d.ts`, generateDeclaration());
+export const writeTypes = (dir: string, filename: string) => {
+	fs.writeFileSync(`${dir}/${filename}`, generateDeclaration());
 };
 
-export const writeRuntime = (dir: string) => {
-	fs.writeFileSync(`${dir}/index.js`, generateRuntime());
+export const writeJSRuntime = (dir: string, filename: string) => {
+	fs.writeFileSync(`${dir}/${filename}`, generateJSRuntime());
+};
+
+export const writeTSRuntime = (dir: string, filename: string) => {
+	fs.writeFileSync(`${dir}/${filename}`, generateTSRuntime());
 };
