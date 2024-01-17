@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.5.2
+
+### Patch Changes
+
+- add `postUpdateRun` option for formatting, etc.
+
 ## 0.5.1
 
 ### Patch Changes

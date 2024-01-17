@@ -36,3 +36,7 @@ pnpm changeset publish
 ```
 pnpm changeset publish
 ```
+
+## thanks
+
+[vite-plugin-kit-routes](https://github.com/jycouet/kitql) for good practices for a single file vite codegen plugin

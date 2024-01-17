@@ -1,39 +1,46 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { spawn } from 'child_process';
 
 import type { Plugin } from 'vite';
 
 import { writeTypes, writeJSRuntime, writeTSRuntime } from './write';
 
-export type TSOptions = {
+type BaseOptions = {
+	/**
+	 * run any command after an update of some routes.
+	 *
+	 * @example
+	 * ```ts
+	 * 'npm exec prettier ./src/lib/server/PROVENANCE.ts -- -w'
+	 * ```
+	 */
+	postUpdateRun: string | undefined;
 	dir: string;
 	filename: string;
-	generateTypes: false;
+};
+
+export type TSOptions = BaseOptions & {
 	runtime: 'ts';
 };
 
-export type JSOptions = {
-	dir: string;
-	filename: string;
+export type JSOptions = BaseOptions & {
 	generateTypes: boolean;
 	runtime: 'js';
 };
 
-const getDefaultOptions = (
-	o?:
-		| (Partial<TSOptions> & Pick<TSOptions, 'runtime'>)
-		| (Partial<JSOptions> & Pick<JSOptions, 'runtime'>)
-) => {
+const getDefaultOptions = (o?: Partial<TSOptions | JSOptions>): TSOptions | JSOptions => {
 	if (o?.runtime != 'js') {
 		const options: TSOptions = {
+			postUpdateRun: o?.postUpdateRun,
 			dir: o?.dir ?? 'src/lib/server',
 			filename: o?.filename ?? 'PROVENANCE',
-			generateTypes: false,
 			runtime: 'ts'
 		};
 		return options;
 	} else {
 		const options: JSOptions = {
+			postUpdateRun: o?.postUpdateRun,
 			dir: o?.dir ?? 'src/lib/server',
 			filename: o?.filename ?? 'PROVENANCE',
 			generateTypes: o?.generateTypes ?? true,
@@ -43,7 +50,7 @@ const getDefaultOptions = (
 	}
 };
 
-const run = (o?: TSOptions | JSOptions, generateTypes?: boolean) => {
+const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) => {
 	const options = getDefaultOptions(o);
 
 	const dir = path.resolve('.', options.dir);
@@ -56,9 +63,20 @@ const run = (o?: TSOptions | JSOptions, generateTypes?: boolean) => {
 		writeTSRuntime(dir, `${options.filename}.${options.runtime}`);
 	} else {
 		writeJSRuntime(dir, `${options.filename}.${options.runtime}`);
+
+		if (generateTypes !== false && options.generateTypes) {
+			writeTypes(dir, `${options.filename}.d.ts`);
+		}
 	}
-	if (generateTypes !== false && options.generateTypes) {
-		writeTypes(dir, `${options.filename}.d.ts`);
+
+	if (options.postUpdateRun) {
+		const child = spawn(options.postUpdateRun, { shell: true });
+
+		const exitPromise = new Promise<void>((resolve) => {
+			child.on('close', () => resolve());
+		});
+
+		await exitPromise;
 	}
 };
 
@@ -124,7 +142,7 @@ const run = (o?: TSOptions | JSOptions, generateTypes?: boolean) => {
  * 
  * `auth.protectRoute` can be awaited in `+page.server.ts` load functions to send the user to the login route if a session is required
  */
-export function provenance(o?: TSOptions | JSOptions): Plugin[] {
+export function provenance(o?: Partial<TSOptions | JSOptions>): Plugin[] {
 	return [
 		{
 			name: 'vite-plugin-provenance',
