@@ -6,10 +6,8 @@
 		"dev": "turbo run dev",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"prerelease": "pnpm run build",
-		"release": "changeset publish",
-		"version": "changeset version",
-		"postversion": "pnpm install"
+		"ci:version": "changeset version && pnpm install",
+		"ci:release": "pnpm run build && changeset publish"
 	},
 	"devDependencies": {
 		"@changesets/cli": "^2.27.1",
