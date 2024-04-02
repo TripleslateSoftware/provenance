@@ -1,0 +1,5 @@
+---
+"example": patch
+---
+
+bump deps

@@ -11,16 +11,18 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.2.0",
-		"@sveltejs/kit": "^2.5.5",
 		"@sveltejs/vite-plugin-svelte": "^3.0.2",
-		"@tripleslate/provenance": "workspace:^",
 		"prettier": "^3.2.5",
 		"prettier-plugin-svelte": "^3.2.2",
-		"svelte": "^4.2.12",
 		"svelte-check": "^3.6.9",
 		"tslib": "^2.6.2",
 		"typescript": "^5.4.3",
 		"vite": "^5.2.7"
+	},
+	"dependencies": {
+		"@sveltejs/kit": "^2.5.5",
+		"@tripleslate/provenance": "workspace:0.5.3",
+		"svelte": "^4.2.12"
 	},
 	"type": "module"
 }

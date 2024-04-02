@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
 	"bumpVersionsWithWorkspaceProtocolOnly": true,
-  "ignore": ["!(@tripleslate/*)"]
+  "ignore": []
 }
