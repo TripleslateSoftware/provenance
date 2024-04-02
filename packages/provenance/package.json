@@ -20,7 +20,6 @@
 	"scripts": {
 		"build": "rimraf dist && tsup",
 		"dev": "tsup --watch",
-		"prepare": "npm run build",
 		"clean:all": "rimraf dist node_modules",
 		"prepublishOnly": "npm run build"
 	},
@@ -30,15 +29,15 @@
 	},
 	"devDependencies": {
 		"@types/cookie": "0.5.1",
-		"@types/node": "^20.4.9",
+		"@types/node": "^20.12.3",
 		"dedent": "^1.5.1",
-		"rimraf": "^5.0.1",
-		"tslib": "^2.6.1",
-		"tsup": "^6.5.0",
-		"vite": "^5.0.10"
+		"rimraf": "^5.0.5",
+		"tslib": "^2.6.2",
+		"tsup": "^6.7.0",
+		"vite": "^5.2.7"
 	},
 	"dependencies": {
-		"oauth4webapi": "^2.3.0"
+		"oauth4webapi": "^2.10.4"
 	},
 	"type": "module",
 	"module": "./dist/index.js",
