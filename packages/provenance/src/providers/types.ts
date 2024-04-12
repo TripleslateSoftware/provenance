@@ -25,7 +25,7 @@ export type EndpointsConfiguration = {
 export type SessionConfiguration<Session> = {
 	transformTokens: (tokens: TokenEndpointResponse) => Session;
 	sessionCookieAge: (session: Session) => number;
-	fixSession: (session: Session) => Partial<Session>;
+	fixSession: (session: Session) => Session;
 };
 
 /**
@@ -34,7 +34,7 @@ export type SessionConfiguration<Session> = {
  */
 export type ProviderCallbacks<Session> = {
 	sessionCookieAge?: (session: Session) => number;
-	fixSession?: (session: Session) => Partial<Session>;
+	fixSession?: (session: Session) => Session;
 };
 
 export type Provider<Session> = {

@@ -52,12 +52,7 @@ import { provenance } from './PROVENANCE';
 import { github } from '@tripleslate/provenance/providers';
 import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
 
-export const auth = provenance(
-  github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET }),
-  () => {
-    return {};
-  }
-);
+export const auth = provenance(github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET }));
 ```
 
 ##### keycloak
@@ -73,16 +68,13 @@ export const auth = provenance(
     realm: KC_REALM,
     clientId: KC_CLIENT_ID,
     clientSecret: KC_CLIENT_SECRET
-  }),
-  () => {
-    return {};
-  }
+  })
 );
 ```
 
 ### match the `App` interfaces to your provider and session callback
 
-Type errors will appear if the `App.Session` or `App.SessionExtra` interface(s) do not match the `provider` and `sessionCallback` passed to `$provenance.provenance` ([see "create auth object"](#create-auth-object)).
+You will not be able to access session data from locals if your `App.Session` interface does not match the `provider` and `sessionCallback` passed to `$provenance.provenance` ([see "create auth object"](#create-auth-object)).
 
 #### `src/app.d.ts`
 
@@ -148,7 +140,9 @@ declare global {
     interface User {
       displayName: string;
     }
-    interface SessionExtra {
+    interface Session {
+      accessToken: string;
+      idToken: string;
       user: User;
     }
     ...
@@ -176,14 +170,17 @@ export const auth = provenance(
     clientId: KC_CLIENT_ID,
     clientSecret: KC_CLIENT_SECRET
   }),
-  (tokens) => {
-    const idToken = jose.decodeJwt(tokens.idToken);
+  {
+    sessionCallback: (session) => {
+      const idToken = jose.decodeJwt(session.idToken);
 
-    return {
-      user: {
-        displayName: idToken.name
-      }
-    };
+      return {
+        ...session,
+        user: {
+          displayName: idToken.name
+        }
+      };
+    }
   }
 );
 ```

@@ -1,11 +1,9 @@
 import type { TokenEndpointResponse } from 'oauth4webapi';
 
-import type { SessionCallback } from '../types';
 import type { Provider } from '../providers';
 
-export const s = <Session, SessionExtra>(
-	provider: Provider<Session>,
-	sessionCallback: SessionCallback<Session, SessionExtra>,
+export const s = <ProviderSession>(
+	provider: Provider<ProviderSession>,
 	options: { sessionCookieName: string }
 ) => {
 	return {
@@ -14,16 +12,10 @@ export const s = <Session, SessionExtra>(
 		 * @param tokens
 		 * @returns session to be stored in cookies
 		 */
-		create(tokens: TokenEndpointResponse): Session & SessionExtra {
+		create(tokens: TokenEndpointResponse): ProviderSession {
 			const session = provider.session.transformTokens(tokens);
-			const fixedSession = {
-				...session,
-				...provider.session.fixSession(session)
-			};
-			return {
-				...fixedSession,
-				...sessionCallback(fixedSession)
-			};
+
+			return provider.session.fixSession(session);
 		},
 
 		/**
@@ -34,7 +26,7 @@ export const s = <Session, SessionExtra>(
 		 */
 		setCookie(
 			set: (name: string, value: string, maxAge: number) => void,
-			session: Session & SessionExtra
+			session: ProviderSession
 		) {
 			const maxCookieSize = 3500;
 			const fullCookie = JSON.stringify(session);
@@ -56,7 +48,7 @@ export const s = <Session, SessionExtra>(
 		 * @param sessionCookieName
 		 * @returns the session object stored in cookies or null if there is no session stored
 		 */
-		getCookie(getAll: () => { name: string; value: string }[]): (Session & SessionExtra) | null {
+		getCookie(getAll: () => { name: string; value: string }[]): any | null {
 			const sessionChunkCookies = getAll().filter((cookie) =>
 				cookie.name.startsWith(`${options.sessionCookieName}-`)
 			);
@@ -93,4 +85,4 @@ export const s = <Session, SessionExtra>(
 	};
 };
 
-export type SessionModule<Session, SessionExtra> = ReturnType<typeof s<Session, SessionExtra>>;
+export type SessionModule<ProviderSession> = ReturnType<typeof s<ProviderSession>>;

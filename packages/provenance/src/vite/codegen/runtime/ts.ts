@@ -21,22 +21,22 @@ export const generateTSRuntime = () => dedent`
 		type SessionModule,
 		type AuthOptions,
 		type Provider,
-		type SessionCallback,
 		type Context,
 		type TokenEndpointResponse
 	} from '@tripleslate/provenance';
 
 	import { dev } from '$app/environment';
 
-	function createContext(
+	function createContext<ProviderSession>(
 		event: RequestEvent,
 		modules: {
 			oauth: OAuthModule;
-			session: SessionModule<App.Session, App.SessionExtra>;
+			session: SessionModule<ProviderSession>;
 			routes: RoutesModule;
 			checks: ChecksModule;
-		}
-	): Context<App.Session & App.SessionExtra> {
+		},
+		sessionCallback?: (session: ProviderSession) => App.Session | undefined
+	): Context<ProviderSession, App.Session> {
 		const isRoute = (pathname: string) => event.url.pathname.startsWith(pathname);
 
 		return {
@@ -134,14 +134,18 @@ export const generateTSRuntime = () => dedent`
 				getCookie: () => {
 					return modules.session.getCookie(event.cookies.getAll);
 				},
-				setCookie: (session: App.Session & App.SessionExtra) => {
+				setCookie: (session: ProviderSession) => {
+					const sessionWithExtra = {
+						...session,
+						...sessionCallback?.(session)
+					};
 					modules.session.setCookie(
 						(name, value, maxAge) =>
 							event.cookies.set(name, value, {
 								path: '/',
 								maxAge: maxAge
 							}),
-						session
+						sessionWithExtra
 					);
 				},
 				deleteCookie: () => {
@@ -203,17 +207,24 @@ export const generateTSRuntime = () => dedent`
 	}
 
 	/**
-	 * @param {Provider<App.Session>} provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
-	 * @param {SessionCallback<App.Session, App.SessionExtra>} sessionCallback use session data (determined by provider) to return extra information to be stored in the session cookie
-	 * @param {boolean | undefined} logging whether to log in handle routes (will use setting for \`dev\` if not provided)
-	 * @param {Partial<AuthOptions> | undefined} options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
+	 * @param sessionCallback use session data (determined by provider) to return extra information to be stored in the session cookie
+	 * @param logging whether to log in handle routes (will use setting for \`dev\` if not provided)
+	 * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
+	 */
+	type ProvenanceConfig<ProviderSession> = {
+		sessionCallback: (session: ProviderSession) => App.Session;
+		logging: boolean;
+		options: Partial<AuthOptions>;
+	};
+
+	/**
+	 * @param provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
+	 * @param config optional extra configuration options for provenance behaviour
 	 * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
 	 */
-	export const provenance = (
-		provider: Provider<App.Session>,
-		sessionCallback: SessionCallback<App.Session, App.SessionExtra>,
-		logging?: boolean,
-		options?: Partial<AuthOptions>
+	export const provenance = <ProviderSession>(
+		provider: Provider<ProviderSession>,
+		config?: Partial<ProvenanceConfig<ProviderSession>>
 	) => {
 		const defaultedOptions: AuthOptions = {
 			redirectUriPathname: '/auth',
@@ -221,19 +232,23 @@ export const generateTSRuntime = () => dedent`
 			loginPathname: '/login',
 			logoutPathname: '/logout',
 			lastPathCookieName: 'last-path',
-			...options
+			...config?.options
 		};
 
-		const defaultedLogging = logging || dev;
+		const defaultedLogging = config?.logging ?? dev;
 
 		const checks = c();
 		const routes = r(defaultedOptions);
 		const oauth = o({ checks }, provider, defaultedOptions);
-		const session = s(provider, sessionCallback, defaultedOptions);
+		const session = s(provider, defaultedOptions);
 
 		const handles = provider.resolvers.map((resolver) => {
 			const handle: Handle = async ({ event, resolve }) => {
-				const context = createContext(event, { checks, oauth, session, routes });
+				const context = createContext(
+					event,
+					{ checks, oauth, session, routes },
+					config?.sessionCallback
+				);
 
 				await resolver(context, defaultedLogging);
 				return await resolve(event);
@@ -267,11 +282,10 @@ export const generateTSRuntime = () => dedent`
 
 	declare global {
 		namespace App {
-			interface SessionExtra {}
 			interface Session {}
 
 			interface Locals {
-				session: (Session & SessionExtra) | null;
+				session: Session | null;
 			}
 		}
 	}

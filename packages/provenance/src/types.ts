@@ -33,7 +33,7 @@ export type AuthOptions = {
 	lastPathCookieName: string;
 };
 
-export type Context<Session> = {
+export type Context<ProviderSession, Session> = {
 	oauth: {
 		processAuthResponse: (expectedState: string) => Promise<{
 			code: string;
@@ -59,9 +59,9 @@ export type Context<Session> = {
 		};
 	};
 	session: {
-		create: (tokens: TokenEndpointResponse) => Session;
+		create: (tokens: TokenEndpointResponse) => ProviderSession;
 		getCookie: () => Session | null;
-		setCookie: (session: Session) => void;
+		setCookie: (session: ProviderSession) => void;
 		deleteCookie: () => void;
 	};
 	locals: {

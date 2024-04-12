@@ -23,7 +23,7 @@ export const provider = <Session extends object>(
 	session: {
 		transformTokens: (tokens: TokenEndpointResponse) => Session;
 		sessionCookieAge?: (session: Session) => number;
-		fixSession?: (session: Session) => Partial<Session>;
+		fixSession?: (session: Session) => Session;
 	},
 	resolvers?: Resolver<Session>[]
 ): Provider<Session> => {
@@ -35,8 +35,8 @@ export const provider = <Session extends object>(
 			sessionCookieAge: session.sessionCookieAge || (() => DEFAULT_SESSION_COOKIE_AGE),
 			fixSession:
 				session.fixSession ||
-				(() => {
-					return {};
+				((session) => {
+					return session;
 				})
 		},
 		resolvers: resolvers || [

@@ -7,7 +7,12 @@ export const auth = provenance(
 		clientId: GH_CLIENT_ID,
 		clientSecret: GH_CLIENT_SECRET
 	}),
-	() => {
-		return { message: 'hello!' };
+	{
+		sessionCallback(session) {
+			return {
+				...session,
+				message: 'hello!'
+			};
+		}
 	}
 );
