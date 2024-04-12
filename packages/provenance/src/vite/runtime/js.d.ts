@@ -17,7 +17,7 @@ import type {
  */
 export type ProvenanceConfig<ProviderSession> = {
 	sessionCallback: (session: ProviderSession) => App.Session;
-	getDomain: (event: RequestEvent) => string;
+	getDomain: (event: RequestEvent) => string | undefined;
 	logging: boolean;
 	options: Partial<AuthOptions>;
 };
