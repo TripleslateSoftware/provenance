@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.6.0
+
+### Minor Changes
+
+- 2b71a5e: remove `SessionExtra`/required `sessionCallback` and refactor for cleaner generics
+
 ## 0.5.3
 
 ### Patch Changes
