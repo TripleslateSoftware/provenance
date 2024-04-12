@@ -7,8 +7,8 @@
 		"dev": "turbo run dev",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"ci:version": "changeset version && pnpm install",
-		"ci:release": "pnpm build && changeset publish"
+		"changeset:version": "changeset version && pnpm install --no-frozen-lockfile",
+		"changeset:publish": "pnpm build && changeset publish"
 	},
 	"devDependencies": {
 		"@changesets/cli": "^2.27.1",
