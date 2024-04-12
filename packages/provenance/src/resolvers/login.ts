@@ -1,7 +1,7 @@
 import type { Resolver } from './types';
 
 export const loginResolver =
-	<Session extends object>(): Resolver<Session> =>
+	<ProviderSession extends object>(): Resolver<ProviderSession> =>
 	async (context, logging) => {
 		if (context.routes.login.is) {
 			const session = context.locals.session;

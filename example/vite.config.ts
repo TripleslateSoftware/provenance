@@ -4,7 +4,9 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [
-		provenance({ postUpdateRun: 'npm exec prettier ./src/lib/server/PROVENANCE.ts -- -w' }),
+		provenance({
+			postUpdateRun: 'npm exec prettier ./src/lib/server/PROVENANCE.ts -- -w'
+		}),
 		sveltekit()
 	]
 });

@@ -1,16 +1,14 @@
-import fs from 'node:fs';
+import path from 'node:path';
+import fs from 'node:fs/promises';
 
-import { generateDeclaration } from './codegen/declaration';
-import { generateJSRuntime, generateTSRuntime } from './codegen/runtime';
-
-export const writeTypes = (dir: string, filename: string) => {
-	fs.writeFileSync(`${dir}/${filename}`, generateDeclaration());
+export const copyTypes = async (runtimeDir: string, dir: string, filename: string) => {
+	await fs.copyFile(path.join(runtimeDir, 'js.d.ts'), path.join(dir, filename));
 };
 
-export const writeJSRuntime = (dir: string, filename: string) => {
-	fs.writeFileSync(`${dir}/${filename}`, generateJSRuntime());
+export const copyJSRuntime = async (runtimeDir: string, dir: string, filename: string) => {
+	await fs.copyFile(path.join(runtimeDir, 'js.js'), path.join(dir, filename));
 };
 
-export const writeTSRuntime = (dir: string, filename: string) => {
-	fs.writeFileSync(`${dir}/${filename}`, generateTSRuntime());
+export const copyTSRuntime = async (runtimeDir: string, dir: string, filename: string) => {
+	await fs.copyFile(path.join(runtimeDir, 'ts.ts'), path.join(dir, filename));
 };

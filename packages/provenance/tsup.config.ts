@@ -4,7 +4,7 @@ import pkg from './package.json';
 export const tsup: Options = {
 	dts: true,
 	entry: ['src/index.ts', 'src/providers/index.ts', 'src/vite/index.ts'],
-	external: ['svelte', '@sveltejs/kit', /^@supabase\//],
+	external: ['svelte', '@sveltejs/kit'],
 	format: ['esm'],
 	legacyOutput: false,
 	sourcemap: true,

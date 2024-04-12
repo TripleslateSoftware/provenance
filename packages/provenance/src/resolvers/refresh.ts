@@ -1,11 +1,11 @@
 import { Resolver } from './types';
 
 export const refreshResolver = <
-	Session extends {
+	ProviderSession extends {
 		refreshToken: string;
 		accessExpiresAt: number;
 	}
->(): Resolver<Session> => {
+>(): Resolver<ProviderSession> => {
 	return async (context, logging) => {
 		const session = context.locals.session;
 		if (session !== null) {

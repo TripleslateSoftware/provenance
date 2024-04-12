@@ -1,7 +1,7 @@
 import { Resolver } from './types';
 
 export const redirectUriResolver =
-	<Session extends object>(): Resolver<Session> =>
+	<ProviderSession extends object>(): Resolver<ProviderSession> =>
 	async (context, logging) => {
 		if (context.routes.redirectUri.is) {
 			if (logging) console.log('provenance:', 'redirectUri');

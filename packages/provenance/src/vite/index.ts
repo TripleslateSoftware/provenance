@@ -1,10 +1,12 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import fsPromises from 'node:fs/promises';
+
 import { spawn } from 'child_process';
 
 import type { Plugin } from 'vite';
 
-import { writeTypes, writeJSRuntime, writeTSRuntime } from './write';
+import { copyTypes, copyJSRuntime, copyTSRuntime } from './write';
 
 type BaseOptions = {
 	/**
@@ -50,22 +52,140 @@ const getDefaultOptions = (o?: Partial<TSOptions | JSOptions>): TSOptions | JSOp
 	}
 };
 
+const findModule = async (pkg: string, currentLocation: string) => {
+	const pathEndingBy = ['node_modules', pkg];
+
+	// Build the first possible location
+	let locationFound = path.join(currentLocation, ...pathEndingBy);
+
+	// previousLocation is nothing
+	let previousLocation = '';
+	const backFolder: string[] = [];
+
+	// if previousLocation !== locationFound that mean that we can go upper
+	// if the directory doesn't exist, let's go upper.
+	while (previousLocation !== locationFound && !(await fsPromises.stat(locationFound))) {
+		// save the previous path
+		previousLocation = locationFound;
+
+		// add a back folder
+		backFolder.push('../');
+
+		// set the new location
+		locationFound = path.join(currentLocation, ...backFolder, ...pathEndingBy);
+	}
+
+	if (previousLocation === locationFound) {
+		throw new Error('Could not find any node_modules/@tripleslate/provenance folder');
+	}
+
+	return locationFound;
+};
+
+const runtimePaths = async (): Promise<{ js: string; declaration: string; ts: string }> => {
+	const packageName = '@tripleslate/provenance';
+	try {
+		const rootPath = process.cwd();
+
+		// check if we are in a PnP environment
+		if (process.versions.pnp) {
+			// retrieve the PnP API (Yarn injects the `findPnpApi` into `node:module` builtin module in runtime)
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			const { findPnpApi } = require('node:module');
+
+			// this will traverse the file system to find the closest `.pnp.cjs` file and return the PnP API based on it
+			// normally it will reside at the same level as the cwd, so it is unlikely that traversing the whole file system will happen
+			const pnp = findPnpApi(rootPath);
+
+			// this directly returns the ESM export of the corresponding module, thanks to the PnP API
+			// it will throw if the module isn't found in the project's dependencies
+			const js = path.dirname(
+				pnp.resolveRequest(`${packageName}/runtime/js`, rootPath, {
+					conditions: new Set(['import'])
+				})
+			);
+			const declaration = path.dirname(
+				pnp.resolveRequest(`${packageName}/runtime/js`, rootPath, {
+					conditions: new Set(['types'])
+				})
+			);
+			const ts = path.dirname(
+				pnp.resolveRequest(`${packageName}/runtime/ts`, rootPath, {
+					conditions: new Set(['default'])
+				})
+			);
+
+			return {
+				js,
+				declaration,
+				ts
+			};
+		}
+
+		// otherwise we have to hunt the module down relative to the current path
+		const packageDirectory = await findModule(packageName, rootPath);
+
+		// load up the package json
+		const packageJsonSrc = await fsPromises.readFile(
+			path.join(packageDirectory, 'package.json'),
+			'utf-8'
+		);
+		if (!packageJsonSrc) {
+			throw new Error('skip');
+		}
+		const packageJSON = JSON.parse(packageJsonSrc);
+
+		// the esm target to import is defined at exports['.'].import
+		if (
+			!packageJSON.exports?.['./runtime/js']?.import ||
+			!packageJSON.exports?.['./runtime/js']?.types ||
+			!packageJSON.exports?.['./runtime/ts']?.default
+		) {
+			throw new Error('');
+		}
+
+		const js = path.dirname(
+			path.join(packageDirectory, packageJSON.exports['./runtime/js'].import)
+		);
+		const declaration = path.dirname(
+			path.join(packageDirectory, packageJSON.exports['./runtime/js'].types)
+		);
+		const ts = path.dirname(
+			path.join(packageDirectory, packageJSON.exports['./runtime/ts'].default)
+		);
+
+		return {
+			js,
+			declaration,
+			ts
+		};
+	} catch {
+		const err = new Error(
+			`Could not find ${packageName}. Are you sure its installed? If so, please open a ticket on GitHub.`
+		);
+
+		throw err;
+	}
+};
+
 const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) => {
 	const options = getDefaultOptions(o);
 
-	const dir = path.resolve('.', options.dir);
+	const outDir = path.resolve('.', options.dir);
 
-	if (!fs.existsSync(dir)) {
-		fs.mkdirSync(dir);
+	if (!fs.existsSync(outDir)) {
+		fs.mkdirSync(outDir);
 	}
 
+	const { ts, js, declaration } = await runtimePaths();
+
 	if (options.runtime == 'ts') {
-		writeTSRuntime(dir, `${options.filename}.${options.runtime}`);
+		await copyTSRuntime(ts, outDir, `${options.filename}.${options.runtime}`);
 	} else {
-		writeJSRuntime(dir, `${options.filename}.${options.runtime}`);
+		await copyJSRuntime(js, outDir, `${options.filename}.${options.runtime}`);
 
 		if (generateTypes !== false && options.generateTypes) {
-			writeTypes(dir, `${options.filename}.d.ts`);
+			copyTypes(declaration, outDir, `${options.filename}.d.ts`);
 		}
 	}
 
@@ -104,10 +224,7 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
  *	import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
  *
  *	export const auth = provenance(
- *		github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET }),
- *		() => {
- *			return {}
- *		}
+ *		github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET })
  *	);
  * ```
  * 

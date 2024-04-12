@@ -1,7 +1,7 @@
 import { Resolver } from './types';
 
 export const logoutResolver =
-	<Session extends object>(): Resolver<Session> =>
+	<ProviderSession extends object>(): Resolver<ProviderSession> =>
 	async (context, logging) => {
 		if (context.routes.logout.is) {
 			const session = context.locals.session;
