@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.7.1
+
+### Patch Changes
+
+- 84dd9c8: allow `getDomain` to return undefined
+
 ## 0.7.0
 
 ### Minor Changes
