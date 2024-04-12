@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.7.0
+
+### Minor Changes
+
+- 31b61c2: copy the runtime from src instead of writing a string to a file and add `getDomain` to runtime `provenance` config parameter
+
 ## 0.6.0
 
 ### Minor Changes
