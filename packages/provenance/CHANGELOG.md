@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.7.2
+
+### Patch Changes
+
+- cdd8de9: add a lot more logging and straighten up config types
+
 ## 0.7.1
 
 ### Patch Changes
