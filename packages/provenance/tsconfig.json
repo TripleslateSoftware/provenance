@@ -16,7 +16,8 @@
 		"strict": true,
 		"target": "ESNext",
 		"paths": {
-			"@tripleslate/provenance": ["./src"]
+			"@tripleslate/provenance": ["./src"],
+			"@tripleslate/provenance/*": ["./src/*"]
 		}
 	},
 	"include": ["src"],

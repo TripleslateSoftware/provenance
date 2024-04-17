@@ -16,10 +16,10 @@ import type {
  * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
  */
 export type ProvenanceConfig<ProviderSession> = {
-	sessionCallback: (session: ProviderSession) => App.Session;
-	getDomain: (event: RequestEvent) => string | undefined;
-	logging: boolean;
-	options: Partial<AuthOptions>;
+	sessionCallback?: (session: ProviderSession) => App.Session;
+	getDomain?: (event: RequestEvent) => string | undefined;
+	logging?: boolean;
+	options?: AuthOptions;
 };
 
 declare function createContext<ProviderSession>(
@@ -30,7 +30,11 @@ declare function createContext<ProviderSession>(
 		routes: RoutesModule;
 		checks: ChecksModule;
 	},
-	config?: Partial<Pick<ProvenanceConfig<ProviderSession>, 'sessionCallback' | 'getDomain'>>
+	config: {
+		logging: boolean;
+		sessionCallback?: (session: ProviderSession) => App.Session;
+		getDomain?: (event: RequestEvent) => string | undefined;
+	}
 ): Context<ProviderSession, App.Session>;
 
 /**
@@ -40,7 +44,7 @@ declare function createContext<ProviderSession>(
  */
 export declare function provenance<ProviderSession>(
 	provider: Provider<ProviderSession>,
-	config?: Partial<ProvenanceConfig<ProviderSession>>
+	config?: ProvenanceConfig<ProviderSession>
 ): {
 	handle: Handle;
 	protectRoute: (event: RequestEvent) => Promise<App.Session>;

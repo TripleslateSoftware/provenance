@@ -22,6 +22,8 @@ import {
 	type TokenEndpointResponse
 } from '@tripleslate/provenance';
 
+import { logStarter } from '@tripleslate/provenance/helpers';
+
 import { dev } from '$app/environment';
 
 /**
@@ -30,11 +32,11 @@ import { dev } from '$app/environment';
  * @param logging whether to log in handle routes (will use setting for \`dev\` if not provided)
  * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
  */
-type ProvenanceConfig<ProviderSession> = {
-	sessionCallback: (session: ProviderSession) => App.Session;
-	getDomain: (event: RequestEvent) => string | undefined;
-	logging: boolean;
-	options: Partial<AuthOptions>;
+export type ProvenanceConfig<ProviderSession> = {
+	sessionCallback?: (session: ProviderSession) => App.Session;
+	getDomain?: (event: RequestEvent) => string | undefined;
+	logging?: boolean;
+	options?: AuthOptions;
 };
 
 function createContext<ProviderSession>(
@@ -45,14 +47,36 @@ function createContext<ProviderSession>(
 		routes: RoutesModule;
 		checks: ChecksModule;
 	},
-	config?: Partial<Pick<ProvenanceConfig<ProviderSession>, 'sessionCallback' | 'getDomain'>>
+	config: {
+		logging: boolean;
+		sessionCallback?: (session: ProviderSession) => App.Session;
+		getDomain?: (event: RequestEvent) => string | undefined;
+	}
 ): Context<ProviderSession, App.Session> {
-	const isRoute = (pathname: string) => event.url.pathname.startsWith(pathname);
+	const isRoute = (searchPathname: string) => {
+		const pathName = event.url.pathname;
+
+		return pathName.startsWith(searchPathname);
+	};
 
 	return {
 		oauth: {
 			processAuthResponse: async (expectedState: string) => {
-				return await modules.oauth.processAuthResponse(event.url, expectedState);
+				const url = event.url;
+
+				if (config.logging) {
+					logStarter('oauth:', 'processAuthResponse');
+					console.log('url:', event.url.href);
+					console.log('expectedState:', expectedState);
+				}
+
+				const authResponse = await modules.oauth.processAuthResponse(url, expectedState);
+
+				if (config.logging) {
+					console.log('authResponse:', authResponse);
+				}
+
+				return authResponse;
 			},
 			requestToken: async (
 				codeVerifier: string,
@@ -67,6 +91,22 @@ function createContext<ProviderSession>(
 						redirectUri: string;
 					}
 				): Promise<Response> => {
+					const client_id = params.clientId;
+					const client_secret = params.clientSecret;
+					const redirect_uri = new URL(params.redirectUri, event.url.origin).toString();
+					const grant_type = 'authorization_code';
+					const code = authorizationCode;
+					const code_verifier = codeVerifier;
+
+					if (config.logging) {
+						console.log('client_id:', client_id);
+						console.log('client_secret:', client_secret);
+						console.log('redirect_uri:', redirect_uri);
+						console.log('grant_type:', grant_type);
+						console.log('code:', code);
+						console.log('code_verifier:', code_verifier);
+					}
+
 					return await event.fetch(url, {
 						method: 'POST',
 						headers: {
@@ -74,17 +114,31 @@ function createContext<ProviderSession>(
 							Accept: 'application/json'
 						},
 						body: new URLSearchParams({
-							client_id: params.clientId,
-							client_secret: params.clientSecret,
-							redirect_uri: new URL(params.redirectUri, event.url.origin).toString(),
-							grant_type: 'authorization_code',
+							client_id: client_id,
+							client_secret: client_secret,
+							redirect_uri: redirect_uri,
+							grant_type: grant_type,
 							code: authorizationCode,
 							code_verifier: codeVerifier
 						})
 					});
 				};
 
-				return await modules.oauth.requestToken(fetchRequestToken, expectedNonce);
+				if (config.logging) {
+					logStarter('oauth:', 'requestToken');
+					console.log('expectedNonce:', expectedNonce);
+				}
+
+				const tokenEndpointResponse = await modules.oauth.requestToken(
+					fetchRequestToken,
+					expectedNonce
+				);
+
+				if (config.logging) {
+					console.log('tokenEndpointResponse:', tokenEndpointResponse);
+				}
+
+				return tokenEndpointResponse;
 			},
 			refresh: async (refreshToken: string) => {
 				const fetchRefreshedToken = async (
@@ -96,6 +150,13 @@ function createContext<ProviderSession>(
 						refresh_token: string;
 					}
 				): Promise<Response> => {
+					if (config.logging) {
+						console.log('client_id:', body.client_id);
+						console.log('client_secret:', body.client_secret);
+						console.log('grant_type:', body.grant_type);
+						console.log('refresh_token:', body.refresh_token);
+					}
+
 					return await event.fetch(url, {
 						method: 'POST',
 						headers: {
@@ -105,66 +166,170 @@ function createContext<ProviderSession>(
 					});
 				};
 
-				return await modules.oauth.refresh(fetchRefreshedToken, refreshToken);
+				if (config.logging) {
+					logStarter('oauth:', 'refresh');
+				}
+
+				const tokenEndpointResponse = await modules.oauth.refresh(
+					fetchRefreshedToken,
+					refreshToken
+				);
+
+				if (config.logging) {
+					console.log('tokenEndpointResponse:', tokenEndpointResponse);
+				}
+
+				return tokenEndpointResponse;
 			},
 			redirectLogin: async () => {
-				redirect(303, await modules.oauth.login(event.url.origin, event.cookies.set));
+				const origin = event.url.origin;
+
+				if (config.logging) {
+					logStarter('oauth:', 'redirectLogin');
+					console.log('origin:', origin);
+				}
+
+				redirect(303, await modules.oauth.login(origin, event.cookies.set));
 			},
 			postLogout: async (idToken: string) => {
 				const fetch = async (url: URL): Promise<Response> => {
+					const id_token_hint = idToken;
+
+					if (config.logging) {
+						console.log('url:', url);
+						console.log('id_token_hint:', id_token_hint);
+					}
+
 					return await event.fetch(url, {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/x-www-form-urlencoded'
 						},
 						body: new URLSearchParams({
-							id_token_hint: idToken
+							id_token_hint
 						})
 					});
 				};
+
+				if (config.logging) {
+					logStarter('oauth:', 'postLogout');
+					console.log('idToken:', idToken);
+				}
 
 				return await modules.oauth.logout(fetch);
 			}
 		},
 		checks: {
 			nonce: {
-				use: () => modules.checks.nonce.use(event.cookies)
+				use: () => {
+					const nonce = modules.checks.nonce.use(event.cookies);
+
+					if (config.logging) {
+						logStarter('checks:', 'nonce:', 'use');
+						console.log('nonce:', nonce);
+					}
+
+					return nonce;
+				}
 			},
 			state: {
-				use: () => modules.checks.state.use(event.cookies)
+				use: () => {
+					const state = modules.checks.state.use(event.cookies);
+
+					if (config.logging) {
+						logStarter('checks:', 'state:', 'use');
+						console.log('state:', state);
+					}
+
+					return state;
+				}
 			},
 			pkce: {
-				use: () => modules.checks.pkce.use(event.cookies)
+				use: () => {
+					const pkce = modules.checks.pkce.use(event.cookies);
+
+					if (config.logging) {
+						logStarter('checks:', 'pkce:', 'use');
+						console.log('pkce:', pkce);
+					}
+
+					return pkce;
+				}
 			}
 		},
 		session: {
 			create: (tokens: TokenEndpointResponse) => {
-				return modules.session.create(tokens);
+				if (config.logging) {
+					logStarter('session:', 'create');
+					console.log('tokens:', tokens);
+				}
+
+				const session = modules.session.create(tokens);
+
+				if (config.logging) {
+					console.log('session:', session);
+				}
+
+				return session;
 			},
 			getCookie: () => {
-				return modules.session.getCookie(event.cookies.getAll);
+				if (config.logging) {
+					logStarter('session:', 'getCookie');
+				}
+
+				const cookie = modules.session.getCookie(event.cookies.getAll);
+
+				if (config.logging) {
+					if (config.logging) console.log('cookie:', cookie);
+				}
+
+				return cookie;
 			},
 			setCookie: (session: ProviderSession) => {
+				if (config.logging) {
+					logStarter('session:', 'setCookie');
+					console.log('session:', session);
+				}
+
 				const sessionWithExtra = {
 					...session,
-					...config?.sessionCallback?.(session)
+					...config.sessionCallback?.(session)
 				};
-				modules.session.setCookie(
-					(name, value, maxAge) =>
-						event.cookies.set(name, value, {
-							path: '/',
-							maxAge: maxAge,
-							domain: config?.getDomain?.(event)
-						}),
-					sessionWithExtra
-				);
+				const domain = config.getDomain?.(event);
+
+				modules.session.setCookie((name, value, maxAge) => {
+					if (config.logging) {
+						console.log('name:', name);
+						console.log('value:', value);
+						console.log('maxAge:', maxAge);
+						console.log('domain:', domain);
+					}
+
+					return event.cookies.set(name, value, {
+						path: '/',
+						maxAge,
+						domain
+					});
+				}, sessionWithExtra);
 			},
 			deleteCookie: () => {
-				modules.session.deleteCookie(event.cookies.getAll, (name) =>
+				if (config.logging) {
+					logStarter('session:', 'deleteCookie');
+				}
+
+				const domain = config.getDomain?.(event);
+
+				modules.session.deleteCookie(event.cookies.getAll, (name) => {
+					if (config.logging) {
+						console.log('name:', name);
+						console.log('domain:', domain);
+					}
+
 					event.cookies.delete(name, {
-						path: '/'
-					})
-				);
+						path: '/',
+						domain
+					});
+				});
 			}
 		},
 		locals: {
@@ -199,19 +364,38 @@ function createContext<ProviderSession>(
 					redirect(303, lastPath || '/');
 				},
 				set: () => {
-					modules.routes.lastPath.setCookie((name, maxAge) =>
-						event.cookies.set(name, event.url.pathname, {
+					if (config.logging) {
+						logStarter('routes:', 'lastPath:', 'set');
+					}
+
+					modules.routes.lastPath.setCookie((name, maxAge) => {
+						const value = event.url.pathname;
+
+						if (config.logging) {
+							console.log('name:', name);
+							console.log('value:', value);
+							console.log('maxAge:', maxAge);
+						}
+
+						event.cookies.set(name, value, {
 							path: '/',
 							maxAge: maxAge
-						})
-					);
+						});
+					});
 				}
 			},
 			home: {
 				redirect: () => {
-					redirect(303, '/');
+					const homePath = modules.routes.home.pathname;
+
+					if (config.logging) {
+						logStarter('routes:', 'home:', 'redirect');
+						console.log('homePath:', homePath);
+					}
+
+					redirect(303, homePath);
 				},
-				is: isRoute('/')
+				is: isRoute(modules.routes.logout.pathname)
 			}
 		}
 	};
@@ -224,18 +408,22 @@ function createContext<ProviderSession>(
  */
 export const provenance = <ProviderSession>(
 	provider: Provider<ProviderSession>,
-	config?: Partial<ProvenanceConfig<ProviderSession>>
+	config?: ProvenanceConfig<ProviderSession>
 ) => {
-	const defaultedOptions: AuthOptions = {
+	const defaultedOptions = {
 		redirectUriPathname: '/auth',
 		sessionCookieName: 'session',
 		loginPathname: '/login',
 		logoutPathname: '/logout',
+		homePathname: '/',
 		lastPathCookieName: 'last-path',
 		...config?.options
 	};
 
-	const defaultedLogging = config?.logging ?? dev;
+	const defaultedConfig = {
+		logging: dev,
+		...config
+	};
 
 	const checks = c();
 	const routes = r(defaultedOptions);
@@ -244,9 +432,9 @@ export const provenance = <ProviderSession>(
 
 	const handles = provider.resolvers.map((resolver) => {
 		const handle: Handle = async ({ event, resolve }) => {
-			const context = createContext(event, { checks, oauth, session, routes }, config);
+			const context = createContext(event, { checks, oauth, session, routes }, defaultedConfig);
 
-			await resolver(context, defaultedLogging);
+			await resolver(context, defaultedConfig.logging);
 			return await resolve(event);
 		};
 		return handle;

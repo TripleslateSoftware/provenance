@@ -22,15 +22,17 @@ export type Cookies = {
 
 export type AuthOptions = {
 	/** defaults to `/auth` */
-	redirectUriPathname: string;
+	redirectUriPathname?: string;
 	/** defaults to `session` */
-	sessionCookieName: string;
+	sessionCookieName?: string;
 	/** defaults to `/login` */
-	loginPathname: string;
+	loginPathname?: string;
 	/** defaults to `/logout` */
-	logoutPathname: string;
+	logoutPathname?: string;
+	/** defaults to `/` */
+	homePathname?: string;
 	/** defaults to `last-path` */
-	lastPathCookieName: string;
+	lastPathCookieName?: string;
 };
 
 export type Context<ProviderSession, AppSession> = {

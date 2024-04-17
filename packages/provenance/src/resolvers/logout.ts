@@ -1,3 +1,4 @@
+import { logStarter } from '../helpers';
 import { Resolver } from './types';
 
 export const logoutResolver =
@@ -6,7 +7,7 @@ export const logoutResolver =
 		if (context.routes.logout.is) {
 			const session = context.locals.session;
 			if (session !== null) {
-				if (logging) console.log('provenance:', 'logout');
+				if (logging) logStarter('logout');
 
 				context.session.deleteCookie();
 

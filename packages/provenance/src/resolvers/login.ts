@@ -1,3 +1,4 @@
+import { logStarter } from '../helpers';
 import type { Resolver } from './types';
 
 export const loginResolver =
@@ -7,7 +8,7 @@ export const loginResolver =
 			const session = context.locals.session;
 
 			if (session === null) {
-				if (logging) console.log('provenance:', 'login');
+				if (logging) logStarter('login');
 
 				await context.oauth.redirectLogin();
 			} else {

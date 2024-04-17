@@ -1,3 +1,4 @@
+import { logStarter } from '../helpers';
 import { Resolver } from './types';
 
 export const refreshResolver = <
@@ -13,7 +14,7 @@ export const refreshResolver = <
 				// if the access token has not expired yet, don't refresh
 				return;
 			} else {
-				if (logging) console.log('provenance:', 'refresh');
+				if (logging) logStarter('refresh');
 				try {
 					// the access token has expired, so refresh with the refresh token
 					const newTokens = await context.oauth.refresh(session.refreshToken);

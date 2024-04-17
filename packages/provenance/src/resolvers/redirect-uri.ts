@@ -1,10 +1,11 @@
+import { logStarter } from '../helpers';
 import { Resolver } from './types';
 
 export const redirectUriResolver =
 	<ProviderSession extends object>(): Resolver<ProviderSession> =>
 	async (context, logging) => {
 		if (context.routes.redirectUri.is) {
-			if (logging) console.log('provenance:', 'redirectUri');
+			if (logging) logStarter('redirectUri');
 			try {
 				// state stored at beginning of authorization flow (right before login redirects to auth server)
 				const state = context.checks.state.use();

@@ -4,6 +4,7 @@ export const r = (options: {
 	redirectUriPathname: string;
 	loginPathname: string;
 	logoutPathname: string;
+	homePathname: string;
 	lastPathCookieName: string;
 }) => {
 	return {
@@ -15,6 +16,9 @@ export const r = (options: {
 		},
 		logout: {
 			pathname: options.logoutPathname
+		},
+		home: {
+			pathname: options.homePathname
 		},
 		lastPath: {
 			/**

@@ -61,6 +61,10 @@
 		"./providers": {
 			"types": "./dist/providers/index.d.ts",
 			"import": "./dist/providers/index.js"
+		},
+		"./helpers": {
+			"types": "./dist/helpers/index.d.ts",
+			"import": "./dist/helpers/index.js"
 		}
 	},
 	"typesVersions": {
