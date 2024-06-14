@@ -1,12 +1,14 @@
 # provenance
 
-Server-side OAuth/OIDC implementation for SvelteKit
+Server-side OAuth/OIDC library for SvelteKit
 
-## packages
+## usage
 
-| package                                        | changelog                                     |
-| ---------------------------------------------- | --------------------------------------------- |
-| [@tripleslate/provenance](packages/provenance) | [changelog](packages/provenance/CHANGELOG.md) |
+The package's main entry point is a vite plugin. On `vite dev` and `vite build`, a `provenance` "runtime" is generated in source. This runtime contains functions that can be used to set up a `provenance` "instance" configured to your provider.
+
+Currently, `github` and `keycloak` are the only supported OAuth providers, but with some knowledge of your provider and with [those implementations](packages/provenance/src/providers/index.ts) as examples, it would not be difficult to add more. Feel free to make a PR!
+
+see the package [readme](packages/provenance/README.md) for specific usage instructions
 
 ## examples
 
@@ -14,28 +16,19 @@ Server-side OAuth/OIDC implementation for SvelteKit
 | ----------------- | ----------------------------------------- |
 | [github](example) | [demo](https://provenance-phi.vercel.app) |
 
+## packages
+
+| package                                        | changelog                                     |
+| ---------------------------------------------- | --------------------------------------------- |
+| [@tripleslate/provenance](packages/provenance) | [changelog](packages/provenance/CHANGELOG.md) |
+
+## contributing
+
+see [contribubting.md](./CONTRIBUTING.md)
+
 ## license
 
-[MIT](https://github.com/TripleslateSoftware/provenance/blob/master/LICENSE)
-
-## release
-
-- push with necessary changesets
-- gh action will make a version PR
-- create prerelease
-
-```
-pnpm changeset pre enter next
-pnpm changeset version
-pnpm changeset publish
-```
-
-- merge version pr and pull
-- publish release
-
-```
-pnpm changeset publish
-```
+[MIT](https://github.com/TripleslateSoftware/provenance/blob/main/LICENSE)
 
 ## thanks
 

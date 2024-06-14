@@ -28,11 +28,11 @@
 	},
 	"devDependencies": {
 		"@types/cookie": "0.6.0",
-		"@types/node": "^20.12.7",
+		"@types/node": "^20.14.2",
 		"dedent": "^1.5.3",
-		"tslib": "^2.6.2",
-		"tsup": "^8.0.2",
-		"vite": "^5.2.8"
+		"tslib": "^2.6.3",
+		"tsup": "^8.1.0",
+		"vite": "^5.3.1"
 	},
 	"dependencies": {
 		"oauth4webapi": "^2.10.4"
