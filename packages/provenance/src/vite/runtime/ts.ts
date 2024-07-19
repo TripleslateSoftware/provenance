@@ -32,27 +32,27 @@ import { dev } from '$app/environment';
  * @param logging whether to log in handle routes (will use setting for \`dev\` if not provided)
  * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
  */
-export type ProvenanceConfig<ProviderSession> = {
-	sessionCallback?: (session: ProviderSession) => App.Session;
+export type ProvenanceConfig<ProviderSession, AppSession extends ProviderSession> = {
+	sessionCallback?: (session: ProviderSession) => AppSession;
 	getDomain?: (event: RequestEvent) => string | undefined;
 	logging?: boolean;
 	options?: AuthOptions;
 };
 
-function createContext<ProviderSession>(
+function createContext<ProviderSession, AppSession extends ProviderSession>(
 	event: RequestEvent,
 	modules: {
 		oauth: OAuthModule;
-		session: SessionModule<ProviderSession>;
+		session: SessionModule<ProviderSession, AppSession>;
 		routes: RoutesModule;
 		checks: ChecksModule;
 	},
 	config: {
 		logging: boolean;
-		sessionCallback?: (session: ProviderSession) => App.Session;
+		sessionCallback?: (session: ProviderSession) => AppSession;
 		getDomain?: (event: RequestEvent) => string | undefined;
 	}
-): Context<ProviderSession, App.Session> {
+): Context<ProviderSession, AppSession> {
 	const isRoute = (searchPathname: string) => {
 		const pathName = event.url.pathname;
 
@@ -334,10 +334,10 @@ function createContext<ProviderSession>(
 		},
 		locals: {
 			get session() {
-				return event.locals.session;
+				return event.locals.session as AppSession;
 			},
 			set session(value) {
-				event.locals.session = value;
+				event.locals.session = value as App.Session;
 			}
 		},
 		routes: {
@@ -406,15 +406,16 @@ function createContext<ProviderSession>(
  * @param config optional extra configuration options for provenance behaviour
  * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */
-export const provenance = <ProviderSession>(
+export const provenance = <ProviderSession, AppSession extends ProviderSession>(
 	provider: Provider<ProviderSession>,
-	config?: ProvenanceConfig<ProviderSession>
+	config?: ProvenanceConfig<ProviderSession, AppSession>
 ) => {
 	const defaultedOptions = {
 		redirectUriPathname: '/auth',
 		sessionCookieName: 'session',
 		loginPathname: '/login',
 		logoutPathname: '/logout',
+		refreshPathname: '/refresh',
 		homePathname: '/',
 		lastPathCookieName: 'last-path',
 		...config?.options
@@ -434,33 +435,16 @@ export const provenance = <ProviderSession>(
 		const handle: Handle = async ({ event, resolve }) => {
 			const context = createContext(event, { checks, oauth, session, routes }, defaultedConfig);
 
-			await resolver(context, defaultedConfig.logging);
-			return await resolve(event);
+			return await resolver(context, async () => await resolve(event), defaultedConfig.logging);
 		};
 		return handle;
 	});
 
-	const protectRoute = async (event: RequestEvent) => {
-		const session = event.locals.session;
-
-		if (session === null) {
-			routes.lastPath.setCookie((name, maxAge) =>
-				event.cookies.set(name, event.url.pathname, {
-					path: '/',
-					maxAge: maxAge
-				})
-			);
-
-			redirect(303, defaultedOptions.loginPathname);
-		}
-
-		return session;
-	};
-
 	return {
 		handle: sequence(...handles),
-		protectRoute,
-		options: defaultedOptions
+		options: defaultedOptions,
+		createContext: (event: RequestEvent) =>
+			createContext(event, { checks, oauth, session, routes }, defaultedConfig)
 	};
 };
 

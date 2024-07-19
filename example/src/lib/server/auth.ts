@@ -1,6 +1,6 @@
-import { provenance } from './PROVENANCE';
 import { github } from '@tripleslate/provenance/providers';
 import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
+import { provenance } from './PROVENANCE';
 
 export const auth = provenance(
 	github({

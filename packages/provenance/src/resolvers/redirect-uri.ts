@@ -2,8 +2,8 @@ import { logStarter } from '../helpers';
 import { Resolver } from './types';
 
 export const redirectUriResolver =
-	<ProviderSession extends object>(): Resolver<ProviderSession> =>
-	async (context, logging) => {
+	<ProviderSession>(): Resolver<ProviderSession> =>
+	async (context, resolve, logging) => {
 		if (context.routes.redirectUri.is) {
 			if (logging) logStarter('redirectUri');
 			try {
@@ -37,4 +37,5 @@ export const redirectUriResolver =
 			// redirect to the actual route that the user was trying to access
 			context.routes.lastPath.redirect();
 		}
+		return await resolve();
 	};

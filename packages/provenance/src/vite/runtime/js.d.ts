@@ -15,24 +15,24 @@ import type {
  * @param logging whether to log in handle routes (will use setting for \`dev\` if not provided)
  * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
  */
-export type ProvenanceConfig<ProviderSession> = {
-	sessionCallback?: (session: ProviderSession) => App.Session;
+export type ProvenanceConfig<ProviderSession, AppSession extends ProviderSession> = {
+	sessionCallback?: (session: ProviderSession) => AppSession;
 	getDomain?: (event: RequestEvent) => string | undefined;
 	logging?: boolean;
 	options?: AuthOptions;
 };
 
-declare function createContext<ProviderSession>(
+declare function createContext<ProviderSession, AppSession extends ProviderSession>(
 	event: RequestEvent,
 	modules: {
 		oauth: OAuthModule;
-		session: SessionModule<ProviderSession>;
+		session: SessionModule<ProviderSession, AppSession>;
 		routes: RoutesModule;
 		checks: ChecksModule;
 	},
 	config: {
 		logging: boolean;
-		sessionCallback?: (session: ProviderSession) => App.Session;
+		sessionCallback?: (session: ProviderSession) => AppSession;
 		getDomain?: (event: RequestEvent) => string | undefined;
 	}
 ): Context<ProviderSession, App.Session>;
@@ -42,13 +42,13 @@ declare function createContext<ProviderSession>(
  * @param config optional extra configuration options for provenance behaviour
  * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */
-export declare function provenance<ProviderSession>(
+export declare function provenance<ProviderSession, AppSession extends ProviderSession>(
 	provider: Provider<ProviderSession>,
-	config?: ProvenanceConfig<ProviderSession>
+	config?: ProvenanceConfig<ProviderSession, AppSession>
 ): {
 	handle: Handle;
-	protectRoute: (event: RequestEvent) => Promise<App.Session>;
 	options: AuthOptions;
+	createContext: (event: RequestEvent) => ReturnType<typeof createContext>;
 };
 
 declare global {

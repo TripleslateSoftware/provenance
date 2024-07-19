@@ -59,5 +59,5 @@ export const github: CreateProvider<GithubConfiguration, GithubSession> = (
 		sessionCookieAge: callbacks?.sessionCookieAge
 	};
 
-	return provider<GithubSession>(authServer, endpoints, session);
+	return provider(authServer, endpoints, session);
 };

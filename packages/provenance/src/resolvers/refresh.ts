@@ -6,29 +6,33 @@ export const refreshResolver = <
 		refreshToken: string;
 		accessExpiresAt: number;
 	}
->(): Resolver<ProviderSession> => {
-	return async (context, logging) => {
+>(options: {
+	eagerRefresh: number;
+}): Resolver<ProviderSession> => {
+	return async (context, resolve, logging) => {
 		const session = context.locals.session;
-		if (session !== null) {
-			if (Date.now() < session.accessExpiresAt * 1000) {
-				// if the access token has not expired yet, don't refresh
-				return;
-			} else {
-				if (logging) logStarter('refresh');
-				try {
-					// the access token has expired, so refresh with the refresh token
-					const newTokens = await context.oauth.refresh(session.refreshToken);
-					const newSession = context.session.create(newTokens);
 
-					context.session.setCookie(newSession);
-				} catch (error) {
-					console.error(error);
-					// delete the session cookie
-					context.session.deleteCookie();
-					// redirect to login
-					context.routes.login.redirect();
-				}
+		// condition path that results in refresh attempt
+		// - there is a session
+		// and any of the following are true:
+		// - the refresh "endpoint" is explicitly being invoked
+		// - access token expires within the "eagerRefresh" threshold
+		if (session !== null && Date.now() > session.accessExpiresAt * 1000 - options.eagerRefresh) {
+			if (logging) logStarter('refresh');
+			try {
+				// the access token has expired, so refresh with the refresh token
+				const newTokens = await context.oauth.refresh(session.refreshToken);
+				const newSession = context.session.create(newTokens);
+
+				context.session.setCookie(newSession);
+			} catch (error) {
+				console.error(error);
+				// delete the session cookie
+				context.session.deleteCookie();
+				// redirect to login
+				context.routes.login.redirect();
 			}
 		}
+		return await resolve();
 	};
 };

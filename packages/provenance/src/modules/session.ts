@@ -1,8 +1,8 @@
 import type { TokenEndpointResponse } from 'oauth4webapi';
 
-import type { Provider } from '../providers';
+import type { Provider } from '../providers/types';
 
-export const s = <ProviderSession>(
+export const s = <ProviderSession, AppSession extends ProviderSession>(
 	provider: Provider<ProviderSession>,
 	options: { sessionCookieName: string }
 ) => {
@@ -48,7 +48,7 @@ export const s = <ProviderSession>(
 		 * @param sessionCookieName
 		 * @returns the session object stored in cookies or null if there is no session stored
 		 */
-		getCookie(getAll: () => { name: string; value: string }[]): any | null {
+		getCookie(getAll: () => { name: string; value: string }[]): AppSession | null {
 			const sessionChunkCookies = getAll().filter((cookie) =>
 				cookie.name.startsWith(`${options.sessionCookieName}-`)
 			);
@@ -85,4 +85,6 @@ export const s = <ProviderSession>(
 	};
 };
 
-export type SessionModule<ProviderSession> = ReturnType<typeof s<ProviderSession>>;
+export type SessionModule<ProviderSession, AppSession extends ProviderSession> = ReturnType<
+	typeof s<ProviderSession, AppSession>
+>;

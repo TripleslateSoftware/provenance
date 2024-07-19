@@ -1,6 +1,7 @@
-import { Context } from '../types';
+import { Context } from '../context';
 
-export type Resolver<ProviderSession> = <ContextSession extends ProviderSession>(
-	context: Context<ContextSession, any>,
+export type Resolver<ProviderSession> = (
+	context: Context<ProviderSession, ProviderSession>,
+	resolve: () => Response | Promise<Response>,
 	logging: boolean
-) => void | Promise<void>;
+) => Response | Promise<Response>;

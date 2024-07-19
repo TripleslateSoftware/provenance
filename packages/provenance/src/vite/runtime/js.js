@@ -15,20 +15,21 @@ import { dev } from '$app/environment';
 
 /**
  * @template ProviderSession
+ * @template AppSession
  *
  * @param {import('@sveltejs/kit').RequestEvent} event
  * @param {{
 		oauth: import('@tripleslate/provenance').OAuthModule;
-		session: import('@tripleslate/provenance').SessionModule<ProviderSession>;
+		session: import('@tripleslate/provenance').SessionModule<ProviderSession, AppSession extends ProviderSession ? AppSession : never>;
 		routes: import('@tripleslate/provenance').RoutesModule;
 		checks: import('@tripleslate/provenance').ChecksModule;
 	}} modules
  * @param {{
 		logging: boolean;
-		sessionCallback?: (session: ProviderSession) => App.Session;
+		sessionCallback?: (session: ProviderSession) => AppSession;
 		getDomain?: (event: import('@sveltejs/kit').RequestEvent) => string | undefined;
 	}} config
- * @returns {import('@tripleslate/provenance').Context<ProviderSession, App.Session>} an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
+ * @returns {import('@tripleslate/provenance').Context<ProviderSession, AppSession>} an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */
 function createContext(event, modules, config) {
 	const isRoute = (/** @type {string} */ searchPathname) => {
@@ -315,9 +316,11 @@ function createContext(event, modules, config) {
 			}
 		},
 		locals: {
+			// @ts-ignore
 			get session() {
 				return event.locals.session;
 			},
+			// @ts-ignore
 			set session(value) {
 				event.locals.session = value;
 			}
@@ -385,9 +388,10 @@ function createContext(event, modules, config) {
 
 /**
  * @template ProviderSession
+ * @template AppSession
  *
  * @param {import('@tripleslate/provenance').Provider<ProviderSession>} provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
- * @param {import('./js').ProvenanceConfig<ProviderSession>?} config optional extra configuration options for provenance behaviour
+ * @param {AppSession extends ProviderSession ? import('./js').ProvenanceConfig<ProviderSession, AppSession>? : never} config optional extra configuration options for provenance behaviour
  * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */
 export const provenance = (provider, config) => {
@@ -396,6 +400,7 @@ export const provenance = (provider, config) => {
 		sessionCookieName: 'session',
 		loginPathname: '/login',
 		logoutPathname: '/logout',
+		refreshPathname: '/refresh',
 		homePathname: '/',
 		lastPathCookieName: 'last-path',
 		...config?.options
@@ -416,35 +421,15 @@ export const provenance = (provider, config) => {
 		const handle = async ({ event, resolve }) => {
 			const context = createContext(event, { checks, oauth, session, routes }, defaultedConfig);
 
-			await resolver(context, defaultedConfig.logging);
-			return await resolve(event);
+			return await resolver(context, async () => await resolve(event), defaultedConfig.logging);
 		};
 		return handle;
 	});
 
-	/**
-	 * @param {import('@sveltejs/kit').RequestEvent} event
-	 */
-	const protectRoute = async (event) => {
-		const session = event.locals.session;
-
-		if (session === null) {
-			routes.lastPath.setCookie((name, maxAge) =>
-				event.cookies.set(name, event.url.pathname, {
-					path: '/',
-					maxAge: maxAge
-				})
-			);
-
-			redirect(303, defaultedOptions.loginPathname);
-		}
-
-		return session;
-	};
-
 	return {
 		handle: sequence(...handles),
-		protectRoute,
-		options: defaultedOptions
+		options: defaultedOptions,
+		createContext: (/** @type {import("@sveltejs/kit").RequestEvent} */ event) =>
+			createContext(event, { checks, oauth, session, routes }, defaultedConfig)
 	};
 };

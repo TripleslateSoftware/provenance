@@ -2,8 +2,8 @@ import { logStarter } from '../helpers';
 import { Resolver } from './types';
 
 export const logoutResolver =
-	<ProviderSession extends object>(): Resolver<ProviderSession> =>
-	async (context, logging) => {
+	<ProviderSession>(): Resolver<ProviderSession> =>
+	async (context, resolve, logging) => {
 		if (context.routes.logout.is) {
 			const session = context.locals.session;
 			if (session !== null) {
@@ -16,4 +16,5 @@ export const logoutResolver =
 				context.routes.lastPath.redirect();
 			}
 		}
+		return await resolve();
 	};

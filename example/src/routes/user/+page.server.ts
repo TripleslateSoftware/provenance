@@ -1,9 +1,12 @@
-import { GH_CLIENT_ID } from '$env/static/private';
-import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
 
+import { protectRoute } from '@tripleslate/provenance/initiatives';
+
+import { GH_CLIENT_ID } from '$env/static/private';
+import { auth } from '$lib/server/auth';
+
 export const load = async (event) => {
-	const session = await auth.protectRoute(event);
+	const session = await protectRoute(auth.createContext)(event);
 
 	const response = await event.fetch('https://api.github.com/user', {
 		headers: {

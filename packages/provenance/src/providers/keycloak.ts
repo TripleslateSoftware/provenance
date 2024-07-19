@@ -21,6 +21,16 @@ export type KeycloakConfiguration = {
 	clientId: string;
 	/** client secret corresponding to this application (can be any empty string if not being used for the client) */
 	clientSecret: string;
+	options: {
+		/**
+		 * a ms adjustment to access token expiry, based upon which a server request will trigger or not trigger a token set refresh
+		 *
+		 * at 0 (default), refresh only access tokens that have expired
+		 *
+		 * at infinity, refresh on every request
+		 */
+		eagerRefresh?: number;
+	};
 };
 
 type KeycloakSession = {
@@ -38,6 +48,11 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 	configuration,
 	callbacks
 ) => {
+	const defaultedOptions = {
+		eagerRefresh: 0,
+		...configuration.options
+	};
+
 	const authServer = {
 		issuer: new URL(`/realms/${configuration.realm}`, configuration.base).toString(),
 		clientId: configuration.clientId,
@@ -107,13 +122,14 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 		localsResolver(),
 		loginResolver(),
 		logoutResolver(),
-		async (context) => {
+		async (context, resolve) => {
 			if (context.routes.logout.is && context.locals.session) {
 				await context.oauth.postLogout(context.locals.session.idToken);
 			}
+			return await resolve();
 		},
-		refreshResolver()
+		refreshResolver({ eagerRefresh: defaultedOptions.eagerRefresh })
 	];
 
-	return provider<KeycloakSession>(authServer, endpoints, session, resolvers);
+	return provider(authServer, endpoints, session, resolvers);
 };

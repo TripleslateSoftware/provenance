@@ -1,6 +1,6 @@
 import * as oauth from 'oauth4webapi';
 
-import type { Provider } from '../providers';
+import type { Provider } from '../providers/types';
 import type { ChecksModule } from './checks';
 
 import { CookieSerializeOptions } from 'cookie';

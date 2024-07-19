@@ -3,7 +3,13 @@ import pkg from './package.json';
 
 export const tsup: Options = {
 	dts: true,
-	entry: ['src/index.ts', 'src/providers/index.ts', 'src/vite/index.ts', 'src/helpers/index.ts'],
+	entry: [
+		'src/index.ts',
+		'src/providers/index.ts',
+		'src/initiatives/index.ts',
+		'src/vite/index.ts',
+		'src/helpers/index.ts'
+	],
 	external: ['svelte', '@sveltejs/kit'],
 	format: ['esm'],
 	legacyOutput: false,

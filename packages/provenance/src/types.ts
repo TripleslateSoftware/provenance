@@ -2,8 +2,6 @@ import type { CookieSerializeOptions } from 'cookie';
 import type { TokenEndpointResponse } from 'oauth4webapi';
 export type { TokenEndpointResponse };
 
-import type { OAuthModule } from './modules';
-
 export type Cookie = {
 	name: string;
 	value: string;
@@ -35,64 +33,7 @@ export type AuthOptions = {
 	lastPathCookieName?: string;
 };
 
-export type Context<ProviderSession, AppSession> = {
-	oauth: {
-		processAuthResponse: (expectedState: string) => Promise<{
-			code: string;
-		}>;
-		requestToken: (
-			codeVerifier: string,
-			authorizationCode: string,
-			expectedNonce: string
-		) => ReturnType<OAuthModule['requestToken']>;
-		redirectLogin: () => Promise<void>;
-		refresh: (refreshToken: string) => Promise<TokenEndpointResponse>;
-		postLogout: (idToken: string) => Promise<void>;
-	};
-	checks: {
-		nonce: {
-			use: () => string;
-		};
-		state: {
-			use: () => string;
-		};
-		pkce: {
-			use: () => string;
-		};
-	};
-	session: {
-		create: (tokens: TokenEndpointResponse) => ProviderSession;
-		getCookie: () => AppSession | null;
-		setCookie: (session: ProviderSession) => void;
-		deleteCookie: () => void;
-	};
-	locals: {
-		get session(): AppSession | null;
-		set session(value: AppSession | null);
-	};
-	routes: {
-		redirectUri: {
-			is: boolean;
-		};
-		login: {
-			redirect: () => void;
-			is: boolean;
-		};
-		logout: {
-			redirect: () => void;
-			is: boolean;
-		};
-		lastPath: {
-			redirect: () => void;
-			set: () => void;
-		};
-		home: {
-			redirect: () => void;
-			is: boolean;
-		};
-	};
-};
-
+export type * from './context';
 export type * from './modules';
 export type * from './providers';
 export type * from './resolvers';
