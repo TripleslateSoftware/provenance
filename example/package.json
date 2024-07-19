@@ -1,7 +1,7 @@
 {
 	"name": "example",
 	"private": true,
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -19,7 +19,7 @@
 	},
 	"dependencies": {
 		"@sveltejs/kit": "^2.5.11",
-		"@tripleslate/provenance": "workspace:0.7.2",
+		"@tripleslate/provenance": "workspace:0.8.0",
 		"svelte": "^4.2.18"
 	},
 	"type": "module"

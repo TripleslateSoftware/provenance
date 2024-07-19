@@ -1,6 +1,6 @@
 {
 	"name": "@tripleslate/provenance",
-	"version": "0.7.2",
+	"version": "0.8.0",
 	"description": "server-side SvelteKit auth",
 	"repository": {
 		"type": "git",

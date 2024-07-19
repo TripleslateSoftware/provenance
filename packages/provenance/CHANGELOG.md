@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.8.0
+### Minor Changes
+
+- 60bd535: add initiatives concept
+- 60bd535: add `eagerRefresh` option to keycloak provider/refresh resolver
+
 ## 0.7.2
 
 ### Patch Changes
