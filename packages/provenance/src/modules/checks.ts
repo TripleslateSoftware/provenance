@@ -1,6 +1,7 @@
 import * as oauth from 'oauth4webapi';
 
 import type { Cookie, Cookies } from '../types';
+import { b64Encode } from '../helpers';
 
 const NONCE_MAX_AGE = 60 * 5;
 const NONCE_COOKIE_NAME = 'nonce';
@@ -41,8 +42,7 @@ export const c = () => {
 		},
 		state: {
 			create(data: object): { state: string; cookie: Cookie } {
-				const buf = Buffer.from(JSON.stringify({ ...data, random: oauth.generateRandomState() }));
-				const value = buf.toString('base64');
+				const value = b64Encode(JSON.stringify({ ...data, random: oauth.generateRandomState() }));
 
 				const cookie = {
 					name: STATE_COOKIE_NAME,
