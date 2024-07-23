@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.8.1
+### Patch Changes
+
+- 0a91016: dont use global `Buffer` for state encode if not available
+
 ## 0.8.0
 ### Minor Changes
 
