@@ -6,7 +6,14 @@ export const localsResolver =
 	async (context, resolve, logging) => {
 		if (logging) logStarter('locals');
 
-		const session = context.session.getCookie();
+		let session: ProviderSession | null;
+		try {
+			session = context.session.getCookie();
+		} catch {
+			context.session.deleteCookie();
+			session = null;
+		}
+
 		context.locals.session = session;
 		return await resolve();
 	};
