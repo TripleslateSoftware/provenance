@@ -45,7 +45,7 @@ function createContext(event, modules, config) {
 
 				if (config.logging) {
 					logStarter('oauth:', 'processAuthResponse');
-					console.log('url:', event.url.href);
+					console.log('url:', url.href);
 					console.log('expectedState:', expectedState);
 				}
 

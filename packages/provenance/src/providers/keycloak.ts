@@ -121,13 +121,13 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 		redirectUriResolver(),
 		localsResolver(),
 		loginResolver(),
-		logoutResolver(),
 		async (context, resolve) => {
 			if (context.routes.logout.is && context.locals.session) {
 				await context.oauth.postLogout(context.locals.session.idToken);
 			}
 			return await resolve();
 		},
+		logoutResolver(),
 		refreshResolver({ eagerRefresh: defaultedOptions.eagerRefresh })
 	];
 

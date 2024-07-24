@@ -28,8 +28,8 @@ export const o = <Session>(
 	return {
 		/**
 		 * create a redirect to the auth server for the user to login
-		 * @param event
-		 * @param redirectUri redirect uri that the auth server will redirect to with the grant code
+		 * @param redirectUriOrigin origin for redirect uri.. typically the origin of the website that is logging in
+		 * @param setCookie a callback that will be used to set oauth check values in cookies to be consumed by the redirect uri handler
 		 * @returns a sveltekit redirect to the generated auth server url
 		 */
 		async login(
@@ -116,7 +116,7 @@ export const o = <Session>(
 			const params = oauth.validateAuthResponse(authorizationServer, client, url, expectedState);
 
 			if (oauth.isOAuth2Error(params)) {
-				throw `${params.error} ${params.error_description}`;
+				throw `${params.error}: ${params.error_description}`;
 			}
 
 			const code = params.get('code');

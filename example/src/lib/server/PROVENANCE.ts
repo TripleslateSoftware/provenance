@@ -66,7 +66,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 				if (config.logging) {
 					logStarter('oauth:', 'processAuthResponse');
-					console.log('url:', event.url.href);
+					console.log('url:', url.href);
 					console.log('expectedState:', expectedState);
 				}
 

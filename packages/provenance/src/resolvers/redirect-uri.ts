@@ -30,7 +30,7 @@ export const redirectUriResolver =
 				// possibly need to redirect to an auth error page
 				console.error('provenance:', e);
 
-				// if any of these checks throw and error (login timed out), we should try the whole process again
+				// if any of these checks throw an error (login timed out), we should try the whole process again
 				context.routes.lastPath.redirect();
 			}
 
