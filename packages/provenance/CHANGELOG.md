@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.8.2
+### Patch Changes
+
+- 10734d5: post keycloak session logout before deleting session cookie and redirecting
+
 ## 0.8.1
 ### Patch Changes
 
