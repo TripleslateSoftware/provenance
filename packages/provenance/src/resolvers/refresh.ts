@@ -27,9 +27,10 @@ export const refreshResolver = <
 				context.session.setCookie(newSession);
 			} catch (error) {
 				console.error(error);
-				// delete the session cookie
+
 				context.session.deleteCookie();
-				// redirect to login
+				context.locals.session = null;
+
 				context.routes.login.redirect();
 			}
 		}

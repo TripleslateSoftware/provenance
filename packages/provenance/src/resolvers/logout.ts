@@ -10,6 +10,7 @@ export const logoutResolver =
 				if (logging) logStarter('logout');
 
 				context.session.deleteCookie();
+				context.locals.session = null;
 
 				context.routes.home.redirect();
 			} else {
