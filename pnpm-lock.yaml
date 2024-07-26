@@ -42,7 +42,7 @@ importers:
         specifier: ^2.5.11
         version: 2.5.18(@sveltejs/vite-plugin-svelte@3.1.1)(svelte@4.2.18)(vite@5.3.4)
       '@tripleslate/provenance':
-        specifier: workspace:0.8.2
+        specifier: workspace:0.8.3
         version: link:../packages/provenance
       svelte:
         specifier: ^4.2.18

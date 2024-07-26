@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.8.3
+### Patch Changes
+
+- 4ebcb95: destroy broken cookie(s) if context `getCookie` throws
+- 6968b48: unset session in locals when deleting the session cookie(s) (refresh failure, logout)
+
 ## 0.8.2
 ### Patch Changes
 
