@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.8.4
+### Patch Changes
+
+- 1e831b4: set new session in locals in refresh resolver
+
 ## 0.8.3
 ### Patch Changes
 
