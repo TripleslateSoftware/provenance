@@ -25,6 +25,7 @@ export const refreshResolver = <
 				const newSession = context.session.create(newTokens);
 
 				context.session.setCookie(newSession);
+				context.locals.session = newSession;
 			} catch (error) {
 				console.error(error);
 
