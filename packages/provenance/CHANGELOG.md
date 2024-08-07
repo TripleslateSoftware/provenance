@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.9.1
+### Patch Changes
+
+- 4a868d8: remove last traces of last path cookie
+
 ## 0.9.0
 ### Minor Changes
 
