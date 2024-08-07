@@ -1,5 +1,7 @@
 # provenance
 
+[![npm version](https://img.shields.io/npm/v/@tripleslate/provenance.svg)](https://www.npmjs.com/package/@tripleslate/provenance) [![license](https://img.shields.io/npm/l/@tripleslate/provenance.svg)](../../LICENSE)
+
 Server-side OAuth/OIDC implementation for SvelteKit
 
 ## features
