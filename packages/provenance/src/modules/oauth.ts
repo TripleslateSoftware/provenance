@@ -14,7 +14,7 @@ function processTokensResponse(tokensResponse: oauth.OAuth2Error | oauth.TokenEn
 }
 
 export const o = <Session>(
-	modules: { checks: ChecksModule },
+	modules: { checks: ChecksModule<{ referrer?: string }> },
 	provider: Provider<Session>,
 	options: { redirectUriPathname: string }
 ) => {
@@ -29,25 +29,26 @@ export const o = <Session>(
 		/**
 		 * create a redirect to the auth server for the user to login
 		 * @param redirectUriOrigin origin for redirect uri.. typically the origin of the website that is logging in
+		 * @param referrer the path that initiated the login
 		 * @param setCookie a callback that will be used to set oauth check values in cookies to be consumed by the redirect uri handler
 		 * @returns a sveltekit redirect to the generated auth server url
 		 */
 		async login(
 			redirectUriOrigin: string,
+			referrer: string | null,
 			setCookie: (
 				name: string,
 				value: string,
 				opts: CookieSerializeOptions & { path: string }
 			) => void
 		) {
-			// TODO: do something with state data
-			const stateCheck = modules.checks.state.create({});
+			const stateCheck = modules.checks.state.create(referrer ? { referrer } : {});
 			const nonceCheck = modules.checks.nonce.create();
 			const pkceCheck = await modules.checks.pkce.create();
 
-			const redirectUri = new URL(options.redirectUriPathname, redirectUriOrigin).toString();
+			const redirectUri = new URL(options.redirectUriPathname, redirectUriOrigin);
 
-			const url = provider.endpoints.createLoginUrl(redirectUri, {
+			const url = provider.endpoints.createLoginUrl(redirectUri.toString(), {
 				state: stateCheck.state,
 				nonce: nonceCheck.nonce,
 				codeChallenge: pkceCheck.codeChallenge
@@ -107,7 +108,7 @@ export const o = <Session>(
 		},
 		/**
 		 * process the redirect from the oauth auth endpoint with a one time authorization code in url params
-		 * @param url the url (with params such code) that the auth server redirects to after user logs in (get from the request event on redirectUri)
+		 * @param url the url (with params such as code) that the auth server redirects to after user logs in (get from the request event on redirectUri)
 		 * @param expectedState state stored in a cookie by this client at the start of the auth flow
 		 * @returns one time authorization code to be used with the token endpoint
 		 */
@@ -120,13 +121,19 @@ export const o = <Session>(
 			}
 
 			const code = params.get('code');
+			const state = params.get('state');
 
 			if (!code) {
 				throw `code not found in search params`;
 			}
 
+			if (!state) {
+				throw `state not found in search params`;
+			}
+
 			return {
-				code
+				code,
+				state: modules.checks.state.decode(state)
 			};
 		},
 		/**

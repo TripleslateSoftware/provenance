@@ -1,7 +1,7 @@
 import * as oauth from 'oauth4webapi';
 
 import type { Cookie, Cookies } from '../types';
-import { b64Encode } from '../helpers';
+import { b64Decode, b64Encode } from '../helpers';
 
 const NONCE_MAX_AGE = 60 * 5;
 const NONCE_COOKIE_NAME = 'nonce';
@@ -12,7 +12,7 @@ const STATE_COOKIE_NAME = 'state';
 const PKCE_MAX_AGE = 60 * 5;
 const PKCE_COOKIE_NAME = 'pkce-code-verifier';
 
-export const c = () => {
+export const c = <State extends Record<string, any>>() => {
 	return {
 		nonce: {
 			create(): { nonce: string; cookie: Cookie } {
@@ -41,7 +41,7 @@ export const c = () => {
 			}
 		},
 		state: {
-			create(data: object): { state: string; cookie: Cookie } {
+			create(data: State): { state: string; cookie: Cookie } {
 				const value = b64Encode(JSON.stringify({ ...data, random: oauth.generateRandomState() }));
 
 				const cookie = {
@@ -64,6 +64,10 @@ export const c = () => {
 				} else {
 					throw 'state not found in cookies';
 				}
+			},
+			decode(state: string): State {
+				const { random, ...data } = JSON.parse(b64Decode(state));
+				return data;
 			}
 		},
 		pkce: {
@@ -96,4 +100,4 @@ export const c = () => {
 	};
 };
 
-export type ChecksModule = ReturnType<typeof c>;
+export type ChecksModule<State extends Record<string, any>> = ReturnType<typeof c<State>>;

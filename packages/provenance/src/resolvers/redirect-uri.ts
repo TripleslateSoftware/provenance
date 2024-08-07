@@ -6,9 +6,11 @@ export const redirectUriResolver =
 	async (context, resolve, logging) => {
 		if (context.routes.redirectUri.is) {
 			if (logging) logStarter('redirectUri');
+
+			let referrer: string | undefined = undefined;
 			try {
 				// state stored at beginning of authorization flow (right before login redirects to auth server)
-				const state = context.checks.state.use();
+				const expectedState = context.checks.state.use();
 
 				// nonce and code verifier stored at beginning of authorization flow (right before login redirects to auth server)
 				const codeVerifier = context.checks.pkce.use();
@@ -16,7 +18,10 @@ export const redirectUriResolver =
 
 				// matching state allows this route to ensure the redirect from auth server originated from this application
 				// the code returned (in url params) to this redirect uri will be used to get a token set from the oauth2 token endpoint
-				const { code } = await context.oauth.processAuthResponse(state);
+				const { code, state } = await context.oauth.processAuthResponse(expectedState);
+
+				// set referrer, if available, for redirect
+				referrer = state.referrer;
 
 				// make a request for tokens using the code and the matching code verifier
 				// code verifier is required by the auth server to ensure the code matches the originator of the auth request
@@ -29,13 +34,16 @@ export const redirectUriResolver =
 			} catch (e) {
 				// possibly need to redirect to an auth error page
 				console.error('provenance:', e);
-
-				// if any of these checks throw an error (login timed out), we should try the whole process again
-				context.routes.lastPath.redirect();
 			}
 
-			// redirect to the actual route that the user was trying to access
-			context.routes.lastPath.redirect();
+			if (referrer) {
+				// redirect to the actual route that the user was trying to access
+				context.routes.redirect(referrer);
+			} else {
+				// if any of these checks throw an error (login took longer than the cookies were available), we should try the whole process again
+				// also if somehow no referrer was set in the state
+				context.routes.home.redirect();
+			}
 		}
 		return await resolve();
 	};

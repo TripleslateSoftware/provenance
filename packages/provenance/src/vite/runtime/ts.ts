@@ -45,7 +45,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 		oauth: OAuthModule;
 		session: SessionModule<ProviderSession, AppSession>;
 		routes: RoutesModule;
-		checks: ChecksModule;
+		checks: ChecksModule<{ referrer?: string }>;
 	},
 	config: {
 		logging: boolean;
@@ -181,7 +181,8 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 				return tokenEndpointResponse;
 			},
-			redirectLogin: async () => {
+			referrer: event.url.searchParams.get('referrer'),
+			redirectLogin: async (referrer: string | null) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -189,7 +190,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('origin:', origin);
 				}
 
-				redirect(303, await modules.oauth.login(origin, event.cookies.set));
+				redirect(303, await modules.oauth.login(origin, referrer, event.cookies.set));
 			},
 			postLogout: async (idToken: string) => {
 				const fetch = async (url: URL): Promise<Response> => {
@@ -341,19 +342,28 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 			}
 		},
 		routes: {
+			redirect: (location) => {
+				redirect(303, location);
+			},
 			redirectUri: {
 				is: isRoute(modules.routes.redirectUri.pathname)
 			},
 			login: {
 				redirect: () => {
-					const loginPath = modules.routes.login.pathname;
+					const loginPathname = modules.routes.login.pathname;
+
+					const loginPath = `${loginPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
+
 					redirect(303, loginPath);
 				},
 				is: isRoute(modules.routes.login.pathname)
 			},
 			logout: {
 				redirect: () => {
-					const logoutPath = modules.routes.logout.pathname;
+					const logoutPathname = modules.routes.logout.pathname;
+
+					const logoutPath = `${logoutPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
+
 					redirect(303, logoutPath);
 				},
 				is: isRoute(modules.routes.logout.pathname)
@@ -369,7 +379,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					}
 
 					modules.routes.lastPath.setCookie((name, maxAge) => {
-						const value = event.url.pathname;
+						const value = event.url.pathname + event.url.search;
 
 						if (config.logging) {
 							console.log('name:', name);

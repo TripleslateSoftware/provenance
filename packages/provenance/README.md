@@ -8,7 +8,7 @@ Server-side OAuth/OIDC implementation for SvelteKit
   - handle requests to redirectUri, login, and logout routes
   - refresh access tokens (if refresh tokens used by the provider)
   - add a session object to `event.locals`
-  - track the last path for redirect after login
+  - track the referrer for redirect after login
 - Provide a `protectRoute` function for redirecting user without session to login
 - Expose a callback to include extra information in the stored cookie session given tokens data
 

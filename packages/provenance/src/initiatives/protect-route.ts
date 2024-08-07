@@ -8,7 +8,6 @@ export const protectRoute = <RequestEvent, ProviderSession, AppSession>(
 		const session = context.locals.session;
 
 		if (session === null) {
-			context.routes.lastPath.set();
 			context.routes.login.redirect();
 		}
 

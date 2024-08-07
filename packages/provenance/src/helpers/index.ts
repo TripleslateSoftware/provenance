@@ -3,8 +3,16 @@ export const logStarter = (...rest: string[]) =>
 
 export const b64Encode = (data: string) => {
 	if (globalThis.Buffer) {
-		return Buffer.from(data).toString('base64');
+		return Buffer.from(data, 'utf-8').toString('base64');
 	}
 
 	return btoa(data);
+};
+
+export const b64Decode = (data: string) => {
+	if (globalThis.Buffer) {
+		return Buffer.from(data, 'base64').toString('utf8');
+	}
+
+	return atob(data);
 };

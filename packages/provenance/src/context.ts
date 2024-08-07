@@ -4,13 +4,15 @@ export type Context<ProviderSession, AppSession> = {
 	oauth: {
 		processAuthResponse: (expectedState: string) => Promise<{
 			code: string;
+			state: { referrer?: string };
 		}>;
 		requestToken: (
 			codeVerifier: string,
 			authorizationCode: string,
 			expectedNonce: string
 		) => Promise<TokenEndpointResponse>;
-		redirectLogin: () => Promise<void>;
+		referrer: string | null;
+		redirectLogin: (referrer: string | null) => Promise<void>;
 		refresh: (refreshToken: string) => Promise<TokenEndpointResponse>;
 		postLogout: (idToken: string) => Promise<void>;
 	};
@@ -36,6 +38,7 @@ export type Context<ProviderSession, AppSession> = {
 		set session(value: AppSession | null);
 	};
 	routes: {
+		redirect: (location: string | URL) => void;
 		redirectUri: {
 			is: boolean;
 		};

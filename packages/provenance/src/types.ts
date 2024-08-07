@@ -29,8 +29,6 @@ export type AuthOptions = {
 	logoutPathname?: string;
 	/** defaults to `/` */
 	homePathname?: string;
-	/** defaults to `last-path` */
-	lastPathCookieName?: string;
 };
 
 export type * from './context';

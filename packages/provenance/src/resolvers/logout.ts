@@ -6,16 +6,16 @@ export const logoutResolver =
 	async (context, resolve, logging) => {
 		if (context.routes.logout.is) {
 			const session = context.locals.session;
+			const referrer = context.oauth.referrer;
+
 			if (session !== null) {
 				if (logging) logStarter('logout');
 
 				context.session.deleteCookie();
 				context.locals.session = null;
-
-				context.routes.home.redirect();
-			} else {
-				context.routes.lastPath.redirect();
 			}
+
+			referrer ? context.routes.redirect(referrer) : context.routes.home.redirect();
 		}
 		return await resolve();
 	};

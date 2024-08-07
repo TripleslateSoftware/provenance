@@ -22,7 +22,7 @@ import { dev } from '$app/environment';
 		oauth: import('@tripleslate/provenance').OAuthModule;
 		session: import('@tripleslate/provenance').SessionModule<ProviderSession, AppSession extends ProviderSession ? AppSession : never>;
 		routes: import('@tripleslate/provenance').RoutesModule;
-		checks: import('@tripleslate/provenance').ChecksModule;
+		checks: import('@tripleslate/provenance').ChecksModule<{ referrer?: string }>;
 	}} modules
  * @param {{
 		logging: boolean;
@@ -160,7 +160,8 @@ function createContext(event, modules, config) {
 
 				return tokenEndpointResponse;
 			},
-			redirectLogin: async () => {
+			referrer: event.url.searchParams.get('referrer'),
+			redirectLogin: async (referrer) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -168,7 +169,7 @@ function createContext(event, modules, config) {
 					console.log('origin:', origin);
 				}
 
-				redirect(303, await modules.oauth.login(origin, event.cookies.set));
+				redirect(303, await modules.oauth.login(origin, referrer, event.cookies.set));
 			},
 			postLogout: async (idToken) => {
 				/**
@@ -326,12 +327,18 @@ function createContext(event, modules, config) {
 			}
 		},
 		routes: {
+			redirect: (location) => {
+				redirect(303, location);
+			},
 			redirectUri: {
 				is: isRoute(modules.routes.redirectUri.pathname)
 			},
 			login: {
 				redirect: () => {
-					const loginPath = modules.routes.login.pathname;
+					const loginPathname = modules.routes.login.pathname;
+
+					const loginPath = `${loginPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
+
 					redirect(303, loginPath);
 				},
 				is: isRoute(modules.routes.login.pathname)
@@ -354,7 +361,7 @@ function createContext(event, modules, config) {
 					}
 
 					modules.routes.lastPath.setCookie((name, maxAge) => {
-						const value = event.url.pathname;
+						const value = event.url.pathname + event.url.search;
 
 						if (config.logging) {
 							console.log('name:', name);

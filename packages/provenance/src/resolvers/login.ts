@@ -6,13 +6,14 @@ export const loginResolver =
 	async (context, resolve, logging) => {
 		if (context.routes.login.is) {
 			const session = context.locals.session;
+			const referrer = context.oauth.referrer;
 
 			if (session === null) {
 				if (logging) logStarter('login');
 
-				await context.oauth.redirectLogin();
+				await context.oauth.redirectLogin(referrer);
 			} else {
-				context.routes.lastPath.redirect();
+				referrer ? context.routes.redirect(referrer) : context.routes.home.redirect();
 			}
 		}
 		return await resolve();
