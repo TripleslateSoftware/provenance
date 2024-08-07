@@ -350,32 +350,6 @@ function createContext(event, modules, config) {
 				},
 				is: isRoute(modules.routes.logout.pathname)
 			},
-			lastPath: {
-				redirect: () => {
-					const lastPath = modules.routes.lastPath.getCookie(event.cookies.get);
-					redirect(303, lastPath || '/');
-				},
-				set: () => {
-					if (config.logging) {
-						logStarter('routes:', 'lastPath:', 'set');
-					}
-
-					modules.routes.lastPath.setCookie((name, maxAge) => {
-						const value = event.url.pathname + event.url.search;
-
-						if (config.logging) {
-							console.log('name:', name);
-							console.log('value:', value);
-							console.log('maxAge:', maxAge);
-						}
-
-						event.cookies.set(name, value, {
-							path: '/',
-							maxAge: maxAge
-						});
-					});
-				}
-			},
 			home: {
 				redirect: () => {
 					const homePath = modules.routes.home.pathname;
@@ -409,7 +383,6 @@ export const provenance = (provider, config) => {
 		logoutPathname: '/logout',
 		refreshPathname: '/refresh',
 		homePathname: '/',
-		lastPathCookieName: 'last-path',
 		...config?.options
 	};
 

@@ -50,10 +50,6 @@ export type Context<ProviderSession, AppSession> = {
 			redirect: () => void;
 			is: boolean;
 		};
-		lastPath: {
-			redirect: () => void;
-			set: () => void;
-		};
 		home: {
 			redirect: () => void;
 			is: boolean;

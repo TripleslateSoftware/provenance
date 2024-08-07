@@ -181,10 +181,9 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 				return tokenEndpointResponse;
 			},
-			redirectLogin: async () => {
+			referrer: event.url.searchParams.get('referrer'),
+			redirectLogin: async (referrer: string | null) => {
 				const origin = event.url.origin;
-
-				const referrer = event.url.searchParams.get('referrer');
 
 				if (config.logging) {
 					logStarter('oauth:', 'redirectLogin');
@@ -361,36 +360,13 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 			},
 			logout: {
 				redirect: () => {
-					const logoutPath = modules.routes.logout.pathname;
+					const logoutPathname = modules.routes.logout.pathname;
+
+					const logoutPath = `${logoutPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
+
 					redirect(303, logoutPath);
 				},
 				is: isRoute(modules.routes.logout.pathname)
-			},
-			lastPath: {
-				redirect: () => {
-					const lastPath = modules.routes.lastPath.getCookie(event.cookies.get);
-					redirect(303, lastPath || '/');
-				},
-				set: () => {
-					if (config.logging) {
-						logStarter('routes:', 'lastPath:', 'set');
-					}
-
-					modules.routes.lastPath.setCookie((name, maxAge) => {
-						const value = event.url.pathname + event.url.search;
-
-						if (config.logging) {
-							console.log('name:', name);
-							console.log('value:', value);
-							console.log('maxAge:', maxAge);
-						}
-
-						event.cookies.set(name, value, {
-							path: '/',
-							maxAge: maxAge
-						});
-					});
-				}
 			},
 			home: {
 				redirect: () => {
@@ -425,7 +401,6 @@ export const provenance = <ProviderSession, AppSession extends ProviderSession>(
 		logoutPathname: '/logout',
 		refreshPathname: '/refresh',
 		homePathname: '/',
-		lastPathCookieName: 'last-path',
 		...config?.options
 	};
 
