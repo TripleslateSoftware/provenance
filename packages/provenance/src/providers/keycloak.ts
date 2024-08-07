@@ -37,12 +37,13 @@ type KeycloakSession = {
 	accessToken: string;
 	refreshToken: string;
 	idToken: string;
-	refreshExpiresIn: number;
+	refreshExpiresAt: number;
 	accessExpiresAt: number;
 	tokenType: string;
 };
 
 const expiresInToExpiresAt = (expiresIn: number) => Math.floor(Date.now() / 1000 + expiresIn);
+const expiresAtToExpiresIn = (expiresAt: number) => Math.floor(expiresAt - Date.now() / 1000);
 
 export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = (
 	configuration,
@@ -103,18 +104,21 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 				throw `tokens response does not include 'refresh_expires_in'`;
 			}
 
+			const refreshExpiresIn = parseInt(tokens.refresh_expires_in.toString());
+
 			return {
 				idToken: tokens.id_token,
 				accessToken: tokens.access_token,
 				refreshToken: tokens.refresh_token,
-				refreshExpiresIn: parseInt(tokens.refresh_expires_in.toString()),
+				refreshExpiresAt: expiresInToExpiresAt(refreshExpiresIn),
 				accessExpiresAt: expiresInToExpiresAt(tokens.expires_in),
 				tokenType: tokens.token_type
 			};
 		},
 
 		fixSession: callbacks?.fixSession,
-		sessionCookieAge: callbacks?.sessionCookieAge || ((session) => session.refreshExpiresIn)
+		sessionCookieAge:
+			callbacks?.sessionCookieAge || ((session) => expiresAtToExpiresIn(session.refreshExpiresAt))
 	};
 
 	const resolvers: Resolver<KeycloakSession>[] = [
