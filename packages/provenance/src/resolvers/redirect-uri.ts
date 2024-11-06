@@ -18,7 +18,7 @@ export const redirectUriResolver =
 
 				// matching state allows this route to ensure the redirect from auth server originated from this application
 				// the code returned (in url params) to this redirect uri will be used to get a token set from the oauth2 token endpoint
-				const { code, state } = await context.oauth.processAuthResponse(expectedState);
+				const { code, state } = context.oauth.processAuthResponse(expectedState);
 
 				// set referrer, if available, for redirect
 				referrer = state.referrer;

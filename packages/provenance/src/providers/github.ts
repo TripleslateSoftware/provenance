@@ -1,4 +1,4 @@
-import { TokenEndpointResponse } from 'oauth4webapi';
+import { TokenRequestResult } from '@oslojs/oauth2';
 
 import type { CreateProvider, EndpointsConfiguration } from './types';
 import { provider } from './provider';
@@ -9,6 +9,7 @@ import { provider } from './provider';
 export type GithubConfiguration = {
 	clientId: string;
 	clientSecret: string;
+	scopes: string[];
 };
 
 type GithubSession = {
@@ -34,7 +35,7 @@ export const github: CreateProvider<GithubConfiguration, GithubSession> = (
 			url.searchParams.append('redirect_uri', redirectUri);
 			url.searchParams.append('state', checks.state);
 			url.searchParams.append('allow_signup', 'false');
-			url.searchParams.append('scope', 'read:user');
+			url.searchParams.append('scope', configuration.scopes.join(' '));
 
 			return url;
 		},
@@ -50,9 +51,9 @@ export const github: CreateProvider<GithubConfiguration, GithubSession> = (
 	};
 
 	const session = {
-		transformTokens(tokens: TokenEndpointResponse) {
+		transformTokens: (tokens: TokenRequestResult) => {
 			return {
-				accessToken: tokens.access_token
+				accessToken: tokens.accessToken()
 			};
 		},
 		fixSession: callbacks?.fixSession,

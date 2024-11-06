@@ -19,7 +19,7 @@ import {
 	type AuthOptions,
 	type Provider,
 	type Context,
-	type TokenEndpointResponse
+	type TokenRequestResult
 } from '@tripleslate/provenance';
 
 import { logStarter } from '@tripleslate/provenance/helpers';
@@ -49,7 +49,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 	},
 	config: {
 		logging: boolean;
-		sessionCallback?: (session: ProviderSession) => AppSession;
+		sessionCallback: (session: ProviderSession) => AppSession;
 		getDomain?: (event: RequestEvent) => string | undefined;
 	}
 ): Context<ProviderSession, AppSession> {
@@ -61,7 +61,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 	return {
 		oauth: {
-			processAuthResponse: async (expectedState: string) => {
+			processAuthResponse: (expectedState: string) => {
 				const url = event.url;
 
 				if (config.logging) {
@@ -70,7 +70,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('expectedState:', expectedState);
 				}
 
-				const authResponse = await modules.oauth.processAuthResponse(url, expectedState);
+				const authResponse = modules.oauth.processAuthResponse(url, expectedState);
 
 				if (config.logging) {
 					console.log('authResponse:', authResponse);
@@ -182,7 +182,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 				return tokenEndpointResponse;
 			},
 			referrer: event.url.searchParams.get('referrer'),
-			redirectLogin: async (referrer: string | null) => {
+			redirectLogin: (referrer: string | null) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -190,7 +190,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('origin:', origin);
 				}
 
-				redirect(303, await modules.oauth.login(origin, referrer, event.cookies.set));
+				return redirect(303, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
 			postLogout: async (idToken: string) => {
 				const fetch = async (url: URL): Promise<Response> => {
@@ -259,7 +259,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 			}
 		},
 		session: {
-			create: (tokens: TokenEndpointResponse) => {
+			create: (tokens: TokenRequestResult) => {
 				if (config.logging) {
 					logStarter('session:', 'create');
 					console.log('tokens:', tokens);
@@ -292,10 +292,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('session:', session);
 				}
 
-				const sessionWithExtra = {
-					...session,
-					...config.sessionCallback?.(session)
-				};
+				const appSession = config.sessionCallback(session);
 				const domain = config.getDomain?.(event);
 
 				modules.session.setCookie((name, value, maxAge) => {
@@ -311,7 +308,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 						maxAge,
 						domain
 					});
-				}, sessionWithExtra);
+				}, appSession);
 			},
 			deleteCookie: () => {
 				if (config.logging) {
@@ -405,6 +402,7 @@ export const provenance = <ProviderSession, AppSession extends ProviderSession>(
 	};
 
 	const defaultedConfig = {
+		sessionCallback: (session: ProviderSession) => session,
 		logging: dev,
 		...config
 	};

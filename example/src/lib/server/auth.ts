@@ -5,7 +5,8 @@ import { provenance } from './PROVENANCE';
 export const auth = provenance(
 	github({
 		clientId: GH_CLIENT_ID,
-		clientSecret: GH_CLIENT_SECRET
+		clientSecret: GH_CLIENT_SECRET,
+		scopes: ['read:user']
 	}),
 	{
 		sessionCallback(session) {

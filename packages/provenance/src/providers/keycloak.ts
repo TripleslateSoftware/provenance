@@ -1,3 +1,6 @@
+import { TokenRequestResult } from '@oslojs/oauth2';
+import { JWTClaims, parseJWT } from '@oslojs/jwt';
+
 import {
 	type Resolver,
 	localsResolver,
@@ -9,8 +12,6 @@ import {
 
 import { provider } from './provider';
 import type { CreateProvider, EndpointsConfiguration } from './types';
-
-import { TokenEndpointResponse } from 'oauth4webapi';
 
 export type KeycloakConfiguration = {
 	/** like https://auth-server.com/ (don't include "realms", "protocol", etc.) */
@@ -31,6 +32,7 @@ export type KeycloakConfiguration = {
 		 */
 		eagerRefresh?: number;
 	};
+	scopes: string[];
 };
 
 type KeycloakSession = {
@@ -71,10 +73,9 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 			url.searchParams.append('response_type', 'code');
 			url.searchParams.append('response_mode', 'query');
 			url.searchParams.append('state', checks.state);
-			url.searchParams.append('nonce', checks.nonce);
 			url.searchParams.append('code_challenge', checks.codeChallenge);
 			url.searchParams.append('code_challenge_method', 'S256');
-			url.searchParams.append('scope', 'openid profile email');
+			url.searchParams.append('scope', configuration.scopes.join(' '));
 
 			return url;
 		},
@@ -87,35 +88,52 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 	};
 
 	const session = {
-		transformTokens: (tokens: TokenEndpointResponse) => {
-			if (!tokens.id_token) {
+		transformTokens: (tokens: TokenRequestResult) => {
+			const { id_token, refresh_expires_in } = tokens.body as {
+				id_token: string;
+				refresh_expires_in: string;
+			};
+
+			if (!id_token) {
 				throw `tokens response does not include 'id_token'`;
 			}
 
-			if (!tokens.expires_in) {
+			if (!tokens.accessTokenExpiresInSeconds()) {
 				throw `tokens response does not include 'expires_in'`;
 			}
 
-			if (!tokens.refresh_token) {
+			if (!tokens.refreshToken()) {
 				throw `tokens response does not include 'refresh_token'`;
 			}
 
-			if (!tokens.refresh_expires_in) {
+			if (!refresh_expires_in) {
 				throw `tokens response does not include 'refresh_expires_in'`;
 			}
 
-			const refreshExpiresIn = parseInt(tokens.refresh_expires_in.toString());
+			const refreshExpiresIn = parseInt(refresh_expires_in.toString());
 
 			return {
-				idToken: tokens.id_token,
-				accessToken: tokens.access_token,
-				refreshToken: tokens.refresh_token,
+				idToken: id_token,
+				accessToken: tokens.accessToken(),
+				refreshToken: tokens.refreshToken(),
 				refreshExpiresAt: expiresInToExpiresAt(refreshExpiresIn),
-				accessExpiresAt: expiresInToExpiresAt(tokens.expires_in),
-				tokenType: tokens.token_type
+				accessExpiresAt: expiresInToExpiresAt(tokens.accessTokenExpiresInSeconds()),
+				tokenType: tokens.tokenType()
 			};
 		},
+		validateSession: <T extends KeycloakSession>(session: T) => {
+			const payload = parseJWT(session.idToken)[1];
 
+			const claims = new JWTClaims(payload);
+			if (!claims.verifyExpiration()) {
+				throw new Error('Expired token');
+			}
+			if (claims.issuer() !== authServer.issuer) {
+				throw new Error('Issuer mismatch');
+			}
+
+			return session;
+		},
 		fixSession: callbacks?.fixSession,
 		sessionCookieAge:
 			callbacks?.sessionCookieAge || ((session) => expiresAtToExpiresIn(session.refreshExpiresAt))

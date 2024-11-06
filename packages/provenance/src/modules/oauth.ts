@@ -1,16 +1,23 @@
-import * as oauth from 'oauth4webapi';
+import { TokenRequestResult } from '@oslojs/oauth2';
+
+import { CookieSerializeOptions } from 'cookie';
 
 import type { Provider } from '../providers/types';
 import type { ChecksModule } from './checks';
 
-import { CookieSerializeOptions } from 'cookie';
-
-function processTokensResponse(tokensResponse: oauth.OAuth2Error | oauth.TokenEndpointResponse) {
-	if (oauth.isOAuth2Error(tokensResponse)) {
-		throw `${tokensResponse.error} ${tokensResponse.error_description}`;
+async function processTokensResponse(tokensResponse: Response) {
+	const data = await tokensResponse.json();
+	if (typeof data !== 'object' || data === null) {
+		throw new Error('Unexpected response');
+	}
+	const result = new TokenRequestResult(data);
+	if (result.hasErrorCode()) {
+		const error = result.errorCode();
+		const errorDescription = result.errorDescription();
+		throw new Error(`${error}: ${errorDescription}`);
 	}
 
-	return tokensResponse;
+	return result;
 }
 
 export const o = <Session>(
@@ -18,13 +25,6 @@ export const o = <Session>(
 	provider: Provider<Session>,
 	options: { redirectUriPathname: string }
 ) => {
-	const authorizationServer = {
-		issuer: provider.authServer.issuer
-	};
-	const client = {
-		client_id: provider.authServer.clientId,
-		client_secret: provider.authServer.clientSecret
-	};
 	return {
 		/**
 		 * create a redirect to the auth server for the user to login
@@ -33,7 +33,7 @@ export const o = <Session>(
 		 * @param setCookie a callback that will be used to set oauth check values in cookies to be consumed by the redirect uri handler
 		 * @returns a sveltekit redirect to the generated auth server url
 		 */
-		async login(
+		login(
 			redirectUriOrigin: string,
 			referrer: string | null,
 			setCookie: (
@@ -43,18 +43,15 @@ export const o = <Session>(
 			) => void
 		) {
 			const stateCheck = modules.checks.state.create(referrer ? { referrer } : {});
-			const nonceCheck = modules.checks.nonce.create();
-			const pkceCheck = await modules.checks.pkce.create();
+			const pkceCheck = modules.checks.pkce.create();
 
 			const redirectUri = new URL(options.redirectUriPathname, redirectUriOrigin);
 
 			const url = provider.endpoints.createLoginUrl(redirectUri.toString(), {
 				state: stateCheck.state,
-				nonce: nonceCheck.nonce,
 				codeChallenge: pkceCheck.codeChallenge
 			});
 
-			setCookie(nonceCheck.cookie.name, nonceCheck.cookie.value, nonceCheck.cookie.options);
 			setCookie(stateCheck.cookie.name, stateCheck.cookie.value, stateCheck.cookie.options);
 			setCookie(pkceCheck.cookie.name, pkceCheck.cookie.value, pkceCheck.cookie.options);
 
@@ -98,13 +95,7 @@ export const o = <Session>(
 				refresh_token: refreshToken
 			});
 
-			const tokensResponse = await oauth.processRefreshTokenResponse(
-				authorizationServer,
-				client,
-				response
-			);
-
-			return processTokensResponse(tokensResponse);
+			return processTokensResponse(response);
 		},
 		/**
 		 * process the redirect from the oauth auth endpoint with a one time authorization code in url params
@@ -112,23 +103,21 @@ export const o = <Session>(
 		 * @param expectedState state stored in a cookie by this client at the start of the auth flow
 		 * @returns one time authorization code to be used with the token endpoint
 		 */
-		async processAuthResponse(url: URL, expectedState: string) {
+		processAuthResponse(url: URL, expectedState: string) {
 			// ensure that the url params on the keycloak redirect-to-redirect_uri step of the flow are valid
-			const params = oauth.validateAuthResponse(authorizationServer, client, url, expectedState);
-
-			if (oauth.isOAuth2Error(params)) {
-				throw `${params.error}: ${params.error_description}`;
-			}
-
-			const code = params.get('code');
-			const state = params.get('state');
+			const code = url.searchParams.get('code');
+			const state = url.searchParams.get('state');
 
 			if (!code) {
-				throw `code not found in search params`;
+				throw `auth response code not found in search params`;
 			}
 
 			if (!state) {
-				throw `state not found in search params`;
+				throw `auth response state not found in search params`;
+			}
+
+			if (state !== expectedState) {
+				throw `auth response state did not match stored expected state`;
 			}
 
 			return {
@@ -138,9 +127,7 @@ export const o = <Session>(
 		},
 		/**
 		 * request a set of tokens from the oauth token endpoint using a one time authorization code
-		 * @param fetch
-		 * @param params required params to send along that the token endpoint will use to verify the grant
-		 * @param expectedNone nonce stored in a cookie by this client at the start of the auth flow
+		 * @param fetchRequestToken callback that contains the fetch call
 		 * @returns brand new tokens
 		 */
 		async requestToken(
@@ -151,8 +138,7 @@ export const o = <Session>(
 					clientSecret: string;
 					redirectUri: string;
 				}
-			) => Promise<Response>,
-			expectedNonce: string
+			) => Promise<Response>
 		) {
 			const url = provider.endpoints.createTokenUrl();
 
@@ -162,22 +148,7 @@ export const o = <Session>(
 				redirectUri: options.redirectUriPathname
 			});
 
-			if (provider.authServer.openid) {
-				const tokensResponse = await oauth.processAuthorizationCodeOpenIDResponse(
-					authorizationServer,
-					client,
-					authorizationCodeGrantResponse,
-					expectedNonce
-				);
-				return processTokensResponse(tokensResponse);
-			} else {
-				const tokensResponse = await oauth.processAuthorizationCodeOAuth2Response(
-					authorizationServer,
-					client,
-					authorizationCodeGrantResponse
-				);
-				return processTokensResponse(tokensResponse);
-			}
+			return processTokensResponse(authorizationCodeGrantResponse);
 		}
 	};
 };

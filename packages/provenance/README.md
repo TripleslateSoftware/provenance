@@ -159,7 +159,7 @@ export {};
 Include a session callback in the `auth` definition to decode the `idToken` JWT into some user information (available data depends on your provider/creativity).
 
 ```ts title="src/lib/server/auth.ts"
-import * as jose from 'jose';
+import { parseJWT } from '@oslojs/jwt';
 
 import { provenance } from './PROVENANCE';
 import { keycloak } from '@tripleslate/provenance/providers';
@@ -170,11 +170,12 @@ export const auth = provenance(
     base: KC_BASE,
     realm: KC_REALM,
     clientId: KC_CLIENT_ID,
-    clientSecret: KC_CLIENT_SECRET
+    clientSecret: KC_CLIENT_SECRET,
+    scopes: ['openid' 'profile' 'email']
   }),
   {
     sessionCallback: (session) => {
-      const idToken = jose.decodeJwt(session.idToken);
+      const idToken = parseJWT(session.idToken)[1] as { name: string };
 
       return {
         ...session,

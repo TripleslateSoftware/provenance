@@ -1,19 +1,19 @@
-import { TokenEndpointResponse } from 'oauth4webapi';
+import { TokenRequestResult } from '@oslojs/oauth2';
 
 export type Context<ProviderSession, AppSession> = {
 	oauth: {
-		processAuthResponse: (expectedState: string) => Promise<{
+		processAuthResponse: (expectedState: string) => {
 			code: string;
 			state: { referrer?: string };
-		}>;
+		};
 		requestToken: (
 			codeVerifier: string,
 			authorizationCode: string,
 			expectedNonce: string
-		) => Promise<TokenEndpointResponse>;
+		) => Promise<TokenRequestResult>;
 		referrer: string | null;
-		redirectLogin: (referrer: string | null) => Promise<void>;
-		refresh: (refreshToken: string) => Promise<TokenEndpointResponse>;
+		redirectLogin: (referrer: string | null) => void;
+		refresh: (refreshToken: string) => Promise<TokenRequestResult>;
 		postLogout: (idToken: string) => Promise<void>;
 	};
 	checks: {
@@ -28,7 +28,7 @@ export type Context<ProviderSession, AppSession> = {
 		};
 	};
 	session: {
-		create: (tokens: TokenEndpointResponse) => ProviderSession;
+		create: (tokens: TokenRequestResult) => ProviderSession;
 		getCookie: () => AppSession | null;
 		setCookie: (session: ProviderSession) => void;
 		deleteCookie: () => void;
@@ -38,20 +38,20 @@ export type Context<ProviderSession, AppSession> = {
 		set session(value: AppSession | null);
 	};
 	routes: {
-		redirect: (location: string | URL) => void;
+		redirect: (location: string | URL) => never;
 		redirectUri: {
 			is: boolean;
 		};
 		login: {
-			redirect: () => void;
+			redirect: () => never;
 			is: boolean;
 		};
 		logout: {
-			redirect: () => void;
+			redirect: () => never;
 			is: boolean;
 		};
 		home: {
-			redirect: () => void;
+			redirect: () => never;
 			is: boolean;
 		};
 	};

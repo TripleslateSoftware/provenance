@@ -1,10 +1,8 @@
-import * as oauth from 'oauth4webapi';
+import { sha3_256 } from '@oslojs/crypto/sha3';
+import { encodeBase64urlNoPadding } from '@oslojs/encoding';
 
 import type { Cookie, Cookies } from '../types';
 import { b64Decode, b64Encode } from '../helpers';
-
-const NONCE_MAX_AGE = 60 * 5;
-const NONCE_COOKIE_NAME = 'nonce';
 
 const STATE_MAX_AGE = 60 * 5;
 const STATE_COOKIE_NAME = 'state';
@@ -12,37 +10,28 @@ const STATE_COOKIE_NAME = 'state';
 const PKCE_MAX_AGE = 60 * 5;
 const PKCE_COOKIE_NAME = 'pkce-code-verifier';
 
+export function createS256CodeChallenge(codeVerifier: string): string {
+	const codeChallengeBytes = sha3_256(new TextEncoder().encode(codeVerifier));
+	return encodeBase64urlNoPadding(codeChallengeBytes);
+}
+
+export function generateCodeVerifier(): string {
+	const randomValues = new Uint8Array(32);
+	crypto.getRandomValues(randomValues);
+	return encodeBase64urlNoPadding(randomValues);
+}
+
+export function generateState(): string {
+	const randomValues = new Uint8Array(32);
+	crypto.getRandomValues(randomValues);
+	return encodeBase64urlNoPadding(randomValues);
+}
+
 export const c = <State extends Record<string, any>>() => {
 	return {
-		nonce: {
-			create(): { nonce: string; cookie: Cookie } {
-				const nonce = oauth.generateRandomNonce();
-
-				const cookie: Cookie = {
-					name: NONCE_COOKIE_NAME,
-					value: nonce,
-					options: {
-						path: '/',
-						maxAge: NONCE_MAX_AGE
-					}
-				};
-
-				return { nonce, cookie };
-			},
-			use(cookies: Cookies): string {
-				const nonce = cookies.get(NONCE_COOKIE_NAME);
-				cookies.delete(NONCE_COOKIE_NAME, { path: '/' });
-
-				if (nonce !== undefined) {
-					return nonce;
-				} else {
-					throw 'nonce not found in cookies';
-				}
-			}
-		},
 		state: {
 			create(data: State): { state: string; cookie: Cookie } {
-				const value = b64Encode(JSON.stringify({ ...data, random: oauth.generateRandomState() }));
+				const value = b64Encode(JSON.stringify({ ...data, random: generateState() }));
 
 				const cookie = {
 					name: STATE_COOKIE_NAME,
@@ -62,7 +51,7 @@ export const c = <State extends Record<string, any>>() => {
 				if (state !== undefined) {
 					return state;
 				} else {
-					throw 'state not found in cookies';
+					throw new Error('state not found in cookies');
 				}
 			},
 			decode(state: string): State {
@@ -71,9 +60,9 @@ export const c = <State extends Record<string, any>>() => {
 			}
 		},
 		pkce: {
-			async create(): Promise<{ codeChallenge: string; cookie: Cookie }> {
-				const codeVerifier = oauth.generateRandomCodeVerifier();
-				const codeChallenge = await oauth.calculatePKCECodeChallenge(codeVerifier);
+			create(): { codeChallenge: string; cookie: Cookie } {
+				const codeVerifier = generateCodeVerifier();
+				const codeChallenge = createS256CodeChallenge(codeVerifier);
 
 				const cookie = {
 					name: PKCE_COOKIE_NAME,
@@ -93,7 +82,7 @@ export const c = <State extends Record<string, any>>() => {
 				if (codeVerifier !== undefined) {
 					return codeVerifier;
 				} else {
-					throw 'code_verifier not found in cookies';
+					throw new Error('code_verifier not found in cookies');
 				}
 			}
 		}

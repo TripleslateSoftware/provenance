@@ -1,5 +1,3 @@
-import { TokenEndpointResponse } from 'oauth4webapi';
-
 import {
 	type Resolver,
 	localsResolver,
@@ -8,7 +6,12 @@ import {
 	redirectUriResolver
 } from '../resolvers';
 
-import { AuthServerConfiguration, EndpointsConfiguration, Provider } from './types';
+import {
+	AuthServerConfiguration,
+	EndpointsConfiguration,
+	Provider,
+	SessionConfiguration
+} from './types';
 
 const DEFAULT_SESSION_COOKIE_AGE = 60 * 10;
 
@@ -20,11 +23,8 @@ const DEFAULT_SESSION_COOKIE_AGE = 60 * 10;
 export const provider = <Session extends object>(
 	authServer: AuthServerConfiguration,
 	endpoints: EndpointsConfiguration,
-	session: {
-		transformTokens: (tokens: TokenEndpointResponse) => Session;
-		sessionCookieAge?: (session: Session) => number;
-		fixSession?: (session: Session) => Session;
-	},
+	session: Pick<SessionConfiguration<Session>, 'transformTokens'> &
+		Partial<SessionConfiguration<Session>>,
 	resolvers?: Resolver<Session>[]
 ): Provider<Session> => {
 	return {
@@ -32,12 +32,9 @@ export const provider = <Session extends object>(
 		endpoints,
 		session: {
 			transformTokens: session.transformTokens,
+			validateSession: session.validateSession || ((session) => session),
 			sessionCookieAge: session.sessionCookieAge || (() => DEFAULT_SESSION_COOKIE_AGE),
-			fixSession:
-				session.fixSession ||
-				((session) => {
-					return session;
-				})
+			fixSession: session.fixSession || ((session) => session)
 		},
 		resolvers: resolvers || [
 			redirectUriResolver(),

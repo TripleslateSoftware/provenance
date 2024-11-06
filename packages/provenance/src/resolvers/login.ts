@@ -11,7 +11,7 @@ export const loginResolver =
 			if (session === null) {
 				if (logging) logStarter('login');
 
-				await context.oauth.redirectLogin(referrer);
+				context.oauth.redirectLogin(referrer);
 			} else {
 				referrer ? context.routes.redirect(referrer) : context.routes.home.redirect();
 			}

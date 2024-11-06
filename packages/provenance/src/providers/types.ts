@@ -1,4 +1,4 @@
-import { TokenEndpointResponse } from 'oauth4webapi';
+import { TokenRequestResult } from '@oslojs/oauth2';
 
 import { Resolver } from '../resolvers';
 
@@ -11,7 +11,6 @@ export type AuthServerConfiguration = {
 
 export type Checks = {
 	state: string;
-	nonce: string;
 	codeChallenge: string;
 };
 
@@ -23,7 +22,8 @@ export type EndpointsConfiguration = {
 };
 
 export type SessionConfiguration<Session> = {
-	transformTokens: (tokens: TokenEndpointResponse) => Session;
+	transformTokens: (tokens: TokenRequestResult) => Session;
+	validateSession: <T extends Session>(session: T) => T;
 	sessionCookieAge: (session: Session) => number;
 	fixSession: (session: Session) => Session;
 };

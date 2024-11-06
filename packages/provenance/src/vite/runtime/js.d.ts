@@ -16,7 +16,7 @@ import type {
  * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
  */
 export type ProvenanceConfig<ProviderSession, AppSession extends ProviderSession> = {
-	sessionCallback?: (session: ProviderSession) => AppSession;
+	sessionCallback: (session: ProviderSession) => AppSession;
 	getDomain?: (event: RequestEvent) => string | undefined;
 	logging?: boolean;
 	options?: AuthOptions;
@@ -28,11 +28,11 @@ declare function createContext<ProviderSession, AppSession extends ProviderSessi
 		oauth: OAuthModule;
 		session: SessionModule<ProviderSession, AppSession>;
 		routes: RoutesModule;
-		checks: ChecksModule;
+		checks: ChecksModule<{ referrer?: string }>;
 	},
 	config: {
 		logging: boolean;
-		sessionCallback?: (session: ProviderSession) => AppSession;
+		sessionCallback: (session: ProviderSession) => AppSession;
 		getDomain?: (event: RequestEvent) => string | undefined;
 	}
 ): Context<ProviderSession, App.Session>;

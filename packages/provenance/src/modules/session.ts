@@ -1,4 +1,4 @@
-import type { TokenEndpointResponse } from 'oauth4webapi';
+import type { TokenRequestResult } from '@oslojs/oauth2';
 
 import type { Provider } from '../providers/types';
 
@@ -12,7 +12,7 @@ export const s = <ProviderSession, AppSession extends ProviderSession>(
 		 * @param tokens
 		 * @returns session to be stored in cookies
 		 */
-		create(tokens: TokenEndpointResponse): ProviderSession {
+		create(tokens: TokenRequestResult): ProviderSession {
 			const session = provider.session.transformTokens(tokens);
 
 			return provider.session.fixSession(session);
@@ -24,19 +24,18 @@ export const s = <ProviderSession, AppSession extends ProviderSession>(
 		 * @param sessionCookieName
 		 * @param session the session object to be set in cookies
 		 */
-		setCookie(
-			set: (name: string, value: string, maxAge: number) => void,
-			session: ProviderSession
-		) {
+		setCookie(set: (name: string, value: string, maxAge: number) => void, session: AppSession) {
+			const validatedSession = provider.session.validateSession(session);
+
 			const maxCookieSize = 3500;
-			const fullCookie = JSON.stringify(session);
+			const fullCookie = JSON.stringify(validatedSession);
 
 			const chunksCount = Math.ceil(fullCookie.length / maxCookieSize);
 			const chunks = [...Array(chunksCount).keys()].map((i) =>
 				fullCookie.substring(i * maxCookieSize, (i + 1) * maxCookieSize)
 			);
 
-			const maxAge = provider.session.sessionCookieAge(session);
+			const maxAge = provider.session.sessionCookieAge(validatedSession);
 
 			chunks.forEach((chunk, i) => {
 				set(`${options.sessionCookieName}-${i}`, chunk, maxAge);
@@ -63,7 +62,11 @@ export const s = <ProviderSession, AppSession extends ProviderSession>(
 
 				const fullCookie = sorted.reduce((prev, current) => prev + current.value, '');
 
-				return JSON.parse(fullCookie);
+				const session = JSON.parse(fullCookie);
+
+				const validatedSession = provider.session.validateSession(session);
+
+				return validatedSession;
 			} else {
 				return null;
 			}

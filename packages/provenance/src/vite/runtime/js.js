@@ -15,18 +15,18 @@ import { dev } from '$app/environment';
 
 /**
  * @template ProviderSession
- * @template AppSession
+ * @template {ProviderSession} AppSession
  *
  * @param {import('@sveltejs/kit').RequestEvent} event
  * @param {{
 		oauth: import('@tripleslate/provenance').OAuthModule;
-		session: import('@tripleslate/provenance').SessionModule<ProviderSession, AppSession extends ProviderSession ? AppSession : never>;
+		session: import('@tripleslate/provenance').SessionModule<ProviderSession, AppSession>;
 		routes: import('@tripleslate/provenance').RoutesModule;
 		checks: import('@tripleslate/provenance').ChecksModule<{ referrer?: string }>;
 	}} modules
  * @param {{
 		logging: boolean;
-		sessionCallback?: (session: ProviderSession) => AppSession;
+		sessionCallback: (session: ProviderSession) => AppSession;
 		getDomain?: (event: import('@sveltejs/kit').RequestEvent) => string | undefined;
 	}} config
  * @returns {import('@tripleslate/provenance').Context<ProviderSession, AppSession>} an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
@@ -40,7 +40,7 @@ function createContext(event, modules, config) {
 
 	return {
 		oauth: {
-			processAuthResponse: async (expectedState) => {
+			processAuthResponse: (expectedState) => {
 				const url = event.url;
 
 				if (config.logging) {
@@ -49,7 +49,7 @@ function createContext(event, modules, config) {
 					console.log('expectedState:', expectedState);
 				}
 
-				const authResponse = await modules.oauth.processAuthResponse(url, expectedState);
+				const authResponse = modules.oauth.processAuthResponse(url, expectedState);
 
 				if (config.logging) {
 					console.log('authResponse:', authResponse);
@@ -161,7 +161,7 @@ function createContext(event, modules, config) {
 				return tokenEndpointResponse;
 			},
 			referrer: event.url.searchParams.get('referrer'),
-			redirectLogin: async (referrer) => {
+			redirectLogin: (referrer) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -169,7 +169,7 @@ function createContext(event, modules, config) {
 					console.log('origin:', origin);
 				}
 
-				redirect(303, await modules.oauth.login(origin, referrer, event.cookies.set));
+				redirect(303, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
 			postLogout: async (idToken) => {
 				/**
@@ -275,10 +275,7 @@ function createContext(event, modules, config) {
 					console.log('session:', session);
 				}
 
-				const sessionWithExtra = {
-					...session,
-					...config.sessionCallback?.(session)
-				};
+				const appSession = config.sessionCallback(session);
 				const domain = config.getDomain?.(event);
 
 				modules.session.setCookie((name, value, maxAge) => {
@@ -294,7 +291,7 @@ function createContext(event, modules, config) {
 						maxAge,
 						domain
 					});
-				}, sessionWithExtra);
+				}, appSession);
 			},
 			deleteCookie: () => {
 				if (config.logging) {
@@ -369,10 +366,10 @@ function createContext(event, modules, config) {
 
 /**
  * @template ProviderSession
- * @template AppSession
+ * @template {ProviderSession} AppSession
  *
  * @param {import('@tripleslate/provenance').Provider<ProviderSession>} provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
- * @param {AppSession extends ProviderSession ? import('./js').ProvenanceConfig<ProviderSession, AppSession>? : never} config optional extra configuration options for provenance behaviour
+ * @param {import('./js').ProvenanceConfig<ProviderSession, AppSession>=} config optional extra configuration options for provenance behaviour
  * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */
 export const provenance = (provider, config) => {
@@ -387,6 +384,7 @@ export const provenance = (provider, config) => {
 	};
 
 	const defaultedConfig = {
+		sessionCallback: (/** @type {ProviderSession} */ session) => session,
 		logging: dev,
 		...config
 	};

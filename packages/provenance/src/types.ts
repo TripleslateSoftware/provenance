@@ -1,6 +1,6 @@
 import type { CookieSerializeOptions } from 'cookie';
-import type { TokenEndpointResponse } from 'oauth4webapi';
-export type { TokenEndpointResponse };
+import { TokenRequestResult } from '@oslojs/oauth2';
+export { TokenRequestResult };
 
 export type Cookie = {
 	name: string;
