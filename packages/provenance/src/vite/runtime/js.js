@@ -57,7 +57,7 @@ function createContext(event, modules, config) {
 
 				return authResponse;
 			},
-			requestToken: async (codeVerifier, authorizationCode, expectedNonce) => {
+			requestToken: async (codeVerifier, authorizationCode) => {
 				/** 
 				 * @param {URL} url
 				 * @param {{
@@ -103,13 +103,9 @@ function createContext(event, modules, config) {
 
 				if (config.logging) {
 					logStarter('oauth:', 'requestToken');
-					console.log('expectedNonce:', expectedNonce);
 				}
 
-				const tokenEndpointResponse = await modules.oauth.requestToken(
-					fetchRequestToken,
-					expectedNonce
-				);
+				const tokenEndpointResponse = await modules.oauth.requestToken(fetchRequestToken);
 
 				if (config.logging) {
 					console.log('tokenEndpointResponse:', tokenEndpointResponse);
@@ -204,18 +200,6 @@ function createContext(event, modules, config) {
 			}
 		},
 		checks: {
-			nonce: {
-				use: () => {
-					const nonce = modules.checks.nonce.use(event.cookies);
-
-					if (config.logging) {
-						logStarter('checks:', 'nonce:', 'use');
-						console.log('nonce:', nonce);
-					}
-
-					return nonce;
-				}
-			},
 			state: {
 				use: () => {
 					const state = modules.checks.state.use(event.cookies);

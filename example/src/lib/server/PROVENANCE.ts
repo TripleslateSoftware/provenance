@@ -78,11 +78,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 				return authResponse;
 			},
-			requestToken: async (
-				codeVerifier: string,
-				authorizationCode: string,
-				expectedNonce: string
-			) => {
+			requestToken: async (codeVerifier: string, authorizationCode: string) => {
 				const fetchRequestToken = async (
 					url: URL,
 					params: {
@@ -126,13 +122,9 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 				if (config.logging) {
 					logStarter('oauth:', 'requestToken');
-					console.log('expectedNonce:', expectedNonce);
 				}
 
-				const tokenEndpointResponse = await modules.oauth.requestToken(
-					fetchRequestToken,
-					expectedNonce
-				);
+				const tokenEndpointResponse = await modules.oauth.requestToken(fetchRequestToken);
 
 				if (config.logging) {
 					console.log('tokenEndpointResponse:', tokenEndpointResponse);
@@ -221,18 +213,6 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 			}
 		},
 		checks: {
-			nonce: {
-				use: () => {
-					const nonce = modules.checks.nonce.use(event.cookies);
-
-					if (config.logging) {
-						logStarter('checks:', 'nonce:', 'use');
-						console.log('nonce:', nonce);
-					}
-
-					return nonce;
-				}
-			},
 			state: {
 				use: () => {
 					const state = modules.checks.state.use(event.cookies);

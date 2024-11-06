@@ -6,20 +6,13 @@ export type Context<ProviderSession, AppSession> = {
 			code: string;
 			state: { referrer?: string };
 		};
-		requestToken: (
-			codeVerifier: string,
-			authorizationCode: string,
-			expectedNonce: string
-		) => Promise<TokenRequestResult>;
+		requestToken: (codeVerifier: string, authorizationCode: string) => Promise<TokenRequestResult>;
 		referrer: string | null;
 		redirectLogin: (referrer: string | null) => void;
 		refresh: (refreshToken: string) => Promise<TokenRequestResult>;
 		postLogout: (idToken: string) => Promise<void>;
 	};
 	checks: {
-		nonce: {
-			use: () => string;
-		};
 		state: {
 			use: () => string;
 		};
