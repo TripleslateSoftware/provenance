@@ -171,7 +171,7 @@ export const auth = provenance(
     realm: KC_REALM,
     clientId: KC_CLIENT_ID,
     clientSecret: KC_CLIENT_SECRET,
-    scopes: ['openid' 'profile' 'email']
+    scopes: ['openid', 'profile', 'email']
   }),
   {
     sessionCallback: (session) => {

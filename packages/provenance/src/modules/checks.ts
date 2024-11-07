@@ -1,4 +1,4 @@
-import { sha3_256 } from '@oslojs/crypto/sha3';
+import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64urlNoPadding } from '@oslojs/encoding';
 
 import type { Cookie, Cookies } from '../types';
@@ -10,22 +10,19 @@ const STATE_COOKIE_NAME = 'state';
 const PKCE_MAX_AGE = 60 * 5;
 const PKCE_COOKIE_NAME = 'pkce-code-verifier';
 
-export function createS256CodeChallenge(codeVerifier: string): string {
-	const codeChallengeBytes = sha3_256(new TextEncoder().encode(codeVerifier));
+const generateRandomValue = (): string => {
+	const randomValues = new Uint8Array(32);
+	crypto.getRandomValues(randomValues);
+	return encodeBase64urlNoPadding(randomValues);
+};
+
+const generateCodeVerifier = (): string => generateRandomValue();
+const generateState = (): string => generateRandomValue();
+
+const createS256CodeChallenge = (codeVerifier: string): string => {
+	const codeChallengeBytes = sha256(new TextEncoder().encode(codeVerifier));
 	return encodeBase64urlNoPadding(codeChallengeBytes);
-}
-
-export function generateCodeVerifier(): string {
-	const randomValues = new Uint8Array(32);
-	crypto.getRandomValues(randomValues);
-	return encodeBase64urlNoPadding(randomValues);
-}
-
-export function generateState(): string {
-	const randomValues = new Uint8Array(32);
-	crypto.getRandomValues(randomValues);
-	return encodeBase64urlNoPadding(randomValues);
-}
+};
 
 export const c = <State extends Record<string, any>>() => {
 	return {
