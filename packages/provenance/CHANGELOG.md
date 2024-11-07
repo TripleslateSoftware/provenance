@@ -1,5 +1,14 @@
 # @tripleslate/provenance
 
+## 0.10.0
+### Minor Changes
+
+- b2e318a: add scopes to provider configurations
+
+### Patch Changes
+
+- b2e318a: use `oslojs` instead of `oauth4webapi`
+
 ## 0.9.1
 ### Patch Changes
 
