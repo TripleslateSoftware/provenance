@@ -2,11 +2,11 @@ import { logStarter } from '../helpers';
 import type { Resolver } from './types';
 
 export const localsResolver =
-	<ProviderSession>(): Resolver<ProviderSession> =>
+	<Session>(): Resolver<Session> =>
 	async (context, resolve, logging) => {
 		if (logging) logStarter('locals');
 
-		let session: ProviderSession | null;
+		let session: Session | null;
 		try {
 			session = context.session.getCookie();
 		} catch {

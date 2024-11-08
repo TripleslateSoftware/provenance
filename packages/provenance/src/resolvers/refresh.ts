@@ -2,14 +2,14 @@ import { logStarter } from '../helpers';
 import { Resolver } from './types';
 
 export const refreshResolver = <
-	ProviderSession extends {
+	Session extends {
 		refreshToken: string;
 		accessExpiresAt: number;
 		refreshExpiresAt?: number;
 	}
 >(options: {
 	eagerRefresh: number;
-}): Resolver<ProviderSession> => {
+}): Resolver<Session> => {
 	return async (context, resolve, logging) => {
 		const session = context.locals.session;
 

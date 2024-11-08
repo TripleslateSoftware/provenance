@@ -2,7 +2,7 @@ import { logStarter } from '../helpers';
 import { Resolver } from './types';
 
 export const logoutResolver =
-	<ProviderSession>(): Resolver<ProviderSession> =>
+	<Session>(): Resolver<Session> =>
 	async (context, resolve, logging) => {
 		if (context.routes.logout.is) {
 			const session = context.locals.session;

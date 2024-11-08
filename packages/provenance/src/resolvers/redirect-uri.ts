@@ -2,7 +2,7 @@ import { logStarter } from '../helpers';
 import { Resolver } from './types';
 
 export const redirectUriResolver =
-	<ProviderSession>(): Resolver<ProviderSession> =>
+	<Session>(): Resolver<Session> =>
 	async (context, resolve, logging) => {
 		if (context.routes.redirectUri.is) {
 			if (logging) logStarter('redirectUri');

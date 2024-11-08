@@ -4,7 +4,6 @@ declare global {
 	namespace App {
 		interface Session {
 			accessToken: string;
-			message: string;
 		}
 
 		// interface Error {}

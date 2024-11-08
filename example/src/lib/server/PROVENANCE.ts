@@ -27,13 +27,11 @@ import { logStarter } from '@tripleslate/provenance/helpers';
 import { dev } from '$app/environment';
 
 /**
- * @param sessionCallback use session data (determined by provider) to return extra information to be stored in the session cookie
  * @param getDomain use event data to return a value for the session cookie's domain attributes
  * @param logging whether to log in handle routes (will use setting for \`dev\` if not provided)
  * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)
  */
-export type ProvenanceConfig<ProviderSession, AppSession extends ProviderSession> = {
-	sessionCallback?: (session: ProviderSession) => AppSession;
+export type ProvenanceConfig = {
 	getDomain?: (event: RequestEvent) => string | undefined;
 	logging?: boolean;
 	options?: AuthOptions;
@@ -43,13 +41,12 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 	event: RequestEvent,
 	modules: {
 		oauth: OAuthModule;
-		session: SessionModule<ProviderSession, AppSession>;
+		session: SessionModule<ProviderSession>;
 		routes: RoutesModule;
 		checks: ChecksModule<{ referrer?: string }>;
 	},
 	config: {
 		logging: boolean;
-		sessionCallback: (session: ProviderSession) => AppSession;
 		getDomain?: (event: RequestEvent) => string | undefined;
 	}
 ): Context<ProviderSession, AppSession> {
@@ -272,7 +269,6 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('session:', session);
 				}
 
-				const appSession = config.sessionCallback(session);
 				const domain = config.getDomain?.(event);
 
 				modules.session.setCookie((name, value, maxAge) => {
@@ -288,7 +284,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 						maxAge,
 						domain
 					});
-				}, appSession);
+				}, session);
 			},
 			deleteCookie: () => {
 				if (config.logging) {
@@ -367,9 +363,9 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
  * @param config optional extra configuration options for provenance behaviour
  * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */
-export const provenance = <ProviderSession, AppSession extends ProviderSession>(
+export const provenance = <ProviderSession>(
 	provider: Provider<ProviderSession>,
-	config?: ProvenanceConfig<ProviderSession, AppSession>
+	config?: ProvenanceConfig
 ) => {
 	const defaultedOptions = {
 		redirectUriPathname: '/auth',
@@ -382,7 +378,6 @@ export const provenance = <ProviderSession, AppSession extends ProviderSession>(
 	};
 
 	const defaultedConfig = {
-		sessionCallback: (session: ProviderSession) => session,
 		logging: dev,
 		...config
 	};

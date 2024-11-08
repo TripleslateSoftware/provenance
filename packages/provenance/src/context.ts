@@ -22,7 +22,7 @@ export type Context<ProviderSession, AppSession> = {
 	};
 	session: {
 		create: (tokens: TokenRequestResult) => ProviderSession;
-		getCookie: () => AppSession | null;
+		getCookie: () => ProviderSession | null;
 		setCookie: (session: ProviderSession) => void;
 		deleteCookie: () => void;
 	};

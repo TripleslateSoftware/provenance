@@ -1,18 +1,16 @@
 import type { TokenRequestResult } from '@oslojs/oauth2';
 
 import type { Provider } from '../providers/types';
+import { chunkSessionCookies, dechunkSessionCookies } from '../helpers/cookies';
 
-export const s = <ProviderSession, AppSession extends ProviderSession>(
-	provider: Provider<ProviderSession>,
-	options: { sessionCookieName: string }
-) => {
+export const s = <Session>(provider: Provider<Session>, options: { sessionCookieName: string }) => {
 	return {
 		/**
 		 * create a session object from a set of tokens
 		 * @param tokens
 		 * @returns session to be stored in cookies
 		 */
-		create(tokens: TokenRequestResult): ProviderSession {
+		create(tokens: TokenRequestResult): Session {
 			const session = provider.session.transformTokens(tokens);
 
 			return provider.session.fixSession(session);
@@ -24,16 +22,10 @@ export const s = <ProviderSession, AppSession extends ProviderSession>(
 		 * @param sessionCookieName
 		 * @param session the session object to be set in cookies
 		 */
-		setCookie(set: (name: string, value: string, maxAge: number) => void, session: AppSession) {
+		setCookie(set: (name: string, value: string, maxAge: number) => void, session: Session) {
 			const validatedSession = provider.session.validateSession(session);
 
-			const maxCookieSize = 3500;
-			const fullCookie = JSON.stringify(validatedSession);
-
-			const chunksCount = Math.ceil(fullCookie.length / maxCookieSize);
-			const chunks = [...Array(chunksCount).keys()].map((i) =>
-				fullCookie.substring(i * maxCookieSize, (i + 1) * maxCookieSize)
-			);
+			const chunks = chunkSessionCookies(validatedSession);
 
 			const maxAge = provider.session.sessionCookieAge(validatedSession);
 
@@ -43,29 +35,15 @@ export const s = <ProviderSession, AppSession extends ProviderSession>(
 		},
 		/**
 		 * get the session object from cookies
-		 * @param cookies cookies from request event
-		 * @param sessionCookieName
+		 * @param getAll call back for retrieving cookies
 		 * @returns the session object stored in cookies or null if there is no session stored
 		 */
-		getCookie(getAll: () => { name: string; value: string }[]): AppSession | null {
-			const sessionChunkCookies = getAll().filter((cookie) =>
-				cookie.name.startsWith(`${options.sessionCookieName}-`)
-			);
-
-			if (sessionChunkCookies.length > 0) {
-				const sorted = sessionChunkCookies.sort((a, b) => {
-					const aIndex = parseInt(a.name.replace(`${options.sessionCookieName}-`, ''));
-					const bIndex = parseInt(b.name.replace(`${options.sessionCookieName}-`, ''));
-
-					return aIndex - bIndex;
-				});
-
-				const fullCookie = sorted.reduce((prev, current) => prev + current.value, '');
-
-				const session = JSON.parse(fullCookie);
-
-				const validatedSession = provider.session.validateSession(session);
-
+		getCookie(getAll: () => { name: string; value: string }[]): Session | null {
+			const session = dechunkSessionCookies(getAll(), {
+				sessionCookieName: options.sessionCookieName
+			});
+			if (session) {
+				const validatedSession = provider.session.validateSession(JSON.parse(session));
 				return validatedSession;
 			} else {
 				return null;
@@ -88,6 +66,4 @@ export const s = <ProviderSession, AppSession extends ProviderSession>(
 	};
 };
 
-export type SessionModule<ProviderSession, AppSession extends ProviderSession> = ReturnType<
-	typeof s<ProviderSession, AppSession>
->;
+export type SessionModule<Session> = ReturnType<typeof s<Session>>;

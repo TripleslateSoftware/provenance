@@ -20,7 +20,7 @@ import { dev } from '$app/environment';
  * @param {import('@sveltejs/kit').RequestEvent} event
  * @param {{
 		oauth: import('@tripleslate/provenance').OAuthModule;
-		session: import('@tripleslate/provenance').SessionModule<ProviderSession, AppSession>;
+		session: import('@tripleslate/provenance').SessionModule<ProviderSession>;
 		routes: import('@tripleslate/provenance').RoutesModule;
 		checks: import('@tripleslate/provenance').ChecksModule<{ referrer?: string }>;
 	}} modules
@@ -350,10 +350,9 @@ function createContext(event, modules, config) {
 
 /**
  * @template ProviderSession
- * @template {ProviderSession} AppSession
  *
  * @param {import('@tripleslate/provenance').Provider<ProviderSession>} provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
- * @param {import('./js').ProvenanceConfig<ProviderSession, AppSession>=} config optional extra configuration options for provenance behaviour
+ * @param {import('./js').ProvenanceConfig=} config optional extra configuration options for provenance behaviour
  * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */
 export const provenance = (provider, config) => {
