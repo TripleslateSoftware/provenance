@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.11.0
+### Minor Changes
+
+- 254b958: remove untrustworthy `sessionCallback` from config/session resolution
+
 ## 0.10.0
 ### Minor Changes
 
