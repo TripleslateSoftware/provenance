@@ -29,6 +29,7 @@ export const redirectUriResolver =
 
 				// turn the returned tokens into the session (including user, access token, refresh token)
 				const session = context.session.create(tokens);
+				context.session.deleteCookie();
 				context.session.setCookie(session);
 			} catch (e) {
 				// possibly need to redirect to an auth error page

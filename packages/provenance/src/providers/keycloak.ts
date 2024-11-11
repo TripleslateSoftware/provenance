@@ -125,9 +125,6 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 			const payload = parseJWT(session.idToken)[1];
 
 			const claims = new JWTClaims(payload);
-			if (!claims.verifyExpiration()) {
-				throw new Error('Expired token');
-			}
 			if (claims.issuer() !== authServer.issuer) {
 				throw new Error('Issuer mismatch');
 			}

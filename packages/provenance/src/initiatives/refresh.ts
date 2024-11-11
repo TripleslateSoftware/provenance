@@ -13,6 +13,7 @@ export const refresh = <RequestEvent, ProviderSession, AppSession extends { refr
 				const newTokens = await context.oauth.refresh(session.refreshToken);
 				const newSession = context.session.create(newTokens);
 
+				context.session.deleteCookie();
 				context.session.setCookie(newSession);
 			} catch (error) {
 				console.error(error);

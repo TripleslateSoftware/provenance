@@ -30,11 +30,12 @@ export const refreshResolver = <
 					const newTokens = await context.oauth.refresh(session.refreshToken);
 					const newSession = context.session.create(newTokens);
 
+					context.session.deleteCookie();
 					context.session.setCookie(newSession);
 					context.locals.session = newSession;
-				} catch (error) {
+				} catch (e) {
 					// destroy the session if an error occurs (likely in the oauth refresh flow)
-					if (logging) console.error(error);
+					console.error('provenance:', e);
 					destroySession();
 				}
 			} else {
