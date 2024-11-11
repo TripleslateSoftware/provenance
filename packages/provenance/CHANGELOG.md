@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.12.0
+### Minor Changes
+
+- 2a7f79c: delete session cookies more aggressively and add initiative for doing so
+
 ## 0.11.0
 ### Minor Changes
 
