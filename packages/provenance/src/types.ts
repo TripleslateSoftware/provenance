@@ -1,18 +1,18 @@
-import type { CookieSerializeOptions } from 'cookie';
+import type { SerializeOptions } from 'cookie';
 import { TokenRequestResult } from '@oslojs/oauth2';
 export { TokenRequestResult };
 
 export type Cookie = {
 	name: string;
 	value: string;
-	options: CookieSerializeOptions & { path: string };
+	options: SerializeOptions & { path: string };
 };
 
 export type Cookies = {
 	get: (name: string) => string | undefined;
 	delete: (
 		name: string,
-		opts: CookieSerializeOptions & {
+		opts: SerializeOptions & {
 			path: string;
 		}
 	) => void;

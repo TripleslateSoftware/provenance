@@ -1,6 +1,6 @@
 import { TokenRequestResult } from '@oslojs/oauth2';
 
-import { CookieSerializeOptions } from 'cookie';
+import type { SerializeOptions } from 'cookie';
 
 import type { Provider } from '../providers/types';
 import type { ChecksModule } from './checks';
@@ -36,11 +36,7 @@ export const o = <Session>(
 		login(
 			redirectUriOrigin: string,
 			referrer: string | null,
-			setCookie: (
-				name: string,
-				value: string,
-				opts: CookieSerializeOptions & { path: string }
-			) => void
+			setCookie: (name: string, value: string, opts: SerializeOptions & { path: string }) => void
 		) {
 			const stateCheck = modules.checks.state.create(referrer ? { referrer } : {});
 			const pkceCheck = modules.checks.pkce.create();
