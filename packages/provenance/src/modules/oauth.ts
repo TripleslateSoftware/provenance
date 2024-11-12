@@ -58,10 +58,10 @@ export const o = <Session>(
 		 * @param fetch
 		 * @param idToken idToken as stored in session
 		 */
-		async logout(fetch: (url: URL) => Promise<Response>) {
-			const url = provider.endpoints.createLogoutUrl();
+		async logout(fetch: (url: URL, body?: URLSearchParams) => Promise<Response>, session: Session) {
+			const { url, body } = provider.endpoints.createLogoutUrl(session);
 
-			await fetch(url);
+			await fetch(url, body);
 		},
 		/**
 		 * post to the oauth token endpoint to request a new set of tokens

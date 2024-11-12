@@ -8,13 +8,14 @@ export const refreshResolver = <
 		refreshExpiresAt?: number;
 	}
 >(options: {
+	/** in ms */
 	eagerRefresh: number;
 }): Resolver<Session> => {
 	return async (context, resolve, logging) => {
 		const session = context.locals.session;
 
 		// attempt refresh if there is a session and the access token expires within the "eagerRefresh" threshold
-		if (session !== null && Date.now() >= session.accessExpiresAt * 1000 - options.eagerRefresh) {
+		if (session !== null && Date.now() >= session.accessExpiresAt - options.eagerRefresh) {
 			if (logging) logStarter('refresh');
 
 			const destroySession = () => {
@@ -24,13 +25,13 @@ export const refreshResolver = <
 
 			// don't bother trying to refresh if your session has an expired refresh token
 			// in practice, this should be true as the session cookie should expire at the same time as the refresh token
-			if (session.refreshExpiresAt === undefined || Date.now() < session.refreshExpiresAt * 1000) {
+			if (session.refreshExpiresAt === undefined || Date.now() < session.refreshExpiresAt) {
 				try {
 					// the access token has expired, so refresh with the refresh token
 					const newTokens = await context.oauth.refresh(session.refreshToken);
 					const newSession = context.session.create(newTokens);
 
-					context.session.deleteCookie();
+					destroySession();
 					context.session.setCookie(newSession);
 					context.locals.session = newSession;
 				} catch (e) {

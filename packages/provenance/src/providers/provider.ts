@@ -22,7 +22,7 @@ const DEFAULT_SESSION_COOKIE_AGE = 60 * 10;
  */
 export const provider = <Session extends object>(
 	authServer: AuthServerConfiguration,
-	endpoints: EndpointsConfiguration,
+	endpoints: EndpointsConfiguration<Session>,
 	session: Pick<SessionConfiguration<Session>, 'transformTokens'> &
 		Partial<SessionConfiguration<Session>>,
 	resolvers?: Resolver<Session>[]

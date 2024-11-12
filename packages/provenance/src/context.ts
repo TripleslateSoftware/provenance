@@ -10,7 +10,7 @@ export type Context<ProviderSession, AppSession> = {
 		referrer: string | null;
 		redirectLogin: (referrer: string | null) => void;
 		refresh: (refreshToken: string) => Promise<TokenRequestResult>;
-		postLogout: (idToken: string) => Promise<void>;
+		preLogout: (session: ProviderSession) => Promise<void>;
 	};
 	checks: {
 		state: {

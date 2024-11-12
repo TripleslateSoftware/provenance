@@ -14,9 +14,9 @@ export type Checks = {
 	codeChallenge: string;
 };
 
-export type EndpointsConfiguration = {
+export type EndpointsConfiguration<Session> = {
 	createLoginUrl: (redirectUri: string, checks: Checks) => URL;
-	createLogoutUrl: () => URL;
+	createLogoutUrl: (session: Session) => { url: URL; body?: URLSearchParams };
 	createTokenUrl: () => URL;
 	createUserinfoUrl: () => URL;
 };
@@ -39,7 +39,7 @@ export type ProviderCallbacks<Session> = {
 
 export type Provider<Session> = {
 	authServer: AuthServerConfiguration;
-	endpoints: EndpointsConfiguration;
+	endpoints: EndpointsConfiguration<Session>;
 	session: SessionConfiguration<Session>;
 	resolvers: Resolver<Session>[];
 };

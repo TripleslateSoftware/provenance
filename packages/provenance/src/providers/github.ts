@@ -28,7 +28,7 @@ export const github: CreateProvider<GithubConfiguration, GithubSession> = (
 		clientSecret: configuration.clientSecret,
 		openid: false
 	};
-	const endpoints: EndpointsConfiguration = {
+	const endpoints: EndpointsConfiguration<GithubSession> = {
 		createLoginUrl(redirectUri, checks) {
 			const url = new URL(`authorize`, issuer);
 			url.searchParams.append('client_id', configuration.clientId);
@@ -39,8 +39,8 @@ export const github: CreateProvider<GithubConfiguration, GithubSession> = (
 
 			return url;
 		},
-		createLogoutUrl() {
-			return new URL(`logout`, issuer);
+		createLogoutUrl(_session) {
+			return { url: new URL(`logout`, issuer) };
 		},
 		createTokenUrl() {
 			return new URL(`access_token`, issuer);

@@ -79,8 +79,18 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 
 			return url;
 		},
-		createLogoutUrl: () =>
-			new URL(`/realms/${configuration.realm}/protocol/openid-connect/logout`, configuration.base),
+		createLogoutUrl: (session) => {
+			const id_token_hint = session.idToken;
+			return {
+				url: new URL(
+					`/realms/${configuration.realm}/protocol/openid-connect/logout`,
+					configuration.base
+				),
+				body: new URLSearchParams({
+					id_token_hint
+				})
+			};
+		},
 		createTokenUrl: () =>
 			new URL(`/realms/${configuration.realm}/protocol/openid-connect/token`, configuration.base),
 		createUserinfoUrl: () =>
@@ -142,7 +152,7 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 		loginResolver(),
 		async (context, resolve) => {
 			if (context.routes.logout.is && context.locals.session) {
-				await context.oauth.postLogout(context.locals.session.idToken);
+				await context.oauth.preLogout(context.locals.session);
 			}
 			return await resolve();
 		},
