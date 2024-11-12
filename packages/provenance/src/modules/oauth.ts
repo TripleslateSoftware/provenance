@@ -8,13 +8,13 @@ import type { ChecksModule } from './checks';
 async function processTokensResponse(tokensResponse: Response) {
 	const data = await tokensResponse.json();
 	if (typeof data !== 'object' || data === null) {
-		throw new Error('Unexpected response');
+		throw 'Unexpected response';
 	}
 	const result = new TokenRequestResult(data);
 	if (result.hasErrorCode()) {
 		const error = result.errorCode();
 		const errorDescription = result.errorDescription();
-		throw new Error(`${error}: ${errorDescription}`);
+		throw `${error}: ${errorDescription}`;
 	}
 
 	return result;

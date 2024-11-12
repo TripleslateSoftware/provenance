@@ -15,8 +15,8 @@ export const refresh = <RequestEvent, ProviderSession, AppSession extends { refr
 
 				context.session.deleteCookie();
 				context.session.setCookie(newSession);
-			} catch (error) {
-				console.error(error);
+			} catch (e) {
+				console.error('provenance:', e);
 				// delete the session cookie
 				context.session.deleteCookie();
 				// redirect to login

@@ -44,9 +44,6 @@ type KeycloakSession = {
 	tokenType: string;
 };
 
-const expiresInToExpiresAt = (expiresIn: number) => Math.floor(Date.now() / 1000 + expiresIn);
-const expiresAtToExpiresIn = (expiresAt: number) => Math.floor(expiresAt - Date.now() / 1000);
-
 export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = (
 	configuration,
 	callbacks
@@ -62,7 +59,7 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 		clientSecret: configuration.clientSecret,
 		openid: true
 	};
-	const endpoints: EndpointsConfiguration = {
+	const endpoints: EndpointsConfiguration<KeycloakSession> = {
 		createLoginUrl(redirectUri, checks) {
 			const url = new URL(
 				`/realms/${configuration.realm}/protocol/openid-connect/auth`,
@@ -108,7 +105,7 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 				throw `tokens response does not include 'id_token'`;
 			}
 
-			if (!tokens.accessTokenExpiresInSeconds()) {
+			if (!tokens.accessTokenExpiresAt()) {
 				throw `tokens response does not include 'expires_in'`;
 			}
 
@@ -120,14 +117,14 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 				throw `tokens response does not include 'refresh_expires_in'`;
 			}
 
-			const refreshExpiresIn = parseInt(refresh_expires_in.toString());
+			const refreshExpiresInSeconds = parseInt(refresh_expires_in);
 
 			return {
 				idToken: id_token,
 				accessToken: tokens.accessToken(),
 				refreshToken: tokens.refreshToken(),
-				refreshExpiresAt: expiresInToExpiresAt(refreshExpiresIn),
-				accessExpiresAt: expiresInToExpiresAt(tokens.accessTokenExpiresInSeconds()),
+				refreshExpiresAt: Date.now() + refreshExpiresInSeconds * 1000,
+				accessExpiresAt: tokens.accessTokenExpiresAt().getTime(),
 				tokenType: tokens.tokenType()
 			};
 		},
@@ -136,14 +133,15 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 
 			const claims = new JWTClaims(payload);
 			if (claims.issuer() !== authServer.issuer) {
-				throw new Error('Issuer mismatch');
+				throw 'Issuer mismatch';
 			}
 
 			return session;
 		},
 		fixSession: callbacks?.fixSession,
 		sessionCookieAge:
-			callbacks?.sessionCookieAge || ((session) => expiresAtToExpiresIn(session.refreshExpiresAt))
+			callbacks?.sessionCookieAge ||
+			((session) => Math.floor((session.refreshExpiresAt - Date.now()) / 1000))
 	};
 
 	const resolvers: Resolver<KeycloakSession>[] = [
