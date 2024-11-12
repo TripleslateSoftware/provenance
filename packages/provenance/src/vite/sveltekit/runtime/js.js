@@ -167,17 +167,16 @@ function createContext(event, modules, config) {
 
 				redirect(303, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
-			postLogout: async (idToken) => {
+			preLogout: async (session) => {
 				/**
 				 * @param {URL} url
+				 * @param {URLSearchParams=} body
 				 * @returns {Promise<Response>}
 				 */
-				const fetch = async (url) => {
-					const id_token_hint = idToken;
-
+				const fetch = async (url, body) => {
 					if (config.logging) {
 						console.log('url:', url);
-						console.log('id_token_hint:', id_token_hint);
+						console.log('body:', body);
 					}
 
 					return await event.fetch(url, {
@@ -185,18 +184,15 @@ function createContext(event, modules, config) {
 						headers: {
 							'Content-Type': 'application/x-www-form-urlencoded'
 						},
-						body: new URLSearchParams({
-							id_token_hint
-						})
+						body: body
 					});
 				};
 
 				if (config.logging) {
 					logStarter('oauth:', 'postLogout');
-					console.log('idToken:', idToken);
 				}
 
-				return await modules.oauth.logout(fetch);
+				return await modules.oauth.logout(fetch, session);
 			}
 		},
 		checks: {
@@ -229,7 +225,6 @@ function createContext(event, modules, config) {
 			create: (tokens) => {
 				if (config.logging) {
 					logStarter('session:', 'create');
-					console.log('tokens:', tokens);
 				}
 
 				const session = modules.session.create(tokens);

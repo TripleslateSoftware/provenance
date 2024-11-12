@@ -54,12 +54,12 @@
 			"types": "./dist/vite/index.d.ts",
 			"import": "./dist/vite/index.js"
 		},
-		"./runtime/ts": {
-			"default": "./src/vite/runtime/ts.ts"
+		"./sveltekit/runtime/ts": {
+			"default": "./src/vite/sveltekit/runtime/ts.ts"
 		},
-		"./runtime/js": {
-			"types": "./src/vite/runtime/js.d.ts",
-			"import": "./src/vite/runtime/js.js"
+		"./sveltekit/runtime/js": {
+			"types": "./src/vite/sveltekit/runtime/js.d.ts",
+			"import": "./src/vite/sveltekit/runtime/js.js"
 		},
 		"./providers": {
 			"types": "./dist/providers/index.d.ts",
@@ -86,6 +86,6 @@
 	},
 	"files": [
 		"dist",
-		"src/vite/runtime"
+		"src/vite/**/runtime"
 	]
 }

@@ -8,6 +8,9 @@ import type { Plugin } from 'vite';
 
 import { copyTypes, copyJSRuntime, copyTSRuntime } from './write';
 
+const frameworks = ['sveltekit'] as const;
+type Framework = (typeof frameworks)[number];
+
 type BaseOptions = {
 	/**
 	 * run any command after an update of some routes.
@@ -20,6 +23,7 @@ type BaseOptions = {
 	postUpdateRun: string | undefined;
 	dir: string;
 	filename: string;
+	framework: Framework;
 };
 
 export type TSOptions = BaseOptions & {
@@ -37,6 +41,7 @@ const getDefaultOptions = (o?: Partial<TSOptions | JSOptions>): TSOptions | JSOp
 			postUpdateRun: o?.postUpdateRun,
 			dir: o?.dir ?? 'src/lib/server',
 			filename: o?.filename ?? 'PROVENANCE',
+			framework: 'sveltekit',
 			runtime: 'ts'
 		};
 		return options;
@@ -45,6 +50,7 @@ const getDefaultOptions = (o?: Partial<TSOptions | JSOptions>): TSOptions | JSOp
 			postUpdateRun: o?.postUpdateRun,
 			dir: o?.dir ?? 'src/lib/server',
 			filename: o?.filename ?? 'PROVENANCE',
+			framework: 'sveltekit',
 			generateTypes: o?.generateTypes ?? true,
 			runtime: 'js'
 		};
@@ -76,13 +82,15 @@ const findModule = async (pkg: string, currentLocation: string) => {
 	}
 
 	if (previousLocation === locationFound) {
-		throw new Error('Could not find any node_modules/@tripleslate/provenance folder');
+		throw 'Could not find any node_modules/@tripleslate/provenance folder';
 	}
 
 	return locationFound;
 };
 
-const runtimePaths = async (): Promise<{ js: string; declaration: string; ts: string }> => {
+const runtimePaths = async (
+	framework: Framework
+): Promise<{ js: string; declaration: string; ts: string }> => {
 	const packageName = '@tripleslate/provenance';
 	try {
 		const rootPath = process.cwd();
@@ -100,17 +108,17 @@ const runtimePaths = async (): Promise<{ js: string; declaration: string; ts: st
 			// this directly returns the ESM export of the corresponding module, thanks to the PnP API
 			// it will throw if the module isn't found in the project's dependencies
 			const js = path.dirname(
-				pnp.resolveRequest(`${packageName}/runtime/js`, rootPath, {
+				pnp.resolveRequest(`${packageName}/${framework}/runtime/js`, rootPath, {
 					conditions: new Set(['import'])
 				})
 			);
 			const declaration = path.dirname(
-				pnp.resolveRequest(`${packageName}/runtime/js`, rootPath, {
+				pnp.resolveRequest(`${packageName}/${framework}/runtime/js`, rootPath, {
 					conditions: new Set(['types'])
 				})
 			);
 			const ts = path.dirname(
-				pnp.resolveRequest(`${packageName}/runtime/ts`, rootPath, {
+				pnp.resolveRequest(`${packageName}/${framework}/runtime/ts`, rootPath, {
 					conditions: new Set(['default'])
 				})
 			);
@@ -131,27 +139,27 @@ const runtimePaths = async (): Promise<{ js: string; declaration: string; ts: st
 			'utf-8'
 		);
 		if (!packageJsonSrc) {
-			throw new Error('skip');
+			throw 'skip';
 		}
-		const packageJSON = JSON.parse(packageJsonSrc);
+		const packageJson = JSON.parse(packageJsonSrc);
 
 		// the esm target to import is defined at exports['.'].import
 		if (
-			!packageJSON.exports?.['./runtime/js']?.import ||
-			!packageJSON.exports?.['./runtime/js']?.types ||
-			!packageJSON.exports?.['./runtime/ts']?.default
+			!packageJson.exports?.[`./${framework}/runtime/js`]?.import ||
+			!packageJson.exports?.[`./${framework}/runtime/js`]?.types ||
+			!packageJson.exports?.[`./${framework}/runtime/ts`]?.default
 		) {
-			throw new Error('');
+			throw 'Exports not found in package.json';
 		}
 
 		const js = path.dirname(
-			path.join(packageDirectory, packageJSON.exports['./runtime/js'].import)
+			path.join(packageDirectory, packageJson.exports[`./${framework}/runtime/js`].import)
 		);
 		const declaration = path.dirname(
-			path.join(packageDirectory, packageJSON.exports['./runtime/js'].types)
+			path.join(packageDirectory, packageJson.exports[`./${framework}/runtime/js`].types)
 		);
 		const ts = path.dirname(
-			path.join(packageDirectory, packageJSON.exports['./runtime/ts'].default)
+			path.join(packageDirectory, packageJson.exports[`./${framework}/runtime/ts`].default)
 		);
 
 		return {
@@ -159,10 +167,10 @@ const runtimePaths = async (): Promise<{ js: string; declaration: string; ts: st
 			declaration,
 			ts
 		};
-	} catch {
-		const err = new Error(
-			`Could not find ${packageName}. Are you sure its installed? If so, please open a ticket on GitHub.`
-		);
+	} catch (e) {
+		console.error(e);
+
+		const err = `Could not find ${packageName}. Are you sure its installed? If so, please open a ticket on GitHub.`;
 
 		throw err;
 	}
@@ -177,7 +185,7 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
 		fs.mkdirSync(outDir);
 	}
 
-	const { ts, js, declaration } = await runtimePaths();
+	const { ts, js, declaration } = await runtimePaths(options.framework);
 
 	if (options.runtime == 'ts') {
 		await copyTSRuntime(ts, outDir, `${options.filename}.${options.runtime}`);

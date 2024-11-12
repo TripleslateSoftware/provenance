@@ -181,13 +181,11 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 				return redirect(303, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
-			postLogout: async (idToken: string) => {
-				const fetch = async (url: URL): Promise<Response> => {
-					const id_token_hint = idToken;
-
+			preLogout: async (session: ProviderSession) => {
+				const fetch = async (url: URL, body?: URLSearchParams): Promise<Response> => {
 					if (config.logging) {
 						console.log('url:', url);
-						console.log('id_token_hint:', id_token_hint);
+						console.log('body:', body);
 					}
 
 					return await event.fetch(url, {
@@ -195,18 +193,15 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 						headers: {
 							'Content-Type': 'application/x-www-form-urlencoded'
 						},
-						body: new URLSearchParams({
-							id_token_hint
-						})
+						body: body
 					});
 				};
 
 				if (config.logging) {
-					logStarter('oauth:', 'postLogout');
-					console.log('idToken:', idToken);
+					logStarter('oauth:', 'preLogout');
 				}
 
-				return await modules.oauth.logout(fetch);
+				return await modules.oauth.logout(fetch, session);
 			}
 		},
 		checks: {
@@ -239,7 +234,6 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 			create: (tokens: TokenRequestResult) => {
 				if (config.logging) {
 					logStarter('session:', 'create');
-					console.log('tokens:', tokens);
 				}
 
 				const session = modules.session.create(tokens);
