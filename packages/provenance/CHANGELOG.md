@@ -1,5 +1,16 @@
 # @tripleslate/provenance
 
+## 0.13.0-next.0
+### Minor Changes
+
+- b689d9a: rename `Context['postlogout']` to `preLogout` and change signature
+- 72783ba: throw errors as strings
+- 72783ba: record expiry in ms
+
+### Patch Changes
+
+- 02018ac: move `vite/runtime` into `vite/sveltekit/runtime` to allow installation to depend on framework
+
 ## 0.12.0
 ### Minor Changes
 

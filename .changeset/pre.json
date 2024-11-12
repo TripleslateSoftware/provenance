@@ -1,0 +1,14 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "example": "0.0.16",
+    "@tripleslate/provenance": "0.12.0"
+  },
+  "changesets": [
+    "bright-plants-raise",
+    "fresh-ravens-pump",
+    "purple-berries-worry",
+    "rude-buttons-turn"
+  ]
+}
