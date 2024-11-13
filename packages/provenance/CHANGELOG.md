@@ -1,5 +1,11 @@
 # @tripleslate/provenance
 
+## 0.13.0-next.1
+### Minor Changes
+
+- b874a11: use 302 redirect instead of 303
+- b874a11: always use `{sessionCookieName}-` pattern when parsing cookies
+
 ## 0.13.0-next.0
 ### Minor Changes
 
