@@ -56,7 +56,7 @@ export const s = <Session>(provider: Provider<Session>, options: { sessionCookie
 		 */
 		deleteCookie(getAll: () => { name: string; value: string }[], _delete: (name: string) => void) {
 			const sessionChunkCookies = getAll().filter((cookie) =>
-				cookie.name.startsWith(options.sessionCookieName)
+				cookie.name.startsWith(`${options.sessionCookieName}-`)
 			);
 
 			sessionChunkCookies.forEach((cookie) => {

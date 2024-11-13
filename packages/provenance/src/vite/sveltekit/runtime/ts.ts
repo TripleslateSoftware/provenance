@@ -179,7 +179,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('origin:', origin);
 				}
 
-				return redirect(303, modules.oauth.login(origin, referrer, event.cookies.set));
+				return redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
 			preLogout: async (session: ProviderSession) => {
 				const fetch = async (url: URL, body?: URLSearchParams): Promise<Response> => {
@@ -310,7 +310,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 		},
 		routes: {
 			redirect: (location) => {
-				redirect(303, location);
+				return redirect(302, location);
 			},
 			redirectUri: {
 				is: isRoute(modules.routes.redirectUri.pathname)
@@ -321,7 +321,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 					const loginPath = `${loginPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
 
-					redirect(303, loginPath);
+					return redirect(302, loginPath);
 				},
 				is: isRoute(modules.routes.login.pathname)
 			},
@@ -331,7 +331,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 					const logoutPath = `${logoutPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
 
-					redirect(303, logoutPath);
+					return redirect(302, logoutPath);
 				},
 				is: isRoute(modules.routes.logout.pathname)
 			},
@@ -344,7 +344,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 						console.log('homePath:', homePath);
 					}
 
-					redirect(303, homePath);
+					return redirect(302, homePath);
 				},
 				is: isRoute(modules.routes.logout.pathname)
 			}

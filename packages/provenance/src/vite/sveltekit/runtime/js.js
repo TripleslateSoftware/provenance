@@ -165,7 +165,7 @@ function createContext(event, modules, config) {
 					console.log('origin:', origin);
 				}
 
-				redirect(303, modules.oauth.login(origin, referrer, event.cookies.set));
+				redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
 			preLogout: async (session) => {
 				/**
@@ -304,7 +304,7 @@ function createContext(event, modules, config) {
 		},
 		routes: {
 			redirect: (location) => {
-				redirect(303, location);
+				redirect(302, location);
 			},
 			redirectUri: {
 				is: isRoute(modules.routes.redirectUri.pathname)
@@ -315,14 +315,14 @@ function createContext(event, modules, config) {
 
 					const loginPath = `${loginPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
 
-					redirect(303, loginPath);
+					redirect(302, loginPath);
 				},
 				is: isRoute(modules.routes.login.pathname)
 			},
 			logout: {
 				redirect: () => {
 					const logoutPath = modules.routes.logout.pathname;
-					redirect(303, logoutPath);
+					redirect(302, logoutPath);
 				},
 				is: isRoute(modules.routes.logout.pathname)
 			},
@@ -335,7 +335,7 @@ function createContext(event, modules, config) {
 						console.log('homePath:', homePath);
 					}
 
-					redirect(303, homePath);
+					redirect(302, homePath);
 				},
 				is: isRoute(modules.routes.logout.pathname)
 			}

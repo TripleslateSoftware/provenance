@@ -15,7 +15,7 @@ export const load = async (event) => {
 	});
 
 	if (response.status !== 200) {
-		redirect(303, '/logout');
+		redirect(302, '/logout');
 	}
 
 	const { login, html_url, avatar_url } = await response.json();

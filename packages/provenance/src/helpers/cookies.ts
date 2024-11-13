@@ -14,11 +14,6 @@ export const dechunkSessionCookies = (
 	cookies: { name: string; value: string }[],
 	options: { sessionCookieName: string }
 ) => {
-	const sessionCookie = cookies.find((c) => c.name === options.sessionCookieName);
-	if (sessionCookie) {
-		return sessionCookie.value;
-	}
-
 	const sessionChunkCookies = cookies.filter((cookie) =>
 		cookie.name.startsWith(`${options.sessionCookieName}-`)
 	);
