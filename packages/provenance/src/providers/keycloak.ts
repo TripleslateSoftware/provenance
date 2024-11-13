@@ -129,11 +129,41 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 			};
 		},
 		validateSession: <T extends KeycloakSession>(session: T) => {
-			const payload = parseJWT(session.idToken)[1];
+			if (typeof session.idToken !== 'string') {
+				throw 'Session idToken is not valid';
+			}
+			if (typeof session.accessToken !== 'string') {
+				throw 'Session accessToken is not valid';
+			}
+			if (typeof session.refreshToken !== 'string') {
+				throw 'Session refreshToken is not valid';
+			}
 
-			const claims = new JWTClaims(payload);
-			if (claims.issuer() !== authServer.issuer) {
-				throw 'Issuer mismatch';
+			const idTokenPayload = parseJWT(session.idToken)[1];
+			const accessTokenPayload = parseJWT(session.accessToken)[1];
+			const refreshTokenPayload = parseJWT(session.refreshToken)[1];
+
+			const idTokenClaims = new JWTClaims(idTokenPayload);
+			const accessTokenClaims = new JWTClaims(accessTokenPayload);
+			const refreshTokenClaims = new JWTClaims(refreshTokenPayload);
+			if (idTokenClaims.issuer() !== authServer.issuer) {
+				throw 'Session idToken issuer mismatch';
+			}
+			if (accessTokenClaims.issuer() !== authServer.issuer) {
+				throw 'Session accessToken issuer mismatch';
+			}
+			if (refreshTokenClaims.issuer() !== authServer.issuer) {
+				throw 'Session refreshToken issuer mismatch';
+			}
+
+			if (typeof session.accessExpiresAt !== 'number' || session.accessExpiresAt < 0) {
+				throw 'Session accessExpiresAt is not valid';
+			}
+			if (typeof session.accessExpiresAt !== 'number' || session.accessExpiresAt < 0) {
+				throw 'Session refreshExpiresAt is not valid';
+			}
+			if (session.tokenType !== 'Bearer') {
+				throw 'Session tokenType is not "Bearer" type';
 			}
 
 			return session;

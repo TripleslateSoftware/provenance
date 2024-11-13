@@ -9,7 +9,10 @@ export const localsResolver =
 		let session: Session | null;
 		try {
 			session = context.session.getCookie();
-		} catch {
+		} catch (e) {
+			// possibly need to redirect to an auth error page
+			console.error('provenance:', e);
+
 			context.session.deleteCookie();
 			session = null;
 		}
