@@ -1,5 +1,11 @@
 # example
 
+## 0.0.17-next.2
+### Patch Changes
+
+- Updated dependencies [2c9024e]
+  - @tripleslate/provenance@0.13.0-next.2
+
 ## 0.0.17-next.1
 ### Patch Changes
 

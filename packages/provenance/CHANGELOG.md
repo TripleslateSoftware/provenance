@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.13.0-next.2
+### Patch Changes
+
+- 2c9024e: improve provider session validation
+
 ## 0.13.0-next.1
 ### Minor Changes
 
