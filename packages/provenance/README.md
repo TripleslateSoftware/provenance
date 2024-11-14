@@ -54,7 +54,12 @@ import { provenance } from './PROVENANCE';
 import { github } from '@tripleslate/provenance/providers';
 import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
 
-export const auth = provenance(github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET }));
+export const auth = provenance(
+  github({
+    clientId: GH_CLIENT_ID,
+    clientSecret: GH_CLIENT_SECRET
+  })
+);
 ```
 
 ##### keycloak
@@ -98,7 +103,7 @@ export {};
 ```
 
 Above example applies to `github` provider. Refer to the fields in the `Session` generic parameter on other providers.
-Note that `Locals` does not need to be defined, `provenance` provides a default `session` field of type `(App.Session & App.SessionExtra) | null`.
+Note that `Locals` does not need to be defined, `provenance` provides a default `session` field of type `App.Session | null`.
 If an app defines other `Locals` fields, they can be defined here without redefining `session` on `Locals` as typescript will merge the two declarations of the interface.
 
 ### intialize handle hook
@@ -116,10 +121,11 @@ export const handle = auth.handle;
 #### `src/routes/protected/+page.server.ts`
 
 ```ts title="src/routes/protected/+page.server.ts"
+import { protectRoute } from '@tripleslate/provenance/initiatives';
 import { auth } from '$lib/server/auth';
 
 export const load = async (event) => {
-  const session = await auth.protectRoute(event);
+  const session = await protectRoute(auth.createContext)(event);
 
   return {
     session
@@ -128,78 +134,3 @@ export const load = async (event) => {
 ```
 
 Note that `handle` in `hooks.server.ts` is not invoked during client side routing (typically, navigating to a page without a `+page.server.ts` after first load). This means that protecting a route with `auth.protectRoute` and accessing (up to date) session information must be done in a `+page.server.ts` load, not a `+page.ts` load.
-
-### add extra information to session
-
-#### `src/app.d.ts`
-
-Extend the `App.SessionExtra` interface (`provenance` defines this interface as an empty object by default).
-Note that this example extends the `App.SessionExtra` type with an `App.User` field.
-
-```ts title="src/app.d.ts"
-declare global {
-  namespace App {
-    interface User {
-      displayName: string;
-    }
-    interface Session {
-      accessToken: string;
-      idToken: string;
-      user: User;
-    }
-    ...
-  }
-}
-
-export {};
-```
-
-#### `src/lib/server/auth.ts`
-
-Include a session callback in the `auth` definition to decode the `idToken` JWT into some user information (available data depends on your provider/creativity).
-
-```ts title="src/lib/server/auth.ts"
-import { parseJWT } from '@oslojs/jwt';
-
-import { provenance } from './PROVENANCE';
-import { keycloak } from '@tripleslate/provenance/providers';
-import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
-
-export const auth = provenance(
-  keycloak({
-    base: KC_BASE,
-    realm: KC_REALM,
-    clientId: KC_CLIENT_ID,
-    clientSecret: KC_CLIENT_SECRET,
-    scopes: ['openid', 'profile', 'email']
-  }),
-  {
-    sessionCallback: (session) => {
-      const idToken = parseJWT(session.idToken)[1] as { name: string };
-
-      return {
-        ...session,
-        user: {
-          displayName: idToken.name
-        }
-      };
-    }
-  }
-);
-```
-
-#### `src/routes/protected/+page.server.ts`
-
-Access the user field on the session object.
-
-```ts title="src/routes/protected/+page.server.ts"
-import { auth } from '$lib/server/auth';
-
-export const load = async (event) => {
-  const { user } = await auth.protectRoute(event);
-
-  return {
-    user
-  };
-};
-```
