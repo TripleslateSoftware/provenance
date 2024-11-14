@@ -1,5 +1,19 @@
 # @tripleslate/provenance
 
+## 0.13.0
+### Minor Changes
+
+- b689d9a: rename `Context['postlogout']` to `preLogout` and change signature
+- 72783ba: throw errors as strings
+- 72783ba: record expiry in ms
+- b874a11: use 302 redirect instead of 303
+- b874a11: always use `{sessionCookieName}-` pattern when parsing cookies
+
+### Patch Changes
+
+- 02018ac: move `vite/runtime` into `vite/sveltekit/runtime` to allow installation to depend on framework
+- 2c9024e: improve provider session validation
+
 ## 0.13.0-next.2
 ### Patch Changes
 
