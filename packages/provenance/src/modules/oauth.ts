@@ -56,7 +56,6 @@ export const o = <Session>(
 		/**
 		 * post to the oauth logout endpoint to destroy the oauth session (not the session stored in the cookies)
 		 * @param fetch
-		 * @param idToken idToken as stored in session
 		 */
 		async logout(fetch: (url: URL, body?: URLSearchParams) => Promise<Response>, session: Session) {
 			const { url, body } = provider.endpoints.createLogoutUrl(session);
@@ -65,17 +64,16 @@ export const o = <Session>(
 		},
 		/**
 		 * post to the oauth token endpoint to request a new set of tokens
-		 * @param fetch
+		 * @param fetchRefreshedTokens
 		 * @param refreshToken refreshToken as stored in session
 		 * @returns fresh tokens
 		 */
 		async refresh(
-			fetchRefreshedToken: (
+			fetchRefreshedTokens: (
 				url: URL,
 				body: {
 					client_id: string;
 					client_secret: string;
-
 					grant_type: 'refresh_token';
 					refresh_token: string;
 				}
@@ -84,7 +82,7 @@ export const o = <Session>(
 		) {
 			const url = provider.endpoints.createTokenUrl();
 
-			const response = await fetchRefreshedToken(url, {
+			const response = await fetchRefreshedTokens(url, {
 				client_id: provider.authServer.clientId,
 				client_secret: provider.authServer.clientSecret,
 				grant_type: 'refresh_token',
