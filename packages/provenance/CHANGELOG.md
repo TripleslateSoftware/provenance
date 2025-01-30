@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.14.0-next.0
+### Minor Changes
+
+- 6dda59e: support `vite` 6
+
 ## 0.13.0
 ### Minor Changes
 

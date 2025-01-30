@@ -1,0 +1,11 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "example": "0.0.17",
+    "@tripleslate/provenance": "0.13.0"
+  },
+  "changesets": [
+    "rare-panthers-sin"
+  ]
+}
