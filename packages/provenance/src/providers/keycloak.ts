@@ -1,5 +1,5 @@
 import { TokenRequestResult } from '@oslojs/oauth2';
-import { JWTClaims, parseJWT } from '@oslojs/jwt';
+import { JWTRegisteredClaims, parseJWT } from '@oslojs/jwt';
 
 import {
 	type Resolver,
@@ -143,9 +143,9 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 			const accessTokenPayload = parseJWT(session.accessToken)[1];
 			const refreshTokenPayload = parseJWT(session.refreshToken)[1];
 
-			const idTokenClaims = new JWTClaims(idTokenPayload);
-			const accessTokenClaims = new JWTClaims(accessTokenPayload);
-			const refreshTokenClaims = new JWTClaims(refreshTokenPayload);
+			const idTokenClaims = new JWTRegisteredClaims(idTokenPayload);
+			const accessTokenClaims = new JWTRegisteredClaims(accessTokenPayload);
+			const refreshTokenClaims = new JWTRegisteredClaims(refreshTokenPayload);
 			if (idTokenClaims.issuer() !== authServer.issuer) {
 				throw 'Session idToken issuer mismatch';
 			}
