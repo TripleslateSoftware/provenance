@@ -72,6 +72,10 @@
 		"./helpers": {
 			"types": "./dist/helpers/index.d.ts",
 			"import": "./dist/helpers/index.js"
+		},
+		"./modules": {
+			"types": "./dist/modules/index.d.ts",
+			"import": "./dist/modules/index.js"
 		}
 	},
 	"typesVersions": {
