@@ -16,6 +16,7 @@ export type Checks = {
 
 export type EndpointsConfiguration<Session> = {
 	createLoginUrl: (redirectUri: string, checks: Checks) => URL;
+	createSignupUrl: (redirectUri: string, checks: Checks) => URL;
 	createLogoutUrl: (session: Session) => { url: URL; body?: URLSearchParams };
 	createTokenUrl: () => URL;
 	createUserinfoUrl: () => URL;

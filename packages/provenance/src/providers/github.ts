@@ -39,6 +39,16 @@ export const github: CreateProvider<GithubConfiguration, GithubSession> = (
 
 			return url;
 		},
+		createSignupUrl(redirectUri, checks) {
+			const url = new URL(`authorize`, issuer);
+			url.searchParams.append('client_id', configuration.clientId);
+			url.searchParams.append('redirect_uri', redirectUri);
+			url.searchParams.append('state', checks.state);
+			url.searchParams.append('allow_signup', 'true');
+			url.searchParams.append('scope', configuration.scopes.join(' '));
+
+			return url;
+		},
 		createLogoutUrl(_session) {
 			return { url: new URL(`logout`, issuer) };
 		},

@@ -54,6 +54,33 @@ export const o = <Session>(
 			return url.toString();
 		},
 		/**
+		 * create a redirect to the auth server for the user to login
+		 * @param redirectUriOrigin origin for redirect uri.. typically the origin of the website that is logging in
+		 * @param referrer the path that initiated the login
+		 * @param setCookie a callback that will be used to set oauth check values in cookies to be consumed by the redirect uri handler
+		 * @returns a sveltekit redirect to the generated auth server url
+		 */
+		signup(
+			redirectUriOrigin: string,
+			referrer: string | null,
+			setCookie: (name: string, value: string, opts: SerializeOptions & { path: string }) => void
+		) {
+			const stateCheck = modules.checks.state.create(referrer ? { referrer } : {});
+			const pkceCheck = modules.checks.pkce.create();
+
+			const redirectUri = new URL(options.redirectUriPathname, redirectUriOrigin);
+
+			const url = provider.endpoints.createSignupUrl(redirectUri.toString(), {
+				state: stateCheck.state,
+				codeChallenge: pkceCheck.codeChallenge
+			});
+
+			setCookie(stateCheck.cookie.name, stateCheck.cookie.value, stateCheck.cookie.options);
+			setCookie(pkceCheck.cookie.name, pkceCheck.cookie.value, pkceCheck.cookie.options);
+
+			return url.toString();
+		},
+		/**
 		 * post to the oauth logout endpoint to destroy the oauth session (not the session stored in the cookies)
 		 * @param fetch
 		 */

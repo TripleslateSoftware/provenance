@@ -1,6 +1,7 @@
 export const r = (options: {
 	redirectUriPathname: string;
 	loginPathname: string;
+	signupPathname: string;
 	logoutPathname: string;
 	refreshPathname: string;
 	homePathname: string;
@@ -11,6 +12,9 @@ export const r = (options: {
 		},
 		login: {
 			pathname: options.loginPathname
+		},
+		signup: {
+			pathname: options.signupPathname
 		},
 		logout: {
 			pathname: options.logoutPathname

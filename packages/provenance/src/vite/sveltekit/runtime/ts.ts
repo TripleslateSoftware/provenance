@@ -181,6 +181,16 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 				return redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
+			redirectSignup: (referrer) => {
+				const origin = event.url.origin;
+
+				if (config.logging) {
+					logStarter('oauth:', 'redirectSignup');
+					console.log('origin:', origin);
+				}
+
+				redirect(302, modules.oauth.signup(origin, referrer, event.cookies.set));
+			},
 			preLogout: async (session: ProviderSession) => {
 				const fetch = async (url: URL, body?: URLSearchParams): Promise<Response> => {
 					if (config.logging) {
@@ -325,6 +335,16 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 				},
 				is: isRoute(modules.routes.login.pathname)
 			},
+			signup: {
+				redirect: () => {
+					const signupPathname = modules.routes.signup.pathname;
+
+					const signupPath = `${signupPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
+
+					return redirect(302, signupPath);
+				},
+				is: isRoute(modules.routes.signup.pathname)
+			},
 			logout: {
 				redirect: () => {
 					const logoutPathname = modules.routes.logout.pathname;
@@ -365,6 +385,7 @@ export const provenance = <ProviderSession>(
 		redirectUriPathname: '/auth',
 		sessionCookieName: 'session',
 		loginPathname: '/login',
+		signupPathname: '/signup',
 		logoutPathname: '/logout',
 		refreshPathname: '/refresh',
 		homePathname: '/',

@@ -7,7 +7,8 @@ import {
 	loginResolver,
 	logoutResolver,
 	redirectUriResolver,
-	refreshResolver
+	refreshResolver,
+	signupResolver
 } from '../resolvers';
 
 import { provider } from './provider';
@@ -63,6 +64,22 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 		createLoginUrl(redirectUri, checks) {
 			const url = new URL(
 				`/realms/${configuration.realm}/protocol/openid-connect/auth`,
+				configuration.base
+			);
+			url.searchParams.append('client_id', configuration.clientId);
+			url.searchParams.append('redirect_uri', redirectUri);
+			url.searchParams.append('response_type', 'code');
+			url.searchParams.append('response_mode', 'query');
+			url.searchParams.append('state', checks.state);
+			url.searchParams.append('code_challenge', checks.codeChallenge);
+			url.searchParams.append('code_challenge_method', 'S256');
+			url.searchParams.append('scope', configuration.scopes.join(' '));
+
+			return url;
+		},
+		createSignupUrl(redirectUri, checks) {
+			const url = new URL(
+				`/realms/${configuration.realm}/protocol/openid-connect/registrations`,
 				configuration.base
 			);
 			url.searchParams.append('client_id', configuration.clientId);
@@ -178,6 +195,7 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 		redirectUriResolver(),
 		localsResolver(),
 		loginResolver(),
+		signupResolver(),
 		async (context, resolve) => {
 			if (context.routes.logout.is && context.locals.session) {
 				await context.oauth.preLogout(context.locals.session);

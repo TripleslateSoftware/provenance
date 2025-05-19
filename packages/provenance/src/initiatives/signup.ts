@@ -1,10 +1,10 @@
 import { Context } from '../types';
 
-export const login = <RequestEvent, ProviderSession, AppSession>(
+export const signup = <RequestEvent, ProviderSession, AppSession>(
 	createContext: (event: RequestEvent) => Context<ProviderSession, AppSession>
 ) => {
 	return async (event: RequestEvent) => {
 		const context = createContext(event);
-		context.routes.login.redirect();
+		context.routes.signup.redirect();
 	};
 };

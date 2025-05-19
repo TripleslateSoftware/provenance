@@ -9,6 +9,7 @@ export type Context<ProviderSession, AppSession> = {
 		requestToken: (codeVerifier: string, authorizationCode: string) => Promise<TokenRequestResult>;
 		referrer: string | null;
 		redirectLogin: (referrer: string | null) => void;
+		redirectSignup: (referrer: string | null) => void;
 		refresh: (refreshToken: string) => Promise<TokenRequestResult>;
 		preLogout: (session: ProviderSession) => Promise<void>;
 	};
@@ -36,6 +37,10 @@ export type Context<ProviderSession, AppSession> = {
 			is: boolean;
 		};
 		login: {
+			redirect: () => never;
+			is: boolean;
+		};
+		signup: {
 			redirect: () => never;
 			is: boolean;
 		};

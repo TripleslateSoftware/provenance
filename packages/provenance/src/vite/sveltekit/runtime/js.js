@@ -58,7 +58,7 @@ function createContext(event, modules, config) {
 				return authResponse;
 			},
 			requestToken: async (codeVerifier, authorizationCode) => {
-				/** 
+				/**
 				 * @param {URL} url
 				 * @param {{
 						clientId: string;
@@ -114,7 +114,7 @@ function createContext(event, modules, config) {
 				return tokenEndpointResponse;
 			},
 			refresh: async (refreshToken) => {
-				/** 
+				/**
 				 * @param {URL} url
 				 * @param {{
 						client_id: string;
@@ -166,6 +166,16 @@ function createContext(event, modules, config) {
 				}
 
 				redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
+			},
+			redirectSignup: (referrer) => {
+				const origin = event.url.origin;
+
+				if (config.logging) {
+					logStarter('oauth:', 'redirectSignup');
+					console.log('origin:', origin);
+				}
+
+				redirect(302, modules.oauth.signup(origin, referrer, event.cookies.set));
 			},
 			preLogout: async (session) => {
 				/**
@@ -319,6 +329,16 @@ function createContext(event, modules, config) {
 				},
 				is: isRoute(modules.routes.login.pathname)
 			},
+			signup: {
+				redirect: () => {
+					const signupPathname = modules.routes.signup.pathname;
+
+					const signupPath = `${signupPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
+
+					redirect(302, signupPath);
+				},
+				is: isRoute(modules.routes.signup.pathname)
+			},
 			logout: {
 				redirect: () => {
 					const logoutPath = modules.routes.logout.pathname;
@@ -355,6 +375,7 @@ export const provenance = (provider, config) => {
 		redirectUriPathname: '/auth',
 		sessionCookieName: 'session',
 		loginPathname: '/login',
+		signupPathname: '/signup',
 		logoutPathname: '/logout',
 		refreshPathname: '/refresh',
 		homePathname: '/',

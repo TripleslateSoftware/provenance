@@ -3,7 +3,8 @@ import {
 	localsResolver,
 	loginResolver,
 	logoutResolver,
-	redirectUriResolver
+	redirectUriResolver,
+	signupResolver
 } from '../resolvers';
 
 import {
@@ -40,6 +41,7 @@ export const provider = <Session extends object>(
 			redirectUriResolver(),
 			localsResolver(),
 			loginResolver(),
+			signupResolver(),
 			logoutResolver()
 		]
 	};

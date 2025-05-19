@@ -11,6 +11,7 @@
 {:else}
 	<span class="box" style:border-color="red">user session not found in cookies</span>
 	<a class="box" href="/login">login</a>
+	<a class="box" href="/signup">signup</a>
 {/if}
 
 <style>
