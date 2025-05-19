@@ -6,6 +6,8 @@
     "@tripleslate/provenance": "0.13.0"
   },
   "changesets": [
-    "rare-panthers-sin"
+    "blue-cobras-shave",
+    "rare-panthers-sin",
+    "three-eels-sell"
   ]
 }
