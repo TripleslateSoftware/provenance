@@ -1,5 +1,14 @@
 # @tripleslate/provenance
 
+## 0.14.0-next.1
+### Minor Changes
+
+- a71aa7d: add signup initiative and resolver with github and keycloak support
+
+### Patch Changes
+
+- a71aa7d: properly export login/logout initiatives
+
 ## 0.14.0-next.0
 ### Minor Changes
 
