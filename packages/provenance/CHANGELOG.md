@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.14.0-next.2
+### Minor Changes
+
+- e4f4e63: export `modules` in package
+
 ## 0.14.0-next.1
 ### Minor Changes
 
