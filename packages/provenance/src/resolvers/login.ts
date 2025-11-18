@@ -13,7 +13,7 @@ export const loginResolver =
 
 				context.oauth.redirectLogin(referrer);
 			} else {
-				referrer ? context.routes.redirect(referrer) : context.routes.home.redirect();
+				return referrer ? context.routes.redirect(referrer) : context.routes.home.redirect();
 			}
 		}
 		return await resolve();

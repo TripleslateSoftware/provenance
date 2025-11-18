@@ -98,7 +98,7 @@ const runtimePaths = async (
 		// check if we are in a PnP environment
 		if (process.versions.pnp) {
 			// retrieve the PnP API (Yarn injects the `findPnpApi` into `node:module` builtin module in runtime)
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const { findPnpApi } = require('node:module');
 
 			// this will traverse the file system to find the closest `.pnp.cjs` file and return the PnP API based on it
@@ -221,7 +221,7 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
  *		plugins: [provenance(), sveltekit()]
  *	});
  * ```
- * 
+ *
  * ### create an auth object that provides a handle hook and a function to protect routes
  *
  * `src/lib/server/auth.ts`
@@ -235,9 +235,9 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
  *		github({ clientId: GH_CLIENT_ID, clientSecret: GH_CLIENT_SECRET })
  *	);
  * ```
- * 
+ *
  * ### register the handle provided by the auth object
- * 
+ *
  * `src/hooks.server.ts`
  * ```ts title="hooks.server.ts"
  *	import { auth } from '$lib/server/auth';
@@ -254,7 +254,7 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
  * and keep track of the last path to which the user navigated (for redirecting back to protected routes after authenticating)
  *
  * ### protect server routes in load functions
- * 
+ *
  * `src/routes/protected/+page.server.ts`
  * ```ts title="src/routes/protected/+page.server.ts"
  *	import { auth } from '$lib/server/auth';
@@ -264,7 +264,7 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
  *		const session = await auth.protectRoute(event);
  *	};
  * ```
- * 
+ *
  * `auth.protectRoute` can be awaited in `+page.server.ts` load functions to send the user to the login route if a session is required
  */
 export function provenance(o?: Partial<TSOptions | JSOptions>): Plugin[] {

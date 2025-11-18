@@ -15,7 +15,7 @@ export const logoutResolver =
 				context.locals.session = null;
 			}
 
-			referrer ? context.routes.redirect(referrer) : context.routes.home.redirect();
+			return referrer ? context.routes.redirect(referrer) : context.routes.home.redirect();
 		}
 		return await resolve();
 	};

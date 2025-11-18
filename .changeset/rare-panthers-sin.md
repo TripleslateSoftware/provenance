@@ -2,4 +2,4 @@
 '@tripleslate/provenance': minor
 ---
 
-support `vite` 6
+support `vite` 7

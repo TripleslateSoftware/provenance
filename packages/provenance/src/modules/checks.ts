@@ -52,7 +52,7 @@ export const c = <State extends Record<string, any>>() => {
 				}
 			},
 			decode(state: string): State {
-				const { random, ...data } = JSON.parse(b64Decode(state));
+				const { random: _random, ...data } = JSON.parse(b64Decode(state));
 				return data;
 			}
 		},
