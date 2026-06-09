@@ -1,4 +1,4 @@
-import { logStarter } from '../helpers';
+import { logStarter, sanitizeReferrer } from '../helpers';
 import type { Resolver } from './types';
 
 export const loginResolver =
@@ -6,7 +6,7 @@ export const loginResolver =
 	async (context, resolve, logging) => {
 		if (context.routes.login.is) {
 			const session = context.locals.session;
-			const referrer = context.oauth.referrer;
+			const referrer = sanitizeReferrer(context.oauth.referrer);
 
 			if (session === null) {
 				if (logging) logStarter('login');

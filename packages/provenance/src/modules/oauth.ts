@@ -8,13 +8,13 @@ import type { ChecksModule } from './checks';
 async function processTokensResponse(tokensResponse: Response) {
 	const data = await tokensResponse.json();
 	if (typeof data !== 'object' || data === null) {
-		throw 'Unexpected response';
+		throw new Error('Unexpected response');
 	}
 	const result = new TokenRequestResult(data);
 	if (result.hasErrorCode()) {
 		const error = result.errorCode();
 		const errorDescription = result.errorDescription();
-		throw `${error}: ${errorDescription}`;
+		throw new Error(`${error}: ${errorDescription}`);
 	}
 
 	return result;
@@ -130,15 +130,15 @@ export const o = <Session>(
 			const state = url.searchParams.get('state');
 
 			if (!code) {
-				throw `auth response code not found in search params`;
+				throw new Error(`auth response code not found in search params`);
 			}
 
 			if (!state) {
-				throw `auth response state not found in search params`;
+				throw new Error(`auth response state not found in search params`);
 			}
 
 			if (state !== expectedState) {
-				throw `auth response state did not match stored expected state`;
+				throw new Error(`auth response state did not match stored expected state`);
 			}
 
 			return {

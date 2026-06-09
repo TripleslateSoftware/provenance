@@ -15,10 +15,13 @@ export const refresh = <RequestEvent, ProviderSession, AppSession extends { refr
 
 				context.session.deleteCookie();
 				context.session.setCookie(newSession);
+				// the runtime stores the provider session in locals (AppSession is its typed view)
+				context.locals.session = newSession as unknown as AppSession;
 			} catch (e) {
 				console.error('provenance:', e);
 				// delete the session cookie
 				context.session.deleteCookie();
+				context.locals.session = null;
 				// redirect to login
 				context.routes.login.redirect();
 			}

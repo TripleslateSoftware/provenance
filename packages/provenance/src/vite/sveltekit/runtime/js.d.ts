@@ -10,7 +10,6 @@ import type {
 } from '@tripleslate/provenance';
 
 /**
- * @param sessionCallback use session data (determined by provider) to return extra information to be stored in the session cookie
  * @param getDomain use event data to return a value for the session cookie's domain attributes
  * @param logging whether to log in handle routes (will use setting for \`dev\` if not provided)
  * @param options provide options to configure things like pathnames and cookie names (all fields are optional with sensible defaults)

@@ -1,4 +1,4 @@
-import { logStarter } from '../helpers';
+import { logStarter, sanitizeReferrer } from '../helpers';
 import { Resolver } from './types';
 
 export const redirectUriResolver =
@@ -20,7 +20,7 @@ export const redirectUriResolver =
 				const { code, state } = context.oauth.processAuthResponse(expectedState);
 
 				// set referrer, if available, for redirect
-				referrer = state.referrer;
+				referrer = sanitizeReferrer(state.referrer) ?? undefined;
 
 				// make a request for tokens using the code and the matching code verifier
 				// code verifier is required by the auth server to ensure the code matches the originator of the auth request

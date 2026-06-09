@@ -34,7 +34,7 @@ The core design goal is keeping the library decoupled from the consumer's Svelte
 
 `src/vite/index.ts` exports the `provenance()` vite plugin. On dev server start and build it copies `src/vite/sveltekit/runtime/ts.ts` (or `js.js` + `js.d.ts` for js projects) into the consumer's project as `src/lib/server/PROVENANCE.ts` (location/filename configurable). That file is meant to be checked in — `example/src/lib/server/PROVENANCE.ts` is a generated copy; never edit it by hand.
 
-The runtime is the only code that imports `@sveltejs/kit` (`redirect`, `sequence`, `$app/environment`) — it resolves against the *app's* sveltekit install. It exports the `provenance(provider, config?)` factory which wires the core modules together and returns `{ handle, options, createContext }`.
+The runtime is the only code that imports `@sveltejs/kit` (`redirect`, `sequence`, `$app/environment`) — it resolves against the _app's_ sveltekit install. It exports the `provenance(provider, config?)` factory which wires the core modules together and returns `{ handle, options, createContext }`.
 
 Important: the ts (`ts.ts`) and js (`js.js` + `js.d.ts`) runtime variants are maintained by hand in parallel. A change to one must be mirrored in the others. These files are shipped raw from `src/` (see the `./sveltekit/runtime/*` exports in package.json), not via `dist/`.
 

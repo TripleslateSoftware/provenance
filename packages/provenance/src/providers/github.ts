@@ -68,7 +68,7 @@ export const github: CreateProvider<GithubConfiguration, GithubSession> = (
 		},
 		validateSession: <T extends GithubSession>(session: T) => {
 			if (typeof session.accessToken !== 'string') {
-				throw 'Session accessToken is not valid';
+				throw new Error('Session accessToken is not valid');
 			}
 			return session;
 		},

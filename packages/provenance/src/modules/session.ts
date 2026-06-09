@@ -1,7 +1,11 @@
 import type { TokenRequestResult } from '@oslojs/oauth2';
 
 import type { Provider } from '../providers/types';
-import { chunkSessionCookies, dechunkSessionCookies } from '../helpers/cookies';
+import {
+	chunkSessionCookies,
+	dechunkSessionCookies,
+	isSessionChunkCookie
+} from '../helpers/cookies';
 
 export const s = <Session>(provider: Provider<Session>, options: { sessionCookieName: string }) => {
 	return {
@@ -56,7 +60,7 @@ export const s = <Session>(provider: Provider<Session>, options: { sessionCookie
 		 */
 		deleteCookie(getAll: () => { name: string; value: string }[], _delete: (name: string) => void) {
 			const sessionChunkCookies = getAll().filter((cookie) =>
-				cookie.name.startsWith(`${options.sessionCookieName}-`)
+				isSessionChunkCookie(cookie.name, options.sessionCookieName)
 			);
 
 			sessionChunkCookies.forEach((cookie) => {

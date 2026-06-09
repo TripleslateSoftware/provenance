@@ -26,7 +26,6 @@ import { dev } from '$app/environment';
 	}} modules
  * @param {{
 		logging: boolean;
-		sessionCallback: (session: ProviderSession) => AppSession;
 		getDomain?: (event: import('@sveltejs/kit').RequestEvent) => string | undefined;
 	}} config
  * @returns {import('@tripleslate/provenance').Context<ProviderSession, AppSession>} an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
@@ -165,7 +164,7 @@ function createContext(event, modules, config) {
 					console.log('origin:', origin);
 				}
 
-				redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
+				return redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
 			redirectSignup: (referrer) => {
 				const origin = event.url.origin;
@@ -175,7 +174,7 @@ function createContext(event, modules, config) {
 					console.log('origin:', origin);
 				}
 
-				redirect(302, modules.oauth.signup(origin, referrer, event.cookies.set));
+				return redirect(302, modules.oauth.signup(origin, referrer, event.cookies.set));
 			},
 			preLogout: async (session) => {
 				/**
@@ -199,7 +198,7 @@ function createContext(event, modules, config) {
 				};
 
 				if (config.logging) {
-					logStarter('oauth:', 'postLogout');
+					logStarter('oauth:', 'preLogout');
 				}
 
 				return await modules.oauth.logout(fetch, session);
@@ -253,7 +252,7 @@ function createContext(event, modules, config) {
 				const cookie = modules.session.getCookie(event.cookies.getAll);
 
 				if (config.logging) {
-					if (config.logging) console.log('cookie:', cookie);
+					console.log('cookie:', cookie);
 				}
 
 				return cookie;
@@ -264,7 +263,6 @@ function createContext(event, modules, config) {
 					console.log('session:', session);
 				}
 
-				const appSession = config.sessionCallback(session);
 				const domain = config.getDomain?.(event);
 
 				modules.session.setCookie((name, value, maxAge) => {
@@ -280,7 +278,7 @@ function createContext(event, modules, config) {
 						maxAge,
 						domain
 					});
-				}, appSession);
+				}, session);
 			},
 			deleteCookie: () => {
 				if (config.logging) {
@@ -314,7 +312,7 @@ function createContext(event, modules, config) {
 		},
 		routes: {
 			redirect: (location) => {
-				redirect(302, location);
+				return redirect(302, location);
 			},
 			redirectUri: {
 				is: isRoute(modules.routes.redirectUri.pathname)
@@ -325,7 +323,7 @@ function createContext(event, modules, config) {
 
 					const loginPath = `${loginPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
 
-					redirect(302, loginPath);
+					return redirect(302, loginPath);
 				},
 				is: isRoute(modules.routes.login.pathname)
 			},
@@ -335,14 +333,17 @@ function createContext(event, modules, config) {
 
 					const signupPath = `${signupPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
 
-					redirect(302, signupPath);
+					return redirect(302, signupPath);
 				},
 				is: isRoute(modules.routes.signup.pathname)
 			},
 			logout: {
 				redirect: () => {
-					const logoutPath = modules.routes.logout.pathname;
-					redirect(302, logoutPath);
+					const logoutPathname = modules.routes.logout.pathname;
+
+					const logoutPath = `${logoutPathname}?${new URLSearchParams({ referrer: event.url.pathname + event.url.search })}`;
+
+					return redirect(302, logoutPath);
 				},
 				is: isRoute(modules.routes.logout.pathname)
 			},
@@ -355,9 +356,9 @@ function createContext(event, modules, config) {
 						console.log('homePath:', homePath);
 					}
 
-					redirect(302, homePath);
+					return redirect(302, homePath);
 				},
-				is: isRoute(modules.routes.logout.pathname)
+				is: isRoute(modules.routes.home.pathname)
 			}
 		}
 	};
@@ -383,7 +384,6 @@ export const provenance = (provider, config) => {
 	};
 
 	const defaultedConfig = {
-		sessionCallback: (/** @type {ProviderSession} */ session) => session,
 		logging: dev,
 		...config
 	};

@@ -25,8 +25,12 @@ export type AuthOptions = {
 	sessionCookieName?: string;
 	/** defaults to `/login` */
 	loginPathname?: string;
+	/** defaults to `/signup` */
+	signupPathname?: string;
 	/** defaults to `/logout` */
 	logoutPathname?: string;
+	/** defaults to `/refresh` */
+	refreshPathname?: string;
 	/** defaults to `/` */
 	homePathname?: string;
 };

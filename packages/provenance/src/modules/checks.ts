@@ -48,7 +48,7 @@ export const c = <State extends Record<string, any>>() => {
 				if (state !== undefined) {
 					return state;
 				} else {
-					throw 'State not found in cookies';
+					throw new Error('State not found in cookies');
 				}
 			},
 			decode(state: string): State {
@@ -79,7 +79,7 @@ export const c = <State extends Record<string, any>>() => {
 				if (codeVerifier !== undefined) {
 					return codeVerifier;
 				} else {
-					throw 'code_verifier not found in cookies';
+					throw new Error('code_verifier not found in cookies');
 				}
 			}
 		}

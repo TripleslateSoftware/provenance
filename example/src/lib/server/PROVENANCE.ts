@@ -181,7 +181,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 				return redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
 			},
-			redirectSignup: (referrer) => {
+			redirectSignup: (referrer: string | null) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -189,7 +189,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('origin:', origin);
 				}
 
-				redirect(302, modules.oauth.signup(origin, referrer, event.cookies.set));
+				return redirect(302, modules.oauth.signup(origin, referrer, event.cookies.set));
 			},
 			preLogout: async (session: ProviderSession) => {
 				const fetch = async (url: URL, body?: URLSearchParams): Promise<Response> => {
@@ -262,7 +262,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 				const cookie = modules.session.getCookie(event.cookies.getAll);
 
 				if (config.logging) {
-					if (config.logging) console.log('cookie:', cookie);
+					console.log('cookie:', cookie);
 				}
 
 				return cookie;
@@ -366,7 +366,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 
 					return redirect(302, homePath);
 				},
-				is: isRoute(modules.routes.logout.pathname)
+				is: isRoute(modules.routes.home.pathname)
 			}
 		}
 	};

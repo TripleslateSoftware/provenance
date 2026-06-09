@@ -119,19 +119,19 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 			};
 
 			if (!id_token) {
-				throw `tokens response does not include 'id_token'`;
+				throw new Error(`tokens response does not include 'id_token'`);
 			}
 
 			if (!tokens.accessTokenExpiresAt()) {
-				throw `tokens response does not include 'expires_in'`;
+				throw new Error(`tokens response does not include 'expires_in'`);
 			}
 
 			if (!tokens.refreshToken()) {
-				throw `tokens response does not include 'refresh_token'`;
+				throw new Error(`tokens response does not include 'refresh_token'`);
 			}
 
 			if (!refresh_expires_in) {
-				throw `tokens response does not include 'refresh_expires_in'`;
+				throw new Error(`tokens response does not include 'refresh_expires_in'`);
 			}
 
 			const refreshExpiresInSeconds = parseInt(refresh_expires_in);
@@ -147,13 +147,13 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 		},
 		validateSession: <T extends KeycloakSession>(session: T) => {
 			if (typeof session.idToken !== 'string') {
-				throw 'Session idToken is not valid';
+				throw new Error('Session idToken is not valid');
 			}
 			if (typeof session.accessToken !== 'string') {
-				throw 'Session accessToken is not valid';
+				throw new Error('Session accessToken is not valid');
 			}
 			if (typeof session.refreshToken !== 'string') {
-				throw 'Session refreshToken is not valid';
+				throw new Error('Session refreshToken is not valid');
 			}
 
 			const idTokenPayload = parseJWT(session.idToken)[1];
@@ -164,23 +164,23 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 			const accessTokenClaims = new JWTRegisteredClaims(accessTokenPayload);
 			const refreshTokenClaims = new JWTRegisteredClaims(refreshTokenPayload);
 			if (idTokenClaims.issuer() !== authServer.issuer) {
-				throw 'Session idToken issuer mismatch';
+				throw new Error('Session idToken issuer mismatch');
 			}
 			if (accessTokenClaims.issuer() !== authServer.issuer) {
-				throw 'Session accessToken issuer mismatch';
+				throw new Error('Session accessToken issuer mismatch');
 			}
 			if (refreshTokenClaims.issuer() !== authServer.issuer) {
-				throw 'Session refreshToken issuer mismatch';
+				throw new Error('Session refreshToken issuer mismatch');
 			}
 
 			if (typeof session.accessExpiresAt !== 'number' || session.accessExpiresAt < 0) {
-				throw 'Session accessExpiresAt is not valid';
+				throw new Error('Session accessExpiresAt is not valid');
 			}
-			if (typeof session.accessExpiresAt !== 'number' || session.accessExpiresAt < 0) {
-				throw 'Session refreshExpiresAt is not valid';
+			if (typeof session.refreshExpiresAt !== 'number' || session.refreshExpiresAt < 0) {
+				throw new Error('Session refreshExpiresAt is not valid');
 			}
 			if (session.tokenType !== 'Bearer') {
-				throw 'Session tokenType is not "Bearer" type';
+				throw new Error('Session tokenType is not "Bearer" type');
 			}
 
 			return session;

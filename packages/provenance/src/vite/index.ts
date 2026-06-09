@@ -68,9 +68,15 @@ const findModule = async (pkg: string, currentLocation: string) => {
 	let previousLocation = '';
 	const backFolder: string[] = [];
 
+	const exists = (location: string) =>
+		fsPromises.stat(location).then(
+			() => true,
+			() => false
+		);
+
 	// if previousLocation !== locationFound that mean that we can go upper
 	// if the directory doesn't exist, let's go upper.
-	while (previousLocation !== locationFound && !(await fsPromises.stat(locationFound))) {
+	while (previousLocation !== locationFound && !(await exists(locationFound))) {
 		// save the previous path
 		previousLocation = locationFound;
 
@@ -82,7 +88,7 @@ const findModule = async (pkg: string, currentLocation: string) => {
 	}
 
 	if (previousLocation === locationFound) {
-		throw 'Could not find any node_modules/@tripleslate/provenance folder';
+		throw new Error('Could not find any node_modules/@tripleslate/provenance folder');
 	}
 
 	return locationFound;
@@ -139,7 +145,7 @@ const runtimePaths = async (
 			'utf-8'
 		);
 		if (!packageJsonSrc) {
-			throw 'skip';
+			throw new Error('skip');
 		}
 		const packageJson = JSON.parse(packageJsonSrc);
 
@@ -149,7 +155,7 @@ const runtimePaths = async (
 			!packageJson.exports?.[`./${framework}/runtime/js`]?.types ||
 			!packageJson.exports?.[`./${framework}/runtime/ts`]?.default
 		) {
-			throw 'Exports not found in package.json';
+			throw new Error('Exports not found in package.json');
 		}
 
 		const js = path.dirname(
@@ -170,9 +176,9 @@ const runtimePaths = async (
 	} catch (e) {
 		console.error(e);
 
-		const err = `Could not find ${packageName}. Are you sure its installed? If so, please open a ticket on GitHub.`;
-
-		throw err;
+		throw new Error(
+			`Could not find ${packageName}. Are you sure its installed? If so, please open a ticket on GitHub.`
+		);
 	}
 };
 
@@ -182,7 +188,7 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
 	const outDir = path.resolve('.', options.dir);
 
 	if (!fs.existsSync(outDir)) {
-		fs.mkdirSync(outDir);
+		fs.mkdirSync(outDir, { recursive: true });
 	}
 
 	const { ts, js, declaration } = await runtimePaths(options.framework);
@@ -273,11 +279,11 @@ export function provenance(o?: Partial<TSOptions | JSOptions>): Plugin[] {
 			name: 'vite-plugin-provenance',
 			enforce: 'pre',
 			async buildStart() {
-				run(o, false);
+				await run(o, false);
 			},
 			// types are only necessary (and not dynamic) for dev mode
 			async configureServer() {
-				run(o);
+				await run(o);
 			}
 		}
 	];
