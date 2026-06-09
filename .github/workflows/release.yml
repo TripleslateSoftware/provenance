@@ -19,13 +19,11 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: install node 22
+      # node 24.5+ bundles npm >= 11.5.1, required for trusted publishing
+      - name: install node 24
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-
-      - name: update npm for trusted publishing (requires npm >= 11.5.1)
-        run: npm install -g npm@latest
+          node-version: '24'
 
       - name: setup pnpm
         uses: pnpm/action-setup@v3
