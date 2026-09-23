@@ -1,4 +1,4 @@
-import { TokenRequestResult } from '@oslojs/oauth2';
+import type { TokenRequestResult } from './tokens';
 
 export type Context<ProviderSession, AppSession> = {
 	oauth: {
@@ -8,8 +8,8 @@ export type Context<ProviderSession, AppSession> = {
 		};
 		requestToken: (codeVerifier: string, authorizationCode: string) => Promise<TokenRequestResult>;
 		referrer: string | null;
-		redirectLogin: (referrer: string | null) => void;
-		redirectSignup: (referrer: string | null) => void;
+		redirectLogin: (referrer: string | null) => Promise<void>;
+		redirectSignup: (referrer: string | null) => Promise<void>;
 		refresh: (refreshToken: string) => Promise<TokenRequestResult>;
 		preLogout: (session: ProviderSession) => Promise<void>;
 	};

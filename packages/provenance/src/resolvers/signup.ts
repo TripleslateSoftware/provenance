@@ -11,7 +11,7 @@ export const signupResolver =
 			if (session === null) {
 				if (logging) logStarter('signup');
 
-				context.oauth.redirectSignup(referrer);
+				await context.oauth.redirectSignup(referrer);
 			} else {
 				return referrer ? context.routes.redirect(referrer) : context.routes.home.redirect();
 			}

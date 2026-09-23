@@ -171,7 +171,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 				return tokenEndpointResponse;
 			},
 			referrer: event.url.searchParams.get('referrer'),
-			redirectLogin: (referrer: string | null) => {
+			redirectLogin: async (referrer: string | null) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -179,9 +179,9 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('origin:', origin);
 				}
 
-				return redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
+				return redirect(302, await modules.oauth.login(origin, referrer, event.cookies.set));
 			},
-			redirectSignup: (referrer: string | null) => {
+			redirectSignup: async (referrer: string | null) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -189,7 +189,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 					console.log('origin:', origin);
 				}
 
-				return redirect(302, modules.oauth.signup(origin, referrer, event.cookies.set));
+				return redirect(302, await modules.oauth.signup(origin, referrer, event.cookies.set));
 			},
 			preLogout: async (session: ProviderSession) => {
 				const fetch = async (url: URL, body?: URLSearchParams): Promise<Response> => {

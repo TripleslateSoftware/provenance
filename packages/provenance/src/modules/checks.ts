@@ -1,8 +1,5 @@
-import { sha256 } from '@oslojs/crypto/sha2';
-import { encodeBase64urlNoPadding } from '@oslojs/encoding';
-
 import type { Cookie, Cookies } from '../types';
-import { b64Decode, b64Encode } from '../helpers';
+import { b64Decode, b64Encode, encodeBase64urlNoPadding } from '../helpers';
 
 const STATE_MAX_AGE = 60 * 5;
 const STATE_COOKIE_NAME = 'state';
@@ -19,9 +16,12 @@ const generateRandomValue = (): string => {
 const generateCodeVerifier = (): string => generateRandomValue();
 const generateState = (): string => generateRandomValue();
 
-const createS256CodeChallenge = (codeVerifier: string): string => {
-	const codeChallengeBytes = sha256(new TextEncoder().encode(codeVerifier));
-	return encodeBase64urlNoPadding(codeChallengeBytes);
+const createS256CodeChallenge = async (codeVerifier: string): Promise<string> => {
+	const codeChallengeBytes = await crypto.subtle.digest(
+		'SHA-256',
+		new TextEncoder().encode(codeVerifier)
+	);
+	return encodeBase64urlNoPadding(new Uint8Array(codeChallengeBytes));
 };
 
 export const c = <State extends Record<string, any>>() => {
@@ -57,9 +57,9 @@ export const c = <State extends Record<string, any>>() => {
 			}
 		},
 		pkce: {
-			create(): { codeChallenge: string; cookie: Cookie } {
+			async create(): Promise<{ codeChallenge: string; cookie: Cookie }> {
 				const codeVerifier = generateCodeVerifier();
-				const codeChallenge = createS256CodeChallenge(codeVerifier);
+				const codeChallenge = await createS256CodeChallenge(codeVerifier);
 
 				const cookie = {
 					name: PKCE_COOKIE_NAME,

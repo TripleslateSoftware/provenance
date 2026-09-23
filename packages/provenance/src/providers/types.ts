@@ -1,4 +1,4 @@
-import { TokenRequestResult } from '@oslojs/oauth2';
+import type { TokenRequestResult } from '../tokens';
 
 import { Resolver } from '../resolvers';
 

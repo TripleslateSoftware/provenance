@@ -156,7 +156,7 @@ function createContext(event, modules, config) {
 				return tokenEndpointResponse;
 			},
 			referrer: event.url.searchParams.get('referrer'),
-			redirectLogin: (referrer) => {
+			redirectLogin: async (referrer) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -164,9 +164,9 @@ function createContext(event, modules, config) {
 					console.log('origin:', origin);
 				}
 
-				return redirect(302, modules.oauth.login(origin, referrer, event.cookies.set));
+				return redirect(302, await modules.oauth.login(origin, referrer, event.cookies.set));
 			},
-			redirectSignup: (referrer) => {
+			redirectSignup: async (referrer) => {
 				const origin = event.url.origin;
 
 				if (config.logging) {
@@ -174,7 +174,7 @@ function createContext(event, modules, config) {
 					console.log('origin:', origin);
 				}
 
-				return redirect(302, modules.oauth.signup(origin, referrer, event.cookies.set));
+				return redirect(302, await modules.oauth.signup(origin, referrer, event.cookies.set));
 			},
 			preLogout: async (session) => {
 				/**

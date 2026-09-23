@@ -1,5 +1,5 @@
 import type { SerializeOptions } from 'cookie';
-import { TokenRequestResult } from '@oslojs/oauth2';
+import { TokenRequestResult } from './tokens';
 export { TokenRequestResult };
 
 export type Cookie = {

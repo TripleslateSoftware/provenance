@@ -1,5 +1,4 @@
-import { TokenRequestResult } from '@oslojs/oauth2';
-import { JWTRegisteredClaims, parseJWT } from '@oslojs/jwt';
+import type { TokenRequestResult } from '../tokens';
 
 import {
 	type Resolver,
@@ -10,6 +9,8 @@ import {
 	refreshResolver,
 	signupResolver
 } from '../resolvers';
+
+import { decodeJWTPayload } from '../helpers/jwt';
 
 import { provider } from './provider';
 import type { CreateProvider, EndpointsConfiguration } from './types';
@@ -156,20 +157,13 @@ export const keycloak: CreateProvider<KeycloakConfiguration, KeycloakSession> = 
 				throw new Error('Session refreshToken is not valid');
 			}
 
-			const idTokenPayload = parseJWT(session.idToken)[1];
-			const accessTokenPayload = parseJWT(session.accessToken)[1];
-			const refreshTokenPayload = parseJWT(session.refreshToken)[1];
-
-			const idTokenClaims = new JWTRegisteredClaims(idTokenPayload);
-			const accessTokenClaims = new JWTRegisteredClaims(accessTokenPayload);
-			const refreshTokenClaims = new JWTRegisteredClaims(refreshTokenPayload);
-			if (idTokenClaims.issuer() !== authServer.issuer) {
+			if (decodeJWTPayload(session.idToken).iss !== authServer.issuer) {
 				throw new Error('Session idToken issuer mismatch');
 			}
-			if (accessTokenClaims.issuer() !== authServer.issuer) {
+			if (decodeJWTPayload(session.accessToken).iss !== authServer.issuer) {
 				throw new Error('Session accessToken issuer mismatch');
 			}
-			if (refreshTokenClaims.issuer() !== authServer.issuer) {
+			if (decodeJWTPayload(session.refreshToken).iss !== authServer.issuer) {
 				throw new Error('Session refreshToken issuer mismatch');
 			}
 
