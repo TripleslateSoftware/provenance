@@ -51,7 +51,7 @@ importers:
   example:
     dependencies:
       '@tripleslate/provenance':
-        specifier: workspace:0.14.0-next.4
+        specifier: workspace:0.14.0-next.5
         version: link:../packages/provenance
       svelte:
         specifier: 5.56.3
