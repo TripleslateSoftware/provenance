@@ -1,4 +1,4 @@
-# @tripleslate/provenance
+# @leaguebrain/provenance
 
 ## 0.14.0-next.5
 ### Minor Changes

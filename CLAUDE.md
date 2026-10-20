@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`@tripleslate/provenance` — a server-side OAuth/OIDC library for SvelteKit. pnpm monorepo (pnpm ≥10, node ≥22) with turbo:
+`@leaguebrain/provenance` — a server-side OAuth/OIDC library for SvelteKit. pnpm monorepo (pnpm ≥10, node ≥22) with turbo:
 
 - `packages/provenance` — the published library
 - `example` — a SvelteKit demo app using the github provider

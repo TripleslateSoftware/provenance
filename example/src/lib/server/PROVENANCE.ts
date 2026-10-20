@@ -20,9 +20,9 @@ import {
 	type Provider,
 	type Context,
 	type TokenRequestResult
-} from '@tripleslate/provenance';
+} from '@leaguebrain/provenance';
 
-import { logStarter } from '@tripleslate/provenance/helpers';
+import { logStarter } from '@leaguebrain/provenance/helpers';
 
 import { dev } from '$app/environment';
 
@@ -373,7 +373,7 @@ function createContext<ProviderSession, AppSession extends ProviderSession>(
 }
 
 /**
- * @param provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
+ * @param provider configuration for your OAuth provider ([see](@leaguebrain/provenance/providers/index.ts))
  * @param config optional extra configuration options for provenance behaviour
  * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */

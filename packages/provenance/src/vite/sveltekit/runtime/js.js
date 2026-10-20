@@ -7,9 +7,9 @@
 import { redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
-import { o, s, c, r } from '@tripleslate/provenance';
+import { o, s, c, r } from '@leaguebrain/provenance';
 
-import { logStarter } from '@tripleslate/provenance/helpers';
+import { logStarter } from '@leaguebrain/provenance/helpers';
 
 import { dev } from '$app/environment';
 
@@ -19,16 +19,16 @@ import { dev } from '$app/environment';
  *
  * @param {import('@sveltejs/kit').RequestEvent} event
  * @param {{
-		oauth: import('@tripleslate/provenance').OAuthModule;
-		session: import('@tripleslate/provenance').SessionModule<ProviderSession>;
-		routes: import('@tripleslate/provenance').RoutesModule;
-		checks: import('@tripleslate/provenance').ChecksModule<{ referrer?: string }>;
+		oauth: import('@leaguebrain/provenance').OAuthModule;
+		session: import('@leaguebrain/provenance').SessionModule<ProviderSession>;
+		routes: import('@leaguebrain/provenance').RoutesModule;
+		checks: import('@leaguebrain/provenance').ChecksModule<{ referrer?: string }>;
 	}} modules
  * @param {{
 		logging: boolean;
 		getDomain?: (event: import('@sveltejs/kit').RequestEvent) => string | undefined;
 	}} config
- * @returns {import('@tripleslate/provenance').Context<ProviderSession, AppSession>} an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
+ * @returns {import('@leaguebrain/provenance').Context<ProviderSession, AppSession>} an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */
 function createContext(event, modules, config) {
 	const isRoute = (/** @type {string} */ searchPathname) => {
@@ -367,7 +367,7 @@ function createContext(event, modules, config) {
 /**
  * @template ProviderSession
  *
- * @param {import('@tripleslate/provenance').Provider<ProviderSession>} provider configuration for your OAuth provider ([see](@tripleslate/provenance/providers/index.ts))
+ * @param {import('@leaguebrain/provenance').Provider<ProviderSession>} provider configuration for your OAuth provider ([see](@leaguebrain/provenance/providers/index.ts))
  * @param {import('./js').ProvenanceConfig=} config optional extra configuration options for provenance behaviour
  * @returns an auth object with handle to be used in \`hooks.server.ts\` and \`protectRoute\` to redirect to login from \`+page.server.ts\` load functions if user is not authenticated
  */

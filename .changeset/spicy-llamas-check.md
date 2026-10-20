@@ -1,5 +1,5 @@
 ---
-'@tripleslate/provenance': minor
+'@leaguebrain/provenance': minor
 ---
 
 Security and bug fixes:

@@ -88,7 +88,7 @@ const findModule = async (pkg: string, currentLocation: string) => {
 	}
 
 	if (previousLocation === locationFound) {
-		throw new Error('Could not find any node_modules/@tripleslate/provenance folder');
+		throw new Error('Could not find any node_modules/@leaguebrain/provenance folder');
 	}
 
 	return locationFound;
@@ -97,7 +97,7 @@ const findModule = async (pkg: string, currentLocation: string) => {
 const runtimePaths = async (
 	framework: Framework
 ): Promise<{ js: string; declaration: string; ts: string }> => {
-	const packageName = '@tripleslate/provenance';
+	const packageName = '@leaguebrain/provenance';
 	try {
 		const rootPath = process.cwd();
 
@@ -220,7 +220,7 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
  * `vite.config.[ts|js]`
  * ```ts title="vite.config.[ts|js]"
  *	import { sveltekit } from '@sveltejs/kit/vite';
- *	import { provenance } from '@tripleslate/provenance/vite';
+ *	import { provenance } from '@leaguebrain/provenance/vite';
  *	import { defineConfig } from 'vite';
 
  *	export default defineConfig({
@@ -233,7 +233,7 @@ const run = async (o?: Partial<TSOptions | JSOptions>, generateTypes?: boolean) 
  * `src/lib/server/auth.ts`
  * ```ts title="src/lib/server/auth.ts"
  *	import { provenance } from './PROVENANCE';
- *	import { github } from '@tripleslate/provenance/providers';
+ *	import { github } from '@leaguebrain/provenance/providers';
  *
  *	import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
  *

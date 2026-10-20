@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 
-import { protectRoute } from '@tripleslate/provenance/initiatives';
+import { protectRoute } from '@leaguebrain/provenance/initiatives';
 
 import { GH_CLIENT_ID } from '$env/static/private';
 import { auth } from '$lib/server/auth';

@@ -50,7 +50,7 @@ importers:
 
   example:
     dependencies:
-      '@tripleslate/provenance':
+      '@leaguebrain/provenance':
         specifier: workspace:0.14.0-next.5
         version: link:../packages/provenance
       svelte:

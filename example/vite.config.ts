@@ -1,5 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { provenance } from '@tripleslate/provenance/vite';
+import { provenance } from '@leaguebrain/provenance/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({

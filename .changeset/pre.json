@@ -1,9 +1,9 @@
 {
-  "mode": "pre",
+  "mode": "exit",
   "tag": "next",
   "initialVersions": {
     "example": "0.0.17",
-    "@tripleslate/provenance": "0.13.0"
+    "@leaguebrain/provenance": "0.13.0"
   },
   "changesets": [
     "blue-cobras-shave",

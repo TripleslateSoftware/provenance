@@ -1,6 +1,6 @@
 # provenance
 
-[![npm version](https://img.shields.io/npm/v/@tripleslate/provenance.svg)](https://www.npmjs.com/package/@tripleslate/provenance) [![license](https://img.shields.io/npm/l/@tripleslate/provenance.svg)](../../LICENSE)
+[![npm version](https://img.shields.io/npm/v/@leaguebrain/provenance.svg)](https://www.npmjs.com/package/@leaguebrain/provenance) [![license](https://img.shields.io/npm/l/@leaguebrain/provenance.svg)](../../LICENSE)
 
 Server-side OAuth/OIDC implementation for SvelteKit
 
@@ -16,7 +16,7 @@ Server-side OAuth/OIDC implementation for SvelteKit
 
 ## installation
 
-`npm i --save-dev @tripleslate/provenance`
+`npm i --save-dev @leaguebrain/provenance`
 
 ## usage
 
@@ -33,7 +33,7 @@ that forms the bridge between your project's version of `sveltekit` and the `pro
 import { defineConfig } from 'vite';
 
 import { sveltekit } from '@sveltejs/kit/vite';
-import { provenance } from '@tripleslate/provenance/vite';
+import { provenance } from '@leaguebrain/provenance/vite';
 
 export default defineConfig({
   // provenance first
@@ -51,7 +51,7 @@ export default defineConfig({
 
 ```ts title="src/lib/server/auth.ts"
 import { provenance } from './PROVENANCE';
-import { github } from '@tripleslate/provenance/providers';
+import { github } from '@leaguebrain/provenance/providers';
 import { GH_CLIENT_ID, GH_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
@@ -66,7 +66,7 @@ export const auth = provenance(
 
 ```ts title="src/lib/server/auth.ts"
 import { provenance } from './PROVENANCE';
-import { keycloak } from '@tripleslate/provenance/providers';
+import { keycloak } from '@leaguebrain/provenance/providers';
 import { KC_BASE, KC_REALM, KC_CLIENT_ID, KC_CLIENT_SECRET } from '$env/static/private';
 
 export const auth = provenance(
@@ -121,7 +121,7 @@ export const handle = auth.handle;
 #### `src/routes/protected/+page.server.ts`
 
 ```ts title="src/routes/protected/+page.server.ts"
-import { protectRoute } from '@tripleslate/provenance/initiatives';
+import { protectRoute } from '@leaguebrain/provenance/initiatives';
 import { auth } from '$lib/server/auth';
 
 export const load = async (event) => {

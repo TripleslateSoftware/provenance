@@ -22,7 +22,7 @@ see the package [readme](packages/provenance/README.md) for specific usage instr
 
 | package                                        | changelog                                     |
 | ---------------------------------------------- | --------------------------------------------- |
-| [@tripleslate/provenance](packages/provenance) | [changelog](packages/provenance/CHANGELOG.md) |
+| [@leaguebrain/provenance](packages/provenance) | [changelog](packages/provenance/CHANGELOG.md) |
 
 ## contributing
 
