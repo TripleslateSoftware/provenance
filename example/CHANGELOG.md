@@ -1,5 +1,18 @@
 # example
 
+## 0.0.18
+### Patch Changes
+
+- Updated dependencies [a71aa7d]
+- Updated dependencies [f6498d7]
+- Updated dependencies [8b357e0]
+- Updated dependencies [e4f4e63]
+- Updated dependencies [9ef8c63]
+- Updated dependencies [ae6ff7d]
+- Updated dependencies [3ef093e]
+- Updated dependencies [a71aa7d]
+  - @leaguebrain/provenance@0.14.0
+
 ## 0.0.18-next.5
 ### Patch Changes
 
