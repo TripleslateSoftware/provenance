@@ -1,5 +1,10 @@
 # @tripleslate/provenance
 
+## 0.14.0-next.5
+### Minor Changes
+
+- 9ef8c63: drop `@oslojs/*` dependencies in favor of built-in implementations (Web Crypto for PKCE); `context.oauth.redirectLogin` and `context.oauth.redirectSignup` are now async
+
 ## 0.14.0-next.4
 ### Minor Changes
 
