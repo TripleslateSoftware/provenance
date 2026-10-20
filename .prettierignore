@@ -28,7 +28,6 @@ yarn-error.log*
 dist/
 package/
 docs/
-.vercel
 
 # turbo
 .turbo

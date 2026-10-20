@@ -23,8 +23,7 @@ export default defineConfig(
 		'**/pnpm-lock.yaml',
 		'**/pnpm-workspace.yaml',
 		'**/package-lock.json',
-		'**/.changeset',
-		'**/.vercel'
+		'**/.changeset'
 	]),
 	js.configs.recommended,
 	...ts.configs.recommended,

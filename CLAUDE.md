@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 `@tripleslate/provenance` — a server-side OAuth/OIDC library for SvelteKit. pnpm monorepo (pnpm ≥10, node ≥22) with turbo:
 
 - `packages/provenance` — the published library
-- `example` — a SvelteKit demo app using the github provider (deployed to Vercel)
+- `example` — a SvelteKit demo app using the github provider
 
 ## Commands
 

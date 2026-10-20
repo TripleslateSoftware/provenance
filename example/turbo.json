@@ -3,7 +3,7 @@
 	"tasks": {
 		"build": {
 			"env": ["GH_CLIENT_ID", "GH_CLIENT_SECRET"],
-			"outputs": [".svelte-kit/**", ".vercel/**"]
+			"outputs": [".svelte-kit/**"]
 		}
 	}
 }

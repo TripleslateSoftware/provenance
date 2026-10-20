@@ -4,14 +4,14 @@
 	"description": "server-side SvelteKit auth",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/TripleslateSoftware/provenance.git",
+		"url": "git+https://github.com/LeagueBrain/provenance.git",
 		"directory": "packages/provenance"
 	},
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/TripleslateSoftware/provenance/issues"
+		"url": "https://github.com/LeagueBrain/provenance/issues"
 	},
-	"homepage": "https://github.com/TripleslateSoftware/provenance",
+	"homepage": "https://github.com/LeagueBrain/provenance",
 	"keywords": [
 		"sveltekit",
 		"authentication",

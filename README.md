@@ -12,9 +12,11 @@ see the package [readme](packages/provenance/README.md) for specific usage instr
 
 ## examples
 
-| example           | demo                                      |
-| ----------------- | ----------------------------------------- |
-| [github](example) | [demo](https://provenance-phi.vercel.app) |
+[github](example) — a SvelteKit app using the `github` provider. To run it locally:
+
+1. create a [GitHub OAuth app](https://github.com/settings/developers) with callback URL `http://localhost:5173/auth`
+2. copy `example/.env.example` to `example/.env` and fill in `GH_CLIENT_ID` and `GH_CLIENT_SECRET`
+3. `pnpm i && pnpm dev`
 
 ## packages
 
@@ -28,7 +30,7 @@ see [contribubting.md](./CONTRIBUTING.md)
 
 ## license
 
-[MIT](https://github.com/TripleslateSoftware/provenance/blob/main/LICENSE)
+[MIT](https://github.com/LeagueBrain/provenance/blob/main/LICENSE)
 
 ## thanks
 
